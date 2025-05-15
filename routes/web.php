@@ -25,3 +25,9 @@ Route::get('/register', function () {
 
 
 
+Route::get('/', function () {
+    return view('landing'); // Mengarah ke resources/views/landing.blade.php
+});
+
+
+
