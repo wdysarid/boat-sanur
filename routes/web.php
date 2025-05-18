@@ -2,21 +2,40 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminUserController;
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/welcome', function () {
+    return view('landing');
+});
 
 Route::get('/', function () {
-    return ['Laravel' => app()->version()];
+    return view('landing');
 });
 
-require __DIR__.'/auth.php';
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register');
+
+
+
+
+
+
+
 
 Route::get('/', function () {
-    return view('welcome'); // Landing Page
+    return view('landing'); // Mengarah ke resources/views/landing.blade.php
 });
 
-// Hanya admin
-Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    Route::resource('/users', AdminUserController::class);
-});
+
+
+
+
+
+
