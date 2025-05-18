@@ -12,6 +12,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $table = 'user';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -19,8 +21,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'no_telp',
         'email',
         'password',
+        'role'
     ];
 
     /**
@@ -41,8 +45,24 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            // 'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
+
+    public function tiket()
+    {
+        return $this->hasMany(Tiket::class);
+    }
+
+    public function pembayaran()
+    {
+        return $this->hasManyThrough(Pembayaran::class, Tiket::class);
+    }
+
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
 }
