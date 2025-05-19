@@ -4,7 +4,7 @@
     @include('partials.header')
 
     <!-- About Us Section -->
-<section class="py-16 bg-white">
+<section id="about-us"class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div data-aos="fade-right" data-aos-duration="1000">
@@ -51,7 +51,7 @@
 </section>
 
     <!-- Explore Destination Section -->
-    <section class="py-16 bg-gray-50">
+    <section id="destinations"class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Explore Destinations</h2>
@@ -206,7 +206,7 @@
     <!-- Partner Logos Section -->
     <section class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-900 text-center mb-8" data-aos="fade-up" data-aos-duration="800">Our Trusted Partners</h2>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-8" data-aos="fade-up" data-aos-duration="800">Our Trusted Partners</h2>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
                 <!-- Wahana Gili Ocean -->

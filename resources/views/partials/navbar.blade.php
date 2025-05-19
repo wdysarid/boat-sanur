@@ -13,23 +13,22 @@
             <div class="flex items-center">
                 <!-- Desktop Navigation Links -->
                 <div class="hidden sm:flex sm:space-x-8 items-center">
-                    <a href="#" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="100" data-aos-duration="600">
+                    <a href="#home" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="100" data-aos-duration="600">
                         Home
                     </a>
-                    <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="200" data-aos-duration="600">
+                    <a href="#about-us" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="200" data-aos-duration="600">
                         About Us
                     </a>
-                    <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="300" data-aos-duration="600">
+                    <a href="#destinations" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="300" data-aos-duration="600">
                         Destinations
                     </a>
                     <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="400" data-aos-duration="600">
                         My Tickets
                     </a>
-
-                    <!-- Book Now button (desktop) -->
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out ml-2" data-aos="fade-left" data-aos-delay="500" data-aos-duration="800">
+                    <!-- Login button (desktop) -->
+                    <a href="{{ route('login') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out ml-2 shadow-lg" data-aos="fade-left" data-aos-delay="500" data-aos-duration="800">
                         Login
-                    </button>
+                    </a>
                 </div>
 
                 <!-- Mobile menu button -->
