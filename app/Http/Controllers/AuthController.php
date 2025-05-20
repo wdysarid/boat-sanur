@@ -22,14 +22,14 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'no_telp' => 'required|string|max:20',
+            // 'no_telp' => 'required|string|max:20',
             'email' => 'required|email|unique:user,email|max:255',
             'password' => 'required|string',
         ]);
 
         $user = User::create([
             'nama' => $validated['nama'],
-            'no_telp' => $validated['no_telp'],
+            // 'no_telp' => $validated['no_telp'],
             'email' => $validated['email'],
             'password' => $validated['password'],
             'role' => $validated['role'] ?? 'wisatawan',
