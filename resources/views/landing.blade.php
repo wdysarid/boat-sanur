@@ -206,7 +206,7 @@
     <!-- Partner Logos Section -->
     <section class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-8" data-aos="fade-up" data-aos-duration="800">Our Trusted Partners</h2>
+            {{-- <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-8" data-aos="fade-up" data-aos-duration="800">Our Trusted Partners</h2> --}}
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
                 <!-- Wahana Gili Ocean -->
@@ -375,7 +375,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mx-auto">
                 <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Get in Touch</h2>
+                    {{-- <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Get in Touch</h2> --}}
                     <p class="mt-3 text-base md:text-lg text-gray-600 font-light">
                         Have questions or feedback? We'd love to hear from you.
                     </p>
