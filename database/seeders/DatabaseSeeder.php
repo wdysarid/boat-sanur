@@ -4,12 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Kapal;
-use App\Models\Jadwal;
 use App\Models\Tiket;
-use App\Models\Pembayaran;
+use App\Models\Jadwal;
 use App\Models\Feedback;
+use App\Models\Pembayaran;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,34 +25,35 @@ class DatabaseSeeder extends Seeder
             'nama' => 'Admin',
             'email' => 'admin@gmail.com',
             // 'no_telp' => '081234567890',
-            'password' => 'admin123', 
+            'password' => Hash::make('admin123'), 
             'role' => 'admin',
+            'remember_token' => Str::random(100),
         ]);
 
-        $users = User::factory(5)->create();
+        $user = User::factory(5)->create();
 
-        $kapals = Kapal::factory(3)->create();
+        $kapal = Kapal::factory(3)->create();
 
-        $jadwals = Jadwal::factory(10)->make()->each(function ($jadwal) use ($kapals) {
-            $jadwal->kapal_id = $kapals->random()->id;
+        $jadwal = Jadwal::factory(10)->make()->each(function ($jadwal) use ($kapal) {
+            $jadwal->kapal_id = $kapal->random()->id;
             $jadwal->save();
         });
 
-        $tikets = Tiket::factory(10)->make()->each(function ($tiket) use ($users, $jadwals) {
-            $tiket->user_id = $users->random()->id;
-            $tiket->jadwal_id = $jadwals->random()->id;
+        $tiket = Tiket::factory(10)->make()->each(function ($tiket) use ($user, $jadwal) {
+            $tiket->user_id = $user->random()->id;
+            $tiket->jadwal_id = $jadwal->random()->id;
             $tiket->save();
         });
 
-        $validTikets = $tikets->where('status', 'menunggu');
-        Pembayaran::factory(5)->make()->each(function ($pembayaran) use ($validTikets) {
-            $tiket = $validTikets->random();
+        $validTiket = $tiket->where('status', 'menunggu');
+        Pembayaran::factory(5)->make()->each(function ($pembayaran) use ($validTiket) {
+            $tiket = $validTiket->random();
             $pembayaran->tiket_id = $tiket->id;
             $pembayaran->save();
         });
 
-        Feedback::factory(10)->make()->each(function ($feedback) use ($users) {
-            $feedback->user_id = $users->random()->id;
+        Feedback::factory(10)->make()->each(function ($feedback) use ($user) {
+            $feedback->user_id = $user->random()->id;
             $feedback->save();
         });
     }

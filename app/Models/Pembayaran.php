@@ -27,6 +27,12 @@ class Pembayaran extends Model
     public function user()
     {
         // akses user melalui tiket
-        return $this->hasOneThrough(User::class, Tiket::class, 'id', 'id', 'tiket_id', 'user_id');
+        return $this->hasOneThrough(
+            User::class, 
+            Tiket::class, 
+            'id', // Foreign key di Tiket (referensi dari tiket_id di Pembayaran)
+            'id', // Foreign key di User (referensi dari user_id di Tiket)
+            'tiket_id', // Local key di Pembayaran
+            'user_id'); // Local key di Tiket
     }
 }

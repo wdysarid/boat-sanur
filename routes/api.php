@@ -12,4 +12,7 @@ Route::get('/user', function (Request $request) {
 // Route::apiResource('/user',UserController::class);
 
 Route::get('user', [AuthController::class, 'getUser']); // buat test aja ini
-Route::post('user', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth');

@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'role' => 'wisatawan',
 
             // 'email_verified_at' => now(),
-            // 'remember_token' => Str::random(10),
+            'remember_token' => Str::random(100),
         ];
     }
 
