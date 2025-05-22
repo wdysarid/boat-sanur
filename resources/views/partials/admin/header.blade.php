@@ -28,10 +28,6 @@
 
             <!-- Right side menu - Simplified for guest access -->
             <div class="flex items-center">
-                <!-- View Mode Indicator -->
-                <span class="hidden sm:inline-block px-3 py-1 text-xs font-medium rounded-full" style="background-color: #E6F0F9; color: #2271B3;">
-                    View Only Mode
-                </span>
 
                 <!-- Notifications - Kept for UI consistency -->
                 <button type="button" class="ml-3 p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2" style="--tw-ring-color: #2271B3;">
@@ -46,7 +42,7 @@
                     <div>
                         <button type="button" class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2" id="user-menu-button" aria-expanded="false" aria-haspopup="true" style="--tw-ring-color: #2271B3;">
                             <span class="sr-only">Open user menu</span>
-                            <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Guest+User&background=2271B3&color=fff" alt="Guest User">
+                            <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Admin&background=2271B3&color=fff" alt="Guest User">
                         </button>
                     </div>
                 </div>

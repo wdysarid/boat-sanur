@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    @include('partials.header')
+    @include('partials.user.header')
 
     <!-- About Us Section -->
 <section id="about-us"class="py-16 bg-white">

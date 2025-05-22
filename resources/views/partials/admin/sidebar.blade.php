@@ -3,12 +3,13 @@
        <!-- Sidebar Header -->
        <div class="h-16 flex items-center px-6 border-b border-gray-100">
            <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-2">
-               <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2271B3;">
-                   <path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 8.12 2.12 8 3.5 8H5V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2h1.5c1.38 0 1.5.12 1.5 1.5V17z"></path>
-                   <path d="M8 11h8"></path>
-                   <path d="M8 15h8"></path>
-               </svg>
-               <span class="text-lg font-medium text-gray-800">BoatAdmin</span>
+               <!-- Logo (Left Side) -->
+            <div class="flex-shrink-0 flex items-center" data-aos="fade-right" data-aos-duration="800">
+                <div class="flex items-center">
+                    <img src="{{ asset('images/logo.png') }}" alt="DreamIslands Logo" class="h-10 w-auto mr-2">
+                    <a href="/" class="text-blue-600 font-bold text-l">SanurFerryPass</a>
+                </div>
+            </div>
            </a>
        </div>
 
@@ -82,11 +83,11 @@
        <div class="border-t border-gray-100 p-4">
            <div class="flex items-center">
                <div class="flex-shrink-0">
-                   <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Guest+User&background=2271B3&color=fff" alt="Guest User">
+                   <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Admin&background=2271B3&color=fff" alt="Guest User">
                </div>
                <div class="ml-3">
-                   <p class="text-sm font-medium text-gray-700">Guest User</p>
-                   <p class="text-xs font-medium text-gray-500">View Only Mode</p>
+                   <p class="text-sm font-medium text-gray-700">Admin</p>
+                   <p class="text-xs font-medium text-gray-500">Sanur Ferry Pass</p>
                </div>
            </div>
        </div>

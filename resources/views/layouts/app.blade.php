@@ -48,13 +48,13 @@
     </style>
 </head>
 <body class="bg-white">
-    @include('partials.navbar')
+    @include('partials.user.navbar')
 
     <main>
         @yield('content')
     </main>
 
-    @include('partials.footer')
+    @include('partials.user.footer')
 
     <!-- AOS JS -->
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
