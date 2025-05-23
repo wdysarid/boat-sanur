@@ -24,21 +24,21 @@
             </div>
 
             <!-- Search container positioned at bottom -->
-            <div class="px-4 sm:px-6 lg:px-8 pb-12 relative z-20" data-aos="fade-up" data-aos-delay="600" data-aos-duration="1000">
+            <div class="px-4 sm:px-6 lg:px-8 pb-15 relative z-40" data-aos="fade-up" data-aos-delay="600" data-aos-duration="1000">
                 <div class="max-w-7xl mx-auto">
                     <div class="bg-white rounded-lg shadow-lg p-4">
                         <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-                            <div class="flex items-center text-gray-600 mb-2 md:mb-0 md:mr-4">
+                            {{-- <div class="flex items-center text-gray-600 mb-2 md:mb-0 md:mr-4">
                                 <div class="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                                     <div class="h-3 w-3 rounded-full bg-white"></div>
                                 </div>
                                 <span class="text-gray-800 font-medium">Sanur Harbour</span>
-                            </div>
+                            </div> --}}
 
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                                 <div class="border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-2 md:pt-0" data-aos="fade-up" data-aos-delay="800" data-aos-anchor=".bg-white">
                                     <div class="mb-1">
-                                        <label for="location-select" class="block text-sm font-medium text-gray-700">Locations</label>
+                                        <label for="location-select" class="block text-sm font-medium text-gray-700">Destinations</label>
                                     </div>
                                     <div class="relative">
                                         <select id="location-select" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md appearance-none cursor-pointer">

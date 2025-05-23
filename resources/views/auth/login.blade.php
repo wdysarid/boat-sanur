@@ -18,8 +18,8 @@
     <div class="flex flex-col lg:flex-row h-screen">
         <!-- Mobile logo (only visible on mobile) -->
         <div class="flex lg:hidden items-center p-6 bg-blue-50">
-            <img src="{{ asset('images/logo.png') }}" alt="SanurFerryPass Logo" class="h-8 w-auto">
-            <a href="/" class="ml-3 text-blue-500 font-bold text-xl tracking-tight">SanurFerryPass</a>
+            <img src="{{ asset('images/logo-trans.png') }}" alt="SanurFerryPass Logo" class="h-8 w-auto">
+            <a href="/" class="ml-3 text-blue-500 font-bold text-xl tracking-tight">SanurBoat</a>
         </div>
 
         <!-- Left side - Form -->
@@ -45,15 +45,23 @@
                             class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
+
+
                     <div class="relative">
                         <input type="password" name="password" id="password" placeholder="Password" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 transform -translate-y-1/2">
+
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 transform -translate-y-2">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
                             </svg>
                         </button>
+                    </div>
+
+                    <div class="flex items-center space-x-2 mb-4">
+                        <input type="checkbox" id="remember" name="remember" class="text-blue-600 focus:ring-blue-500">
+                        <label for="remember" class="text-sm text-gray-700">Remember me</label>
                     </div>
 
                     <div>
@@ -86,7 +94,7 @@
             <div class="absolute top-10 left-10 z-30">
                 <div class="flex items-center">
                     <img src="{{ asset('images/logo.png') }}" alt="SanurFerryPass Logo" class="h-9 w-auto">
-                    <a href="/" class="ml-3 text-blue-400 font-bold text-xl tracking-tight hover:text-white/80 transition-colors drop-shadow-md">SanurFerryPass</a>
+                    <a href="/" class="ml-3 text-blue-400 font-bold text-xl tracking-tight hover:text-white/80 transition-colors drop-shadow-md">SanurBoat</a>
                 </div>
             </div>
 

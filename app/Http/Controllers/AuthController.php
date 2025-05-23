@@ -19,7 +19,7 @@ class AuthController extends Controller
     }
 
     // daftar akun (buat akun)
-    public function register(Request $request) 
+    public function register(Request $request)
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
@@ -39,10 +39,10 @@ class AuthController extends Controller
         return response()->json([
             'data' => $user
         ], 201);
-        
+
     }
 
-    public function login(Request $request) 
+    public function login(Request $request)
     {
         $credentials = $request->validate([
             'email' => 'required|email',
@@ -79,7 +79,7 @@ class AuthController extends Controller
     public function profile()
     {
         $user = Auth::user();
-        
+
         if (!$user) {
         return response()->json(['message' => 'Unauthorized'], 401);
         }

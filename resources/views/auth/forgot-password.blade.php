@@ -17,7 +17,7 @@
         <!-- Mobile logo (only visible on mobile) -->
         <div class="flex lg:hidden items-center p-6 bg-blue-50">
             <img src="{{ asset('images/logo.png') }}" alt="SanurFerryPass Logo" class="h-8 w-auto">
-            <a href="/" class="ml-3 text-blue-500 font-bold text-xl tracking-tight">SanurFerryPass</a>
+            <a href="/" class="ml-3 text-blue-500 font-bold text-xl tracking-tight">SanurBoat</a>
         </div>
 
         <!-- Left side - Form -->
