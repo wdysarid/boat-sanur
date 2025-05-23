@@ -23,7 +23,8 @@ Route::get('/forgot-password', function () {
 })->name('password.request');
 
 // Admin Views - Only for rendering views, data will be fetched from API
-Route::prefix('admin')->name('admin.')->group(function () {
+// Route::prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard View
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
@@ -56,6 +57,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 //User Views - data will be fetched from API
-Route::get('/pemesanan', function () {
-    return view('user.pemesanan');
+Route::middleware(['auth', 'role:wisatawan'])->group(function () {
+    Route::get('/pemesanan', function () {
+        return view('user.pemesanan');
+    })->name('user.pemesanan');
 });
