@@ -22,18 +22,18 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            // 'no_telp' => 'required|string|max:20',
+            'no_telp' => 'required|string|max:20',
             'email' => 'required|email|unique:user,email|max:255',
             'password' => 'required|string',
         ]);
 
         $user = User::create([
             'nama' => $validated['nama'],
-            // 'no_telp' => $validated['no_telp'],
+            'no_telp' => $validated['no_telp'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
             'role' => 'wisatawan',// $validated['role'] ?? 'wisatawan',
-            'remember_token' => Str::random(60),
+            // 'remember_token' => Str::random(60),
         ]);
 
         return response()->json([
@@ -49,19 +49,16 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        $remember = $request->has('remember');
+
         $user = User::where('email', $credentials['email'])->first();
 
-        if (!$user) {
-            return response()->json(['message' => 'Email tidak terdaftar'], 401);
+        if (!Auth::attempt($credentials, $remember)) {
+            return response()->json(['message' => 'Email atau password salah'], 401);
         }
-
-        if (!Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['message' => 'Password salah'], 401);
-        }
-
 
         // Login user ke sistem (jika menggunakan Auth::user())
-        Auth::login($user); // Ini penting kalau kamu pakai Auth::user() setelahnya
+        Auth::login($user, $request->has('remember')); 
 
         $token = $user->createToken('api-token')->plainTextToken;
 

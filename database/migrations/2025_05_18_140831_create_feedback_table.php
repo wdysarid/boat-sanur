@@ -17,7 +17,7 @@ return new class extends Migration
                 table: 'user', 
                 indexName: 'feedback_user_id')->onDelete('cascade');
             $table->text('pesan');
-            $table->tinyInteger('rating')->unsigned(); // contoh: 1 sampai 5
+            // $table->tinyInteger('rating')->unsigned(); // contoh: 1 sampai 5
             $table->boolean('disetujui')->default(false);
             $table->timestamps();
         });

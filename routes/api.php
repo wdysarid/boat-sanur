@@ -14,7 +14,7 @@ Route::get('/user', function (Request $request) {
 Route::get('user', [AuthController::class, 'getUser']); // buat test aja ini
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 

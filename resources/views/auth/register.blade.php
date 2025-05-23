@@ -73,7 +73,12 @@
                     </div>
 
                     <div>
-                        <input type="text" name="name" id="name" placeholder="Nama" required
+                        <input type="text" name="nama" id="nama" placeholder="Nama" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <input type="text" name="no_telp" id="no_telp" placeholder="Nomor Telepon" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
@@ -120,8 +125,9 @@
         document.getElementById('register-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const name = document.getElementById('name').value;
+            const nama = document.getElementById('nama').value;
             const email = document.getElementById('email').value;
+            const no_telp = document.getElementById('no_telp').value;
             const password = document.getElementById('password').value;
 
             try {
@@ -133,8 +139,9 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     },
                     body: JSON.stringify({
-                        name,
+                        nama,
                         email,
+                        no_telp,
                         password
                     })
                 });
