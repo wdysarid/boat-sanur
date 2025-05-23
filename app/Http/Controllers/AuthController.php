@@ -36,12 +36,10 @@ class AuthController extends Controller
             'remember_token' => Str::random(60),
         ]);
 
-        return response()->json(
-            [
-                'data' => $user,
-            ],
-            201,
-        );
+        return response()->json([
+            'data' => $user
+        ], 201);
+
     }
 
     public function login(Request $request)
@@ -82,7 +80,6 @@ class AuthController extends Controller
 
     public function profile(Request $request)
     {
-
         // if (!$user) {
         //     return response()->json(['message' => 'Unauthorized'], 401);
         // }

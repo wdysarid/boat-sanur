@@ -4,8 +4,8 @@
             <!-- Logo (Left Side) -->
             <div class="flex-shrink-0 flex items-center" data-aos="fade-right" data-aos-duration="800">
                 <div class="flex items-center">
-                    <img src="{{ asset('images/logo.png') }}" alt="DreamIslands Logo" class="h-12 w-auto mr-2">
-                    <a href="/" class="text-blue-600 font-bold text-xl">SanurFerryPass</a>
+                    <img src="{{ asset('images/logo-trans.png') }}" alt="DreamIslands Logo" class="h-10 w-auto mr-2">
+                    <a href="/" class="text-blue-600 font-bold text-xl">SanurBoat</a>
                 </div>
             </div>
 
