@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -13,6 +14,7 @@
         }
     </style>
 </head>
+
 <body class="bg-white">
     <div class="flex flex-col md:flex-row h-screen">
         <!-- Mobile logo (only visible on mobile) -->
@@ -24,14 +26,14 @@
         <!-- Left side - Image (hidden on mobile) -->
         <div class="hidden md:block md:w-1/2 relative">
             <div class="absolute inset-0 bg-black/20 z-10"></div>
-            <img src="{{ asset('images/header-bg.jpg') }}"
-                 alt="Beach view" class="w-full h-full object-cover">
+            <img src="{{ asset('images/header-bg.jpg') }}" alt="Beach view" class="w-full h-full object-cover">
 
             <!-- Logo - positioned at top left with proper z-index -->
             <div class="absolute top-10 left-10 z-30">
                 <div class="flex items-center">
                     <img src="{{ asset('images/logo.png') }}" alt="SanurFerryPass Logo" class="h-9 w-auto">
-                    <a href="/" class="ml-3 text-blue-400 font-bold text-xl tracking-tight hover:text-white/80 transition-colors drop-shadow-md">SanurFerryPass</a>
+                    <a href="/"
+                        class="ml-3 text-blue-400 font-bold text-xl tracking-tight hover:text-white/80 transition-colors drop-shadow-md">SanurFerryPass</a>
                 </div>
             </div>
 
@@ -40,7 +42,8 @@
                 <div class="bg-white/10 backdrop-blur-sm p-8 rounded-xl max-w-md mx-auto">
                     <h2 class="text-4xl font-bold text-white mb-4">PRACTICAL<br>ACCESS TO<br>DREAM ISLANDS</h2>
                     <p class="text-white/80">
-                        Our boat ticket booking system is specifically designed to meet the needs of boat operators and travel businesses.
+                        Our boat ticket booking system is specifically designed to meet the needs of boat operators and
+                        travel businesses.
                     </p>
                 </div>
             </div>
@@ -52,7 +55,8 @@
                 <!-- User icon and title -->
                 <div class="flex flex-col items-center mb-8">
                     <div class="w-12 h-12 mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
@@ -61,7 +65,7 @@
                 </div>
 
                 <!-- Registration Form -->
-                <form action="{{ route('register') }}" method="POST" class="space-y-6">
+                <form id="register-form" method="POST" class="space-y-6">
                     @csrf
 
                     <div>
@@ -77,8 +81,11 @@
                     <div class="relative">
                         <input type="password" name="password" id="password" placeholder="Password" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                        <button type="button" onclick="togglePasswordVisibility()"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="w-5 h-5">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
                             </svg>
@@ -86,7 +93,8 @@
                     </div>
 
                     <div>
-                        <button type="submit" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition duration-200">
+                        <button type="submit"
+                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition duration-200">
                             Register
                         </button>
                     </div>
@@ -112,6 +120,47 @@
                 passwordInput.type = 'password';
             }
         }
+
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Registrasi berhasil! Silakan login.');
+                    window.location.href = "{{ route('login') }}";
+                } else {
+                    let msg = data.message || 'Registrasi gagal';
+                    if (data.errors) {
+                        msg += '\n' + Object.values(data.errors).flat().join('\n');
+                    }
+                    alert(msg);
+                }
+            } catch (error) {
+                console.error('Register Error:', error);
+                alert('Terjadi kesalahan sistem.');
+            }
+        });
     </script>
 </body>
+
 </html>
