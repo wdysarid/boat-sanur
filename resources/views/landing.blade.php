@@ -5,7 +5,7 @@
 
 
 <!-- About Us Section -->
-<section id="about-us"class="py-16 bg-white">
+<section id="about-us"class="relative py-16 bg-white pt-32 z-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div data-aos="fade-right" data-aos-duration="1000">
