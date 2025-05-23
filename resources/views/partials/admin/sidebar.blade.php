@@ -6,8 +6,8 @@
                <!-- Logo (Left Side) -->
             <div class="flex-shrink-0 flex items-center" data-aos="fade-right" data-aos-duration="800">
                 <div class="flex items-center">
-                    <img src="{{ asset('images/logo.png') }}" alt="DreamIslands Logo" class="h-10 w-auto mr-2">
-                    <a href="/" class="text-blue-600 font-bold text-l">SanurFerryPass</a>
+                    <img src="{{ asset('images/logo-trans.png') }}" alt="DreamIslands Logo" class="h-10 w-auto mr-2">
+                    <a href="/" class="text-blue-600 font-bold text-l">SanurBoat</a>
                 </div>
             </div>
            </a>
@@ -35,7 +35,7 @@
                            <line x1="8" y1="2" x2="8" y2="6"></line>
                            <line x1="3" y1="10" x2="21" y2="10"></line>
                        </svg>
-                       Jadwal
+                       Jadwal & Tiket
                    </a>
                </li>
                <li>
@@ -47,7 +47,7 @@
                            <path d="M12 13l-3-3"></path>
                            <path d="M12 13l3-3"></path>
                        </svg>
-                       Boat & Tiket
+                       Boat
                    </a>
                </li>
                <li>
