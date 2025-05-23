@@ -50,6 +50,7 @@ class AuthController extends Controller
         ]);
 
         $remember = $request->has('remember');
+        // $remember = $request->boolean('remember', false);
 
         $user = User::where('email', $credentials['email'])->first();
 
@@ -59,13 +60,18 @@ class AuthController extends Controller
 
         // Login user ke sistem (jika menggunakan Auth::user())
         Auth::login($user, $request->has('remember')); 
+        // $user = Auth::user();
 
         $token = $user->createToken('api-token')->plainTextToken;
 
+        
         return response()->json([
             'message' => 'Login berhasil',
-            'token' => $token,
+            'token' => $token, // Untuk API calls
             'user' => $user,
+            'redirect' => $user->role === 'admin' 
+                ? route('admin.dashboard') 
+                : route('user.pemesanan')
         ]);
     }
 

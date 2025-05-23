@@ -14,15 +14,19 @@ class AuthMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, $roles): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
 
-        if (!in_array(Auth::user()->role, $roles)) {
-            abort(403, 'Unauthorized');
-        }
-        return $next($request);
+    $user = Auth::user();
+
+    // $roles sudah berupa array berkat ...$roles
+    if (!in_array($user->role, $roles)) {
+        abort(403, 'Unauthorized');
+    }
+
+    return $next($request);
     }
 }

@@ -129,61 +129,111 @@
             }
         }
 
-        async function loginSubmit(e) {
-            e.preventDefault();
+        // async function loginSubmit(e) {
+        //     e.preventDefault();
 
-            const loginBtn = document.getElementById('loginBtn');
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Logging in...';
+        //     const loginBtn = document.getElementById('loginBtn');
+        //     loginBtn.disabled = true;
+        //     loginBtn.textContent = 'Logging in...';
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const remember = document.getElementById('remember').checked;
+        //     const email = document.getElementById('email').value;
+        //     const password = document.getElementById('password').value;
+        //     const remember = document.getElementById('remember').checked;
 
-            try {
-                const response = await fetch("{{ route('login') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password,
-                        remember: remember
-                    }),
-                });
+        //     try {
+        //         const response = await fetch("{{ route('login') }}", {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //                 'Accept': 'application/json',
+        //             },
+        //             body: JSON.stringify({
+        //                 email: email,
+        //                 password: password,
+        //                 remember: remember
+        //             }),
+        //         });
 
-                const data = await response.json();
+        //         const data = await response.json();
 
-                if (!response.ok) {
-                    alert(data.message || 'Login gagal, cek kembali email dan password');
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Login';
-                    return;
-                }
+        //         if (!response.ok) {
+        //             alert(data.message || 'Login gagal, cek kembali email dan password');
+        //             loginBtn.disabled = false;
+        //             loginBtn.textContent = 'Login';
+        //             return;
+        //         }
 
-                localStorage.setItem('api_token', data.token);
+        //         localStorage.setItem('api_token', data.token);
 
-                alert('Login berhasil!');
+        //         alert('Login berhasil!');
 
-                const role = data.user.role;
+        //         const role = data.user.role;
 
-                if (role === 'admin') {
-                    window.location.href = '/admin/dashboard';
-                } else if (role === 'wisatawan') {
-                    window.location.href = '/user/pemesanan';
-                } else {
-                    window.location.href = '/dashboard';
-                }
+        //         if (role === 'admin') {
+        //             window.location.href = '/admin/dashboard';
+        //         } else if (role === 'wisatawan') {
+        //             window.location.href = '/user/pemesanan';
+        //         } else {
+        //             window.location.href = '/dashboard';
+        //         }
 
-            } catch (error) {
-                alert('Terjadi kesalahan, coba lagi.');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Login';
+        //     } catch (error) {
+        //         alert('Terjadi kesalahan, coba lagi.');
+        //         loginBtn.disabled = false;
+        //         loginBtn.textContent = 'Login';
+        //     }
+        // }
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const loginBtn = document.querySelector('#loginForm button[type="submit"]');
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<span class="animate-pulse">Memproses...</span>';
+
+        const formData = new FormData(this);
+        const payload = {
+            email: formData.get('email'),
+            password: formData.get('password'),
+            remember: formData.get('remember') ? true : false
+        };
+
+        try {
+            const response = await fetch('/api/login', { // Pastikan URL sesuai endpoint API
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login gagal');
             }
+
+            // Simpan token di localStorage
+            localStorage.setItem('auth_token', data.token);
+            
+            // Redirect berdasarkan role
+            // if (data.user.role === 'admin') {
+            //     window.location.href = '/admin/dashboard';
+            // } else if (data.user.role === 'wisatawan') {
+            //     window.location.href = '/user/pemesanan';
+            // } else {
+            //     window.location.href = '/'; // Fallback
+            // }
+            window.location.href = data.redirect;
+
+        } catch (error) {
+            alert(error.message || 'Terjadi kesalahan!');
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login';
         }
+    });
     </script>
 </body>
 
