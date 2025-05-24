@@ -50,21 +50,18 @@ class AuthController extends Controller
         ]);
 
         $remember = $request->has('remember');
-        // $remember = $request->boolean('remember', false);
-
+        
         $user = User::where('email', $credentials['email'])->first();
 
         if (!Auth::attempt($credentials, $remember)) {
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
-        // Login user ke sistem (jika menggunakan Auth::user())
-        Auth::login($user, $request->has('remember')); 
-        // $user = Auth::user();
+        // Auth::login($user, $request->has('remember')); 
+        $user = Auth::user();
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        
         return response()->json([
             'message' => 'Login berhasil',
             'token' => $token, // Untuk API calls
