@@ -27,10 +27,10 @@ class DatabaseSeeder extends Seeder
             'no_telp' => '081234567890',
             'password' => Hash::make('admin123'), 
             'role' => 'admin',
-            'remember_token' => Str::random(100),
+            // 'remember_token' => Str::random(100),
         ]);
 
-        $user = User::factory(5)->create();
+        $user = User::factory(1)->create();
 
         $kapal = Kapal::factory(3)->create();
 

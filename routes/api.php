@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\api\UserController;
-use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\KapalController;
+use App\Http\Controllers\api\UserController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -22,4 +23,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::patch('/profile', [AuthController::class, 'updateProfile']);
+});
+
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('kapal')->group(function () {
+    Route::get('/', [KapalController::class, 'getKapal']);
+    Route::post('/', [KapalController::class, 'tambahKapal']);
+    Route::put('/{id}', [KapalController::class, 'updateKapal']);
+    Route::delete('/{id}', [KapalController::class, 'deleteKapal']);
 });

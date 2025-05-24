@@ -10,11 +10,24 @@ class Kapal extends Model
     use HasFactory;
 
     protected $table = 'kapal';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
+        'id',
         'nama_kapal', 
         'kapasitas', 
-        'deskripsi'
+        'deskripsi',
+        'foto_kapal',
+        'status'
+    ];
+
+    // Tambahkan untuk validasi enum
+    const STATUSES = [
+        'aktif',
+        'maintenance',
+        'tidak aktif'
     ];
 
     public function jadwal()
