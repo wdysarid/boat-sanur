@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -36,9 +37,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     })->name('schedule');
 
     // Boats and Tickets View
-    Route::get('/boats', function () {
-        return view('admin.boats');
-    })->name('boats');
+    Route::get('/boats', [AdminController::class,'indexKapal'])->name('boats');
 
     // Payments View
     Route::get('/payments', function () {
@@ -62,3 +61,6 @@ Route::middleware(['auth', 'role:wisatawan'])->prefix('user')->name('user.')->gr
         return view('user.pemesanan');
     })->name('pemesanan');
 });
+
+Route::post('/kapal', [AdminController::class,'storeKapal']);
+Route::get('/kapal/{id}/edit', [AdminController::class,'editKapal']);

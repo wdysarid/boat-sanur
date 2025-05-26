@@ -5,13 +5,9 @@
 @section('header', 'Manajemen Boat')
 
 @section('content')
-    @if (session('message'))
-        <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-            role="alert">
-            <span class="font-medium">{{ session('message') }}</span>
-        </div>
-    @endif
-
+    <!-- Notification -->
+    <div id="notification" class="hidden fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white"></div>
+    
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <!-- Main Boat List - Takes 2/3 of the screen -->
         <div class="lg:col-span-2">
@@ -57,66 +53,37 @@
 
                     <!-- Boat Table -->
                     <div class="overflow-x-auto rounded-lg border border-gray-200">
-                        <table id="boatsTable" class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Foto</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Kapal
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kapasitas
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        KAPAL</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        KAPASITAS</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        STATUS</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        AKSI</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach ($kapal as $row)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $row['id'] }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if ($row['foto_kapal'])
-                                                <img src="{{ env('APP_IMAGES_URL') }}/storage/{{ $row['foto_kapal'] }}"
-                                                    alt="Foto Kapal" class="h-10 w-10 rounded-full object-cover">
-                                            @else
-                                                <div
-                                                    class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                                    <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $row['nama_kapal'] }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $row['kapasitas'] }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                        {{ $row['status'] == 'aktif'
-                            ? 'bg-green-100 text-green-800'
-                            : ($row['status'] == 'maintenance'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-red-100 text-red-800') }}">
-                                                {{ $row['status'] }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <button onclick="openEditModal('{{ $row['id'] }}')"
-                                                class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                                            <form action="/admin/boats/{{ $row['id'] }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900"
-                                                    onclick="return confirm('Yakin menghapus kapal ini?')">Hapus</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                            <tbody class="bg-white divide-y divide-gray-200" id="boatList">
+                                <!-- Data akan diisi via JavaScript -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="text-sm text-gray-700 order-2 sm:order-1" id="paginationInfo">
+                            <!-- Info paginasi -->
+                        </div>
+                        <div class="flex space-x-1 order-1 sm:order-2" id="paginationButtons">
+                            <!-- Tombol paginasi -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -164,14 +131,11 @@
 
             <!-- Modal Body -->
             <div class="px-6 py-4">
-                <form id="addBoatForm" action="/kapal" method="post" enctype="multipart/form-data">
-                    @csrf
-
+                <form id="addBoatForm" enctype="multipart/form-data">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Boat Name -->
                         <div class="col-span-2 md:col-span-1">
-                            <label for="nama_kapal" class="block text-sm font-medium text-gray-700 mb-1">Nama
-                                Kapal</label>
+                            <label for="nama_kapal" class="block text-sm font-medium text-gray-700 mb-1">Nama Kapal</label>
                             <input type="text" id="nama_kapal" name="nama_kapal"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="Masukkan nama kapal" required>
@@ -185,6 +149,18 @@
                                 placeholder="Contoh: BT006" required>
                         </div>
 
+                        <!-- Boat Type -->
+                        {{-- <div class="col-span-2 md:col-span-1">
+                            <label for="boatType" class="block text-sm font-medium text-gray-700 mb-1">Tipe Kapal</label>
+                            <select id="boatType" name="boatType"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                                <option value="" disabled selected>Pilih tipe kapal</option>
+                                <option value="fast">Fast Boat</option>
+                                <option value="luxury">Luxury Boat</option>
+                                <option value="regular">Regular Boat</option>
+                            </select>
+                        </div> --}}
 
                         <!-- Capacity -->
                         <div class="col-span-2 md:col-span-1">
@@ -223,13 +199,7 @@
                         </div>
 
                         <!-- Boat Image -->
-                        <div class="sm:col-span-2">
-                            <label for="foto_kapal"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Foto Kapal</label>
-                            <input type="file" name="foto_kapal" id="foto_kapal"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
-                        </div>
-                        {{-- <div class="col-span-2">
+                        <div class="col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Foto Kapal</label>
                             <div class="flex items-center justify-center w-full">
                                 <label for="foto_kapal"
@@ -262,7 +232,7 @@
                                     </button>
                                 </div>
                             </div>
-                        </div> --}}
+                        </div>
 
                         <!-- Description -->
                         <div class="col-span-2">
@@ -281,7 +251,7 @@
                     class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     Batal
                 </button>
-                <button type="submit" form="addBoatForm"
+                <button id="saveBoatBtn"
                     class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     Simpan
                 </button>
@@ -289,140 +259,8 @@
         </div>
     </div>
 
-    <!-- Modal for Editing Boat -->
-    <div id="kapal/{{ $row['id'] }}/edit" tabindex="-1"
-        class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-xs">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden">
-            <!-- Modal Header -->
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-800">Edit Kapal</h3>
-                <button id="closeEditModalBtn" class="text-gray-400 hover:text-gray-500 focus:outline-none">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="px-6 py-4">
-                <form id="editBoatForm" method="post" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="col-span-2 md:col-span-1">
-                        <label for="id" class="block text-sm font-medium text-gray-700 mb-1">ID Kapal</label>
-                        <input type="text" id="id" name="id" value="{{ $row['id'] }}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Contoh: BT006" required>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Boat Name -->
-                        <div class="col-span-2 md:col-span-1">
-                            <label for="nama_kapal" class="block text-sm font-medium text-gray-700 mb-1">Nama
-                                Kapal</label>
-                            <input type="text" id="nama_kapal" name="nama_kapal" value="{{ $row['nama_kapal'] }}"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Masukkan nama kapal" required>
-                        </div>
-
-                        <!-- Capacity -->
-                        <div class="col-span-2 md:col-span-1">
-                            <label for="kapasitas" class="block text-sm font-medium text-gray-700 mb-1">Kapasitas</label>
-                            <div class="flex">
-                                <input type="number" id="kapasitas" name="kapasitas" min="1" max="100"
-                                    value="{{ $row['kapasitas'] }}"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Jumlah penumpang" required>
-                                <span
-                                    class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 rounded-r-md">
-                                    penumpang
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Status Kapal</label>
-                            <div class="flex space-x-4">
-                                <div class="flex items-center">
-                                    <input type="radio" id="statusActive-{{ $row['id'] }}" name="status"
-                                        value="aktif" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                        {{ $row['status'] == 'aktif' ? 'checked' : '' }}>
-                                    <label for="statusActive-{{ $row['id'] }}"
-                                        class="ml-2 text-sm text-gray-700">Aktif</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input type="radio" id="statusMaintenance-{{ $row['id'] }}" name="status"
-                                        value="maintenance"
-                                        class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-                                        {{ $row['status'] == 'maintenance' ? 'checked' : '' }}>
-                                    <label for="statusMaintenance-{{ $row['id'] }}"
-                                        class="ml-2 text-sm text-gray-700">Maintenance</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input type="radio" id="statusInactive-{{ $row['id'] }}" name="status"
-                                        value="tidak aktif"
-                                        class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
-                                        {{ $row['status'] == 'tidak aktif' ? 'checked' : '' }}>
-                                    <label for="statusInactive-{{ $row['id'] }}"
-                                        class="ml-2 text-sm text-gray-700">Tidak Aktif</label>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <!-- Boat Image -->
-                        <div class="sm:col-span-2">
-                            <label for="foto_kapal"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Foto Kapal</label>
-
-                            @if (!empty($row['foto_kapal']))
-                                <div class="mb-2">
-                                    <img src="{{ asset('storage/foto_kapal/' . $row['foto_kapal']) }}" alt="Foto Kapal"
-                                        class="w-32 h-auto rounded shadow border">
-                                </div>
-                            @endif
-
-                            <input type="file" name="foto_kapal" id="foto_kapal"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
-                        </div>
-
-                        <!-- Description -->
-                        <div class="col-span-2">
-                            <label for="edit_deskripsi"
-                                class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                            <textarea id="edit_deskripsi" name="deskripsi" rows="3"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Deskripsi kapal (opsional)"></textarea>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row justify-end gap-2">
-                <button type="button" id="cancelEditBtn" data-modal-hide="editBoatModal-{{ $row['id'] }}"
-                    class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    Batal
-                </button>
-                <button id="updateBoatBtn" type="submit"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    Update
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- JavaScript for Modal Functionality -->
     <script>
-        if (document.getElementById("search-table") && typeof simpleDatatables.DataTable !== 'undefined') {
-            const dataTable = new simpleDatatables.DataTable("#search-table", {
-                searchable: true,
-                sortable: false
-            });
-        }
-
         // Get modal elements
         const modal = document.getElementById('addBoatModal');
         const openModalBtn = document.getElementById('openModalBtn');
@@ -450,7 +288,6 @@
 
         closeModalBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
-        cancelEditBtn.addEventListener('click', closeModal);
 
         // Close modal when clicking outside
         modal.addEventListener('click', (e) => {
@@ -480,10 +317,168 @@
             imagePreview.classList.add('hidden');
         });
 
-        document.getElementById('saveBoatBtn').addEventListener('click', function() {
-            document.getElementById('addBoatForm').submit();
+        // Form submission (you would add your AJAX submission here)
+        saveBoatBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const form = document.getElementById('addBoatForm');
+            const formData = new FormData(form);
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/kapal', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Terjadi kesalahan');
+                }
+
+                alert('Kapal berhasil ditambahkan!');
+                closeModal();
+                loadData(); // Reload data setelah berhasil tambah
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Gagal menambahkan kapal: ${error.message}`);
+            }
         });
 
+        let currentPage = 1;
+        let currentStatus = 'semua';
+        let currentSearch = '';
 
+        // Fungsi memuat data
+        async function loadData(page = 1, status = currentStatus, search = currentSearch) {
+            try {
+                const response = await fetch(`/api/kapal?page=${page}&status=${status}&search=${search}`);
+                const data = await response.json();
+
+                // Update tampilan
+                renderBoats(data.data);
+                renderPagination(data);
+                updateStatistics(data.total);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Fungsi render data kapal
+        function renderBoats(boats) {
+            const container = document.getElementById('boatList');
+            container.innerHTML = '';
+
+            boats.forEach(boat => {
+                const row = `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                            <img class="h-10 w-10 rounded-full object-cover shadow-sm" src="${boat.foto_kapal || 'https://via.placeholder.com/40'}" alt="${boat.nama_kapal}">
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">${boat.nama_kapal}</div>
+                            <div class="text-sm text-gray-500">${boat.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${boat.kapasitas} penumpang</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(boat.status)}">
+                        ${boat.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div class="flex space-x-3">
+                        <button class="text-blue-600 hover:text-blue-900 transition-colors edit-btn" data-id="${boat.id}">Edit</button>
+                        <button class="text-red-600 hover:text-red-900 transition-colors delete-btn" data-id="${boat.id}">Hapus</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+                container.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // Fungsi warna status
+        function getStatusColor(status) {
+            switch (status) {
+                case 'aktif':
+                    return 'bg-green-100 text-green-800';
+                case 'maintenance':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'tidak aktif':
+                    return 'bg-red-100 text-red-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Fungsi pagination
+        function renderPagination(data) {
+            const paginationInfo = document.getElementById('paginationInfo');
+            const paginationButtons = document.getElementById('paginationButtons');
+
+            // Info halaman
+            paginationInfo.innerHTML = `
+        Menampilkan <span class="font-medium">${data.from}</span> sampai 
+        <span class="font-medium">${data.to}</span> dari 
+        <span class="font-medium">${data.total}</span> kapal
+    `;
+
+            // Tombol pagination
+            let buttons = '';
+            if (data.prev_page_url) {
+                buttons +=
+                    `<button onclick="loadData(${data.current_page - 1})" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">Sebelumnya</button>`;
+            }
+            buttons +=
+                `<button class="px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-blue-50 text-blue-600 font-medium">${data.current_page}</button>`;
+            if (data.next_page_url) {
+                buttons +=
+                    `<button onclick="loadData(${data.current_page + 1})" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">Selanjutnya</button>`;
+            }
+
+            paginationButtons.innerHTML = buttons;
+        }
+
+        // Fungsi update statistik
+        function updateStatistics(total) {
+            document.getElementById('totalBoats').textContent = total;
+        }
+
+        // Event Listeners
+        document.getElementById('statusFilter').addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentStatus = e.target.dataset.status;
+                document.querySelectorAll('#statusFilter button').forEach(btn => {
+                    btn.classList.remove('bg-blue-50', 'text-blue-600');
+                });
+                e.target.classList.add('bg-blue-50', 'text-blue-600');
+                loadData(1);
+            }
+        });
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => loadData(1), 500);
+        });
+
+        // Inisialisasi pertama
+        loadData();
     </script>
 @endsection

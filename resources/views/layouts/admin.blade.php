@@ -14,6 +14,7 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css">
 
     <!-- Page Specific Scripts -->
     @stack('scripts')
@@ -100,5 +101,7 @@
             </main>
         </div>
     </div>
+
+<script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
 </body>
 </html>

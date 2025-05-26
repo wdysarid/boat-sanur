@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\KapalController;
+use App\Http\Controllers\api\KapalController;
 use App\Http\Controllers\api\UserController;
 
 Route::get('/user', function (Request $request) {
@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/profile', [AuthController::class, 'updateProfile']);
 });
 
-Route::middleware(['auth:sanctum', 'role:admin'])->prefix('kapal')->group(function () {
+Route::prefix('kapal')->group(function () {
     Route::get('/', [KapalController::class, 'getKapal']);
     Route::post('/', [KapalController::class, 'tambahKapal']);
     Route::put('/{id}', [KapalController::class, 'updateKapal']);

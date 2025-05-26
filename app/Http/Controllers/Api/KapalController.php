@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Kapal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -11,26 +12,31 @@ class KapalController extends Controller
 {
     public function getKapal(Request $request)
     {
-        // $kapal = Kapal::all();
-        // return response()->json($kapal);
+        $kapal = Kapal::all();
+        return response()->json($kapal);
 
-        $status = $request->input('status');
-        $search = $request->input('search');
+        // $status = $request->input('status');
+        // $search = $request->input('search');
 
-        $query = Kapal::query();
+        // $query = Kapal::query();
 
-        if ($status && $status !== 'semua') {
-            $query->where('status', $status);
-        }
+        // if ($status && $status !== 'semua') {
+        //     $query->where('status', $status);
+        // }
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_kapal', 'like', "%$search%")->orWhere('id', 'like', "%$search%");
-            });
-        }
+        // if ($search) {
+        //     $query->where(function ($q) use ($search) {
+        //         $q->where('nama_kapal', 'like', "%$search%")->orWhere('id', 'like', "%$search%");
+        //     });
+        // }
 
-        $perPage = $request->input('per_page', 5);
-        return response()->json($query->paginate($perPage));
+        // $perPage = $request->input('per_page', 5);
+        // return response()->json($query->paginate($perPage));
+    }
+
+    public function getKapalbyId(Kapal  $kapal)
+    {
+        return response()->json($kapal);
     }
 
     public function tambahKapal(Request $request)
@@ -54,7 +60,6 @@ class KapalController extends Controller
 
         return response()->json(
             [
-                'message' => 'Kapal berhasil ditambahkan',
                 'data' => $kapal,
             ],
             201,
@@ -88,7 +93,6 @@ class KapalController extends Controller
 
         return response()->json(
             [
-                'message' => 'Kapal berhasil diperbarui',
                 'data' => $kapal,
             ],
             200,
