@@ -22,7 +22,7 @@
                     <a href="#destinations" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="300" data-aos-duration="600">
                         Destinations
                     </a>
-                    <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="400" data-aos-duration="600">
+                    <a href="{{ route('login') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" data-aos="fade-down" data-aos-delay="400" data-aos-duration="600">
                         My Tickets
                     </a>
                     <!-- Login button (desktop) -->
