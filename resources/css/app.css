@@ -132,3 +132,114 @@ body {
   --tw-ring-color: var(--primary-blue);
 }
 
+.backdrop-blur-xs {
+    backdrop-filter: blur(2px);
+}
+
+/* Loading animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Form focus styles */
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Button hover effects */
+.btn-primary {
+    @apply bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+}
+
+.btn-secondary {
+    @apply bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+}
+
+/* Table styles */
+.table-hover tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Modal animations */
+.modal-enter {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.modal-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 300ms, transform 300ms;
+}
+
+.modal-exit {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.modal-exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 300ms, transform 300ms;
+}
+
+/* Status badges */
+.status-active {
+    @apply bg-green-100 text-green-800;
+}
+
+.status-maintenance {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-inactive {
+    @apply bg-red-100 text-red-800;
+}
+
+/* Toast notifications */
+.toast {
+    @apply fixed top-4 right-4 px-6 py-3 rounded-md shadow-lg z-50 transform transition-transform duration-300;
+}
+
+.toast-success {
+    @apply bg-green-500 text-white;
+}
+
+.toast-error {
+    @apply bg-red-500 text-white;
+}
+
+.toast-warning {
+    @apply bg-yellow-500 text-white;
+}
+
+.toast-info {
+    @apply bg-blue-500 text-white;
+}
+
