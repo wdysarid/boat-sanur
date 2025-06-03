@@ -26,7 +26,7 @@
                         My Tickets
                     </a>
                     <!-- Login button (desktop) -->
-                    <a href="{{ route('login') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out ml-2 shadow-lg" data-aos="fade-left" data-aos-delay="500" data-aos-duration="800">
+                    <a href="{{ route('login') }}" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out ml-2 shadow-lg" data-aos="fade-left" data-aos-delay="500" data-aos-duration="800">
                         Login
                     </a>
                 </div>

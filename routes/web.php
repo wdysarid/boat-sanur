@@ -23,6 +23,11 @@ Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
 
+
+Route::get('/search', function () {
+    return view('search.tickets');
+});
+
 // Admin Views - Only for rendering views, data will be fetched from API
 // Route::prefix('admin')->name('admin.')->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
