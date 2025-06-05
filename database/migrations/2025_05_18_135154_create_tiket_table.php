@@ -13,10 +13,10 @@ return new class extends Migration {
         Schema::create('tiket', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained(
-                table: 'user', 
+                table: 'user',
                 indexName: 'tiket_user_id')->onDelete('cascade');
             $table->foreignId('jadwal_id')->constrained(
-                table: 'jadwal', 
+                table: 'jadwal',
                 indexName: 'tiket_jadwal_id')->onDelete('cascade');
             $table->string('kode_pemesanan')->unique();
             $table->integer('jumlah_penumpang');

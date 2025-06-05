@@ -18,6 +18,11 @@ class Feedback extends Model
         'disetujui',
     ];
 
+    protected $casts = [
+        'disetujui' => 'boolean',
+        // 'rating' => 'integer'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

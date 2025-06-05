@@ -15,10 +15,11 @@ return new class extends Migration {
             $table->string('kapal_id', 5);
             $table->foreign('kapal_id')->references('id')->on('kapal')->onDelete('cascade')->constrained(indexName: 'jadwal_kapal_id');
             $table->string('rute');
+            $table->date('tanggal');
             $table->dateTime('waktu_berangkat');
             $table->dateTime('waktu_tiba');
             $table->integer('harga_tiket');
-            $table->integer('kuota');
+            $table->enum('status', ['aktif', 'selesai'])->default('aktif');
             $table->timestamps();
         });
     }

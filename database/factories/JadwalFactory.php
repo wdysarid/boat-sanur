@@ -25,10 +25,11 @@ class JadwalFactory extends Factory
         return [
             'kapal_id' => Kapal::factory(),
             'rute' => "$asal - $tujuan",
+            'tanggal' => $this->faker->date(),
             'waktu_berangkat' => $waktuBerangkat,
             'waktu_tiba' => (clone $waktuBerangkat)->modify('+'. rand(1, 3) .' hours'),
             'harga_tiket' => $this->faker->numberBetween(100000, 300000),
-            'kuota' => $this->faker->numberBetween(50, 200),
+            'status' => $this->faker->randomElement(['aktif', 'selesai']),
         ];
     }
 }

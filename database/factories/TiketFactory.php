@@ -20,7 +20,7 @@ class TiketFactory extends Factory
     {
         $jumlah = $this->faker->numberBetween(1, 5);
         $jadwal = Jadwal::factory()->create();
-        
+
         return [
             'user_id' => User::factory(),
             'jadwal_id' => $jadwal->id,
