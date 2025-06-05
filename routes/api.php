@@ -38,8 +38,11 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
+    Route::get('/dashboard', [AuthController::class, 'profile']);
     Route::patch('/profile', [AuthController::class, 'updateProfile']);
 });
+
+
 
 // Kapal (Boat) Routes
 Route::prefix('kapal')->group(function () {

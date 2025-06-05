@@ -42,6 +42,7 @@ class AuthController extends Controller
 
     }
 
+    //login akun
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -69,10 +70,11 @@ class AuthController extends Controller
             'user' => $user,
             'redirect' => $user->role === 'admin'
                 ? route('admin.dashboard')
-                : route('user.pemesanan')
+                : route('user.dashboard')
         ]);
     }
 
+    //logout akun
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -81,13 +83,14 @@ class AuthController extends Controller
 
     public function profile(Request $request)
     {
-        // if (!$user) {
-        //     return response()->json(['message' => 'Unauthorized'], 401);
-        // }
-
-        // return response()->json($user);
+        // $user = $request->user(); // Atau pakai Auth::user()
+        // return view('.dashboard', ['user' => $user]);
         return response()->json(['user' => $request->user()]);
+
+
     }
+
+
 
     public function updateProfile(Request $request)
     {

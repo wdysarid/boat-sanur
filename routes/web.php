@@ -62,10 +62,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 //User Views - data will be fetched from API
 Route::middleware(['auth', 'role:wisatawan'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('user.dashboard');
+    })->name('dashboard');
+
     Route::get('/pemesanan', function () {
         return view('user.pemesanan');
     })->name('pemesanan');
 });
+
 
 Route::post('/kapal', [AdminController::class,'storeKapal']);
 Route::get('/kapal/{id}/edit', [AdminController::class,'editKapal']);
