@@ -52,7 +52,7 @@ class AuthController extends Controller
 
         $remember = $request->has('remember');
 
-        $user = User::where('email', $credentials['email'])->first();
+        // $user = User::where('email', $credentials['email'])->first();
 
         if (!Auth::attempt($credentials, $remember)) {
             return response()->json(['message' => 'Email atau password salah'], 401);
@@ -61,7 +61,6 @@ class AuthController extends Controller
         // Auth::login($user, $request->has('remember'));
         $user = Auth::user();
 
-        //kok error ya?
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
@@ -77,8 +76,21 @@ class AuthController extends Controller
     //logout akun
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        if ($request->user()) {
+            $request->user()->currentAccessToken()?->delete();
+        }
+
+        // Logout dari session web
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        if ($request->wantsJson()) {
         return response()->json(['message' => 'Logout berhasil']);
+        }
+
+        // Untuk request web, redirect ke halaman login
+        return redirect('/login');
     }
 
     public function profile(Request $request)

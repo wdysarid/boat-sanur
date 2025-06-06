@@ -100,15 +100,19 @@
 
                         <!-- Logout section -->
                         <div class="border-t border-gray-100">
-                            <button type="button"
-                                    id="logoutButton"
-                                    class="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150">
-                                <svg class="mr-3 h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                Sign Out
-                            </button>
+                            <form method="POST" action="{{ route('logout') }}"
+                                onsubmit="return confirm('Apakah Anda yakin ingin logout?');">
+                                @csrf
+                                <button type="submit"
+                                        class="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150">
+                                    <svg class="mr-3 h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    Sign Out
+                                </button>
+                            </form>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -116,18 +120,12 @@
     </div>
 </header>
 
-<!-- Hidden logout form for fallback -->
-<form id="logoutForm" method="POST" action="#" style="display: none;">
-    @csrf
-</form>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Profile dropdown functionality
     const userMenuButton = document.getElementById('userMenuButton');
     const userDropdown = document.getElementById('userDropdown');
     const dropdownArrow = document.getElementById('dropdownArrow');
-    const logoutButton = document.getElementById('logoutButton');
     let isDropdownOpen = false;
 
     // Toggle dropdown
@@ -152,15 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
         }
     }
-
-    // Logout functionality using global function
-    logoutButton.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        if (confirm('Apakah Anda yakin ingin logout?')) {
-            window.performLogout();
-        }
-    });
 
     // Dropdown events
     userMenuButton.addEventListener('click', function(e) {

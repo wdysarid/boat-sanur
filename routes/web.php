@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -27,6 +28,8 @@ Route::get('/forgot-password', function () {
 Route::get('/search', function () {
     return view('search.tickets');
 });
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin Views - Only for rendering views, data will be fetched from API
 // Route::prefix('admin')->name('admin.')->group(function () {
