@@ -35,10 +35,12 @@ class Kapal extends Model
     // Accessor for foto_kapal URL
     public function getFotoKapalUrlAttribute()
     {
-        if ($this->foto_kapal) {
-            return asset('storage/' . $this->foto_kapal);
+        if (!$this->foto_kapal) {
+            return null;
         }
-        return null;
+
+        // Pastikan menggunakan asset() dan path 'storage/'
+        return asset('storage/' . $this->foto_kapal);
     }
 
     // Scope for active boats

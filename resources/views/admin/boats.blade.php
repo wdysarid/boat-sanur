@@ -326,7 +326,8 @@
 <script>
     // Configuration
     const API_BASE_URL = '{{ env("APP_API_URL", "http://boat-sanur.test/api") }}';
-    const IMAGES_BASE_URL = '{{ env("APP_IMAGES_URL", "http://boat-sanur.test/images") }}';
+    // const IMAGES_BASE_URL = '{{ env("APP_IMAGES_URL", "http://boat-sanur.test/images") }}';
+    const IMAGES_BASE_URL = '{{ url("") }}';
 
     // Global variables
     let boats = [];
@@ -545,42 +546,54 @@
     async function handleAddBoat(e) {
         e.preventDefault();
 
-        // Validate form before submission
+        // Validasi form sebelum submit
         if (!validateFormInputs(elements.addBoatForm)) {
             return;
         }
 
+        // Buat FormData object
         const formData = new FormData(elements.addBoatForm);
 
         try {
+            // Tampilkan loading state
             setLoadingButton(elements.saveBoatBtn, true, 'Menyimpan...');
             clearErrors(elements.addBoatForm);
 
+            // Kirim request ke API
             const response = await fetch(`${API_BASE_URL}/kapal`, {
                 method: 'POST',
                 body: formData,
                 headers: {
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             });
 
             const result = await response.json();
 
-            if (result.success) {
-                showAlert('Kapal berhasil ditambahkan', 'success');
-                closeAddModal();
-                loadBoats();
-            } else {
+            if (!response.ok) {
+                // Jika response error (status bukan 2xx)
                 if (result.errors) {
+                    // Tampilkan error validasi
                     showFormErrors(elements.addBoatForm, result.errors);
+                    showAlert('Mohon periksa kembali input Anda', 'error');
                 } else {
+                    // Tampilkan error umum
                     showAlert(result.message || 'Gagal menambahkan kapal', 'error');
                 }
+                return;
             }
+
+            // Jika sukses
+            showAlert('Kapal berhasil ditambahkan', 'success');
+            closeAddModal();
+            loadBoats(); // Refresh data kapal
+
         } catch (error) {
             console.error('Error adding boat:', error);
-            showAlert('Terjadi kesalahan sistem', 'error');
+            showAlert('Terjadi kesalahan sistem. Silakan coba lagi.', 'error');
         } finally {
+            // Reset loading state
             setLoadingButton(elements.saveBoatBtn, false, 'Simpan');
         }
     }
@@ -596,35 +609,47 @@
         const formData = new FormData(elements.editBoatForm);
         const boatId = document.getElementById('edit_boat_id').value;
 
+        // Add _method for Laravel to recognize as PUT request
+        formData.append('_method', 'PUT');
+
         try {
             setLoadingButton(elements.updateBoatBtn, true, 'Memperbaharui...');
             clearErrors(elements.editBoatForm);
 
             const response = await fetch(`${API_BASE_URL}/kapal/${boatId}`, {
-                method: 'POST',
+                method: 'POST', // Using POST with _method=PUT for file uploads
                 body: formData,
                 headers: {
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             });
 
             const result = await response.json();
 
-            if (result.success) {
-                showAlert('Kapal berhasil diupdate', 'success');
-                closeEditModal();
-                loadBoats();
-            } else {
+            if (!response.ok) {
+                // If response error (status bukan 2xx)
                 if (result.errors) {
+                    // Tampilkan error validasi
                     showFormErrors(elements.editBoatForm, result.errors);
+                    showAlert('Mohon periksa kembali input Anda', 'error');
                 } else {
+                    // Tampilkan error umum
                     showAlert(result.message || 'Gagal mengupdate kapal', 'error');
                 }
+                return;
             }
+
+            // Jika sukses
+            showAlert('Kapal berhasil diupdate', 'success');
+            closeEditModal();
+            loadBoats(); // Refresh data kapal
+
         } catch (error) {
             console.error('Error updating boat:', error);
-            showAlert('Terjadi kesalahan sistem', 'error');
+            showAlert('Terjadi kesalahan sistem. Silakan coba lagi.', 'error');
         } finally {
+            // Reset loading state
             setLoadingButton(elements.updateBoatBtn, false, 'Update');
         }
     }
@@ -644,19 +669,38 @@
                 document.getElementById('edit_kapasitas').value = boat.kapasitas;
                 document.getElementById('edit_deskripsi').value = boat.deskripsi || '';
 
-                // Set status radio button
-                const statusRadio = document.querySelector(`input[name="status"][value="${boat.status}"]`);
-                if (statusRadio) {
-                    statusRadio.checked = true;
+                // Set status radio button based on boat status
+                const statusRadios = {
+                    'aktif': document.getElementById('edit_statusActive'),
+                    'maintenance': document.getElementById('edit_statusMaintenance'),
+                    'tidak aktif': document.getElementById('edit_statusInactive')
+                };
+
+                // Uncheck all radios first
+                Object.values(statusRadios).forEach(radio => {
+                    radio.checked = false;
+                });
+
+                // Check the appropriate radio based on boat status
+                if (boat.status && statusRadios[boat.status]) {
+                    statusRadios[boat.status].checked = true;
+                } else {
+                    // Default to 'aktif' if status is not set or invalid
+                    statusRadios['aktif'].checked = true;
                 }
 
                 // Show current image if exists
+                const currentImagePreview = document.getElementById('edit_current_image_preview');
+                const currentImage = document.getElementById('edit_current_image');
                 if (boat.foto_kapal) {
-                    const currentImagePreview = document.getElementById('edit_current_image_preview');
-                    const currentImage = document.getElementById('edit_current_image');
                     currentImage.src = `${IMAGES_BASE_URL}/storage/${boat.foto_kapal}`;
                     currentImagePreview.classList.remove('hidden');
+                } else {
+                    currentImagePreview.classList.add('hidden');
                 }
+
+                // Clear file input
+                document.getElementById('edit_foto_kapal').value = '';
 
                 elements.editModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
@@ -892,32 +936,25 @@
                     errorDiv.textContent = 'Field ini wajib diisi';
                 }
                 isValid = false;
-            } else {
-                field.classList.remove('border-red-500');
-                const errorDiv = field.parentNode.querySelector('.error-message');
-                if (errorDiv) {
-                    errorDiv.classList.add('hidden');
-                    errorDiv.textContent = '';
-                }
             }
         });
 
-        // Validate ID format
+        // Validasi ID format (contoh: BT001)
         const idField = form.querySelector('[name="id"]');
         if (idField && idField.value) {
-            const idPattern = /^[A-Z]{2}\d{3}$/; // Format: BT001
+            const idPattern = /^[A-Z]{2}\d{3}$/;
             if (!idPattern.test(idField.value)) {
                 idField.classList.add('border-red-500');
                 const errorDiv = idField.parentNode.querySelector('.error-message');
                 if (errorDiv) {
                     errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = 'Format ID harus seperti: BT001';
+                    errorDiv.textContent = 'Format ID harus seperti: BT001 (2 huruf besar + 3 angka)';
                 }
                 isValid = false;
             }
         }
 
-        // Validate capacity
+        // Validasi kapasitas (1-100)
         const capacityField = form.querySelector('[name="kapasitas"]');
         if (capacityField && capacityField.value) {
             const capacity = parseInt(capacityField.value);
@@ -932,8 +969,22 @@
             }
         }
 
-        if (!isValid) {
-            showAlert('Mohon periksa kembali input Anda', 'error');
+        // Validasi file upload (jika ada)
+        const fileInput = form.querySelector('[name="foto_kapal"]');
+        if (fileInput && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+
+            if (!allowedTypes.includes(file.type)) {
+                showAlert('Format file harus JPG, JPEG, atau PNG', 'error');
+                isValid = false;
+            }
+
+            if (file.size > maxSize) {
+                showAlert('Ukuran file maksimal 2MB', 'error');
+                isValid = false;
+            }
         }
 
         return isValid;

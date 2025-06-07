@@ -96,9 +96,17 @@ class KapalController extends Controller
             // Handle file upload
             if ($request->hasFile('foto_kapal')) {
                 $file = $request->file('foto_kapal');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+
+                // Simpan file ke storage
                 $path = $file->storeAs('foto_kapal', $filename, 'public');
-                $data['foto_kapal'] = $path;
+
+                // Verifikasi penyimpanan
+                if (!$path) {
+                    throw new \Exception('Gagal menyimpan file gambar');
+                }
+
+                $data['foto_kapal'] = $path; // Simpan path lengkap
             }
 
             $kapal = Kapal::create($data);
@@ -111,7 +119,6 @@ class KapalController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error adding kapal: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan kapal',
@@ -135,13 +142,6 @@ class KapalController extends Controller
                 ], 404);
             }
 
-            // Handle multipart form data for PUT request
-            if ($request->isMethod('put') && $request->hasFile('foto_kapal')) {
-                // For PUT requests with files, we need to handle it differently
-                $request->setMethod('POST');
-                $request->merge(['_method' => 'PUT']);
-            }
-
             $validator = Validator::make($request->all(), [
                 'id' => 'required|string|max:10|unique:kapal,id,' . $kapal->id . ',id',
                 'nama_kapal' => 'required|string|max:255',
@@ -163,14 +163,19 @@ class KapalController extends Controller
 
             // Handle file upload
             if ($request->hasFile('foto_kapal')) {
-                // Delete old image if exists
+                // Hapus gambar lama jika ada
                 if ($kapal->foto_kapal && Storage::disk('public')->exists($kapal->foto_kapal)) {
                     Storage::disk('public')->delete($kapal->foto_kapal);
                 }
 
                 $file = $request->file('foto_kapal');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
                 $path = $file->storeAs('foto_kapal', $filename, 'public');
+
+                if (!$path) {
+                    throw new \Exception('Gagal menyimpan file gambar');
+                }
+
                 $data['foto_kapal'] = $path;
             }
 
