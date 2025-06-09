@@ -4,6 +4,60 @@
 @section('header', 'Manajemen Boat')
 
 @section('content')
+
+
+
+<!-- Statistics Section -->
+<div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-800">Statistik Kapal</h3>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-sm font-medium text-blue-800">Total Kapal</h4>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <p class="text-2xl font-bold text-blue-800" id="totalBoats">0</p>
+                <p class="text-sm text-blue-600">Kapal terdaftar</p>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-sm font-medium text-green-800">Kapal Aktif</h4>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-2xl font-bold text-green-800" id="activeBoats">0</p>
+                <p class="text-sm text-green-600">Siap beroperasi</p>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-sm font-medium text-yellow-800">Maintenance</h4>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <p class="text-2xl font-bold text-yellow-800" id="maintenanceBoats">0</p>
+                <p class="text-sm text-yellow-600">Dalam perbaikan</p>
+            </div>
+            <div class="bg-red-50 p-4 rounded-lg">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-sm font-medium text-red-800">Tidak Aktif</h4>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-2xl font-bold text-red-800" id="inactiveBoats">0</p>
+                <p class="text-sm text-red-600">Tidak beroperasi</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Success/Error Messages -->
 <div id="alertContainer" class="mb-4 hidden">
     <div id="alertMessage" class="p-4 text-sm rounded-lg" role="alert">
@@ -11,9 +65,9 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+<div class="mb-6">
     <!-- Main Boat List -->
-    <div class="lg:col-span-3">
+    <div>
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -38,7 +92,7 @@
                             <input type="text" id="searchInput" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Cari kapal...">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 6 0 012 8z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                         </div>
@@ -55,7 +109,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAMA KAPAL</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">KAPASITAS</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AKSI</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">AKSI</th>
                             </tr>
                         </thead>
                         <tbody id="boatsTableBody" class="bg-white divide-y divide-gray-200">
@@ -77,64 +131,22 @@
                         <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada kapal</h3>
                         <p class="mt-1 text-sm text-gray-500">Mulai dengan menambahkan kapal baru.</p>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Sidebar Statistics -->
-    <div class="space-y-6">
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-800">Statistik Kapal</h3>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 gap-4">
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="text-sm font-medium text-blue-800">Total Kapal</h4>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
+                    <!-- Pagination -->
+                    <div id="pagination" class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+                        <div class="text-sm text-gray-700" id="pagination-info">
+                            Menampilkan <span id="pagination-start">0</span> - <span id="pagination-end">0</span> dari <span id="pagination-total">0</span> kapal
                         </div>
-                        <p class="text-2xl font-bold text-blue-800" id="totalBoats">0</p>
-                        <p class="text-sm text-blue-600">Kapal terdaftar</p>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="text-sm font-medium text-green-800">Kapal Aktif</h4>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                        <div class="flex items-center space-x-2" id="pagination-controls">
+                            <!-- Pagination controls will be generated here -->
                         </div>
-                        <p class="text-2xl font-bold text-green-800" id="activeBoats">0</p>
-                        <p class="text-sm text-green-600">Siap beroperasi</p>
-                    </div>
-                    <div class="bg-yellow-50 p-4 rounded-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="text-sm font-medium text-yellow-800">Maintenance</h4>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                            </svg>
-                        </div>
-                        <p class="text-2xl font-bold text-yellow-800" id="maintenanceBoats">0</p>
-                        <p class="text-sm text-yellow-600">Dalam perbaikan</p>
-                    </div>
-                    <div class="bg-red-50 p-4 rounded-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="text-sm font-medium text-red-800">Tidak Aktif</h4>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <p class="text-2xl font-bold text-red-800" id="inactiveBoats">0</p>
-                        <p class="text-sm text-red-600">Tidak beroperasi</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Add Boat Modal -->
 <div id="addBoatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
@@ -328,11 +340,14 @@
     const API_BASE_URL = '{{ env("APP_API_URL", "http://boat-sanur.test/api") }}';
     // const IMAGES_BASE_URL = '{{ env("APP_IMAGES_URL", "http://boat-sanur.test/images") }}';
     const IMAGES_BASE_URL = '{{ url("") }}';
+    const ITEMS_PER_PAGE = 10; // Number of items per page
 
     // Global variables
     let boats = [];
     let filteredBoats = [];
     let currentDeleteId = null;
+    let currentPage = 1;
+    let totalPages = 1;
 
     // DOM Elements
     const elements = {
@@ -374,7 +389,15 @@
         // Alert
         alertContainer: document.getElementById('alertContainer'),
         alertMessage: document.getElementById('alertMessage'),
-        alertText: document.getElementById('alertText')
+        alertText: document.getElementById('alertText'),
+
+        // Pagination
+        pagination: document.getElementById('pagination'),
+        paginationInfo: document.getElementById('pagination-info'),
+        paginationStart: document.getElementById('pagination-start'),
+        paginationEnd: document.getElementById('pagination-end'),
+        paginationTotal: document.getElementById('pagination-total'),
+        paginationControls: document.getElementById('pagination-controls')
     };
 
     // Initialize
@@ -530,8 +553,10 @@
             if (result.success) {
                 boats = result.data;
                 filteredBoats = [...boats];
+                currentPage = 1; // Reset to first page when loading new data
                 renderTable();
                 updateStatistics();
+                updatePagination();
             } else {
                 showAlert('Gagal memuat data kapal', 'error');
             }
@@ -758,12 +783,19 @@
         if (filteredBoats.length === 0) {
             tbody.innerHTML = '';
             elements.emptyState.classList.remove('hidden');
+            elements.pagination.classList.add('hidden');
             return;
         }
 
         elements.emptyState.classList.add('hidden');
+        elements.pagination.classList.remove('hidden');
 
-        tbody.innerHTML = filteredBoats.map(boat => `
+        // Calculate pagination
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredBoats.length);
+        const paginatedBoats = filteredBoats.slice(startIndex, endIndex);
+
+        tbody.innerHTML = paginatedBoats.map(boat => `
             <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${boat.id}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -802,6 +834,136 @@
                 </td>
             </tr>
         `).join('');
+
+        // Update pagination info
+        updatePaginationInfo(startIndex, endIndex);
+    }
+
+    // Pagination functions
+    function updatePagination() {
+        totalPages = Math.ceil(filteredBoats.length / ITEMS_PER_PAGE);
+
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = totalPages;
+        }
+
+        renderPaginationControls();
+        renderTable();
+    }
+
+    function renderPaginationControls() {
+        const controls = elements.paginationControls;
+
+        if (totalPages <= 1) {
+            controls.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+
+        // Previous button
+        html += `
+            <button
+                class="px-3 py-1 border border-gray-300 rounded-md ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+                ${currentPage === 1 ? 'disabled' : 'onclick="changePage(' + (currentPage - 1) + ')"'}
+            >
+                Previous
+            </button>
+        `;
+
+        // Page numbers
+        const maxVisiblePages = 5;
+        const pages = getPageNumbers(totalPages, currentPage, maxVisiblePages);
+
+        pages.forEach(page => {
+            if (page === '...') {
+                html += `<span class="px-3 py-1">...</span>`;
+            } else {
+                html += `
+                    <button
+                        class="px-3 py-1 border border-gray-300 rounded-md min-w-[40px] ${page === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+                        onclick="changePage(${page})"
+                    >
+                        ${page}
+                    </button>
+                `;
+            }
+        });
+
+        // Next button
+        html += `
+            <button
+                class="px-3 py-1 border border-gray-300 rounded-md ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+                ${currentPage === totalPages ? 'disabled' : 'onclick="changePage(' + (currentPage + 1) + ')"'}
+            >
+                Next
+            </button>
+        `;
+
+        controls.innerHTML = html;
+    }
+
+    function getPageNumbers(totalPages, currentPage, maxVisiblePages) {
+        const pages = [];
+
+        if (totalPages <= maxVisiblePages) {
+            // Show all pages if total pages is less than or equal to max visible pages
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Always show first page
+            pages.push(1);
+
+            // Calculate start and end of visible pages
+            let startPage = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 3);
+
+            // Adjust if we're near the beginning
+            if (startPage === 2) {
+                endPage = Math.min(totalPages - 1, maxVisiblePages - 1);
+            }
+
+            // Adjust if we're near the end
+            if (endPage === totalPages - 1) {
+                startPage = Math.max(2, totalPages - maxVisiblePages + 2);
+            }
+
+            // Add ellipsis after first page if needed
+            if (startPage > 2) {
+                pages.push('...');
+            }
+
+            // Add visible pages
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+
+            // Add ellipsis before last page if needed
+            if (endPage < totalPages - 1) {
+                pages.push('...');
+            }
+
+            // Always show last page
+            pages.push(totalPages);
+        }
+
+        return pages;
+    }
+
+    function updatePaginationInfo(startIndex, endIndex) {
+        elements.paginationStart.textContent = startIndex + 1;
+        elements.paginationEnd.textContent = endIndex;
+        elements.paginationTotal.textContent = filteredBoats.length;
+    }
+
+    function changePage(page) {
+        currentPage = page;
+        renderTable();
+        renderPaginationControls();
+
+        // Scroll to top of table
+        document.getElementById('boatsTable').scrollIntoView({ behavior: 'smooth' });
     }
 
     // Search and filter
@@ -837,7 +999,10 @@
             const matchesFilter = status === 'semua' || boat.status === status;
             return matchesSearch && matchesFilter;
         });
-        renderTable();
+
+        // Reset to first page when filtering
+        currentPage = 1;
+        updatePagination();
     }
 
     // Statistics
@@ -859,6 +1024,7 @@
             elements.loadingState.classList.remove('hidden');
             elements.boatsTableBody.innerHTML = '';
             elements.emptyState.classList.add('hidden');
+            elements.pagination.classList.add('hidden');
         } else {
             elements.loadingState.classList.add('hidden');
         }
@@ -993,5 +1159,6 @@
     // Make functions global for onclick handlers
     window.editBoat = editBoat;
     window.deleteBoat = deleteBoat;
+    window.changePage = changePage;
 </script>
 @endsection

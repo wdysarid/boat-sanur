@@ -11,11 +11,6 @@
                 </button>
             </div>
 
-            <!-- Logo/Title -->
-            <div class="flex items-center">
-                <h1 class="text-xl font-semibold text-gray-900">Admin Panel</h1>
-            </div>
-
             <!-- Search -->
             <div class="flex-1 flex justify-center px-2 lg:ml-6 lg:justify-start max-w-lg">
                 <div class="w-full lg:max-w-xs">
