@@ -16,11 +16,16 @@ class JadwalController extends Controller
      */
     public function getJadwal()
     {
-        $jadwal = Jadwal::with('kapal')->get();
+        $jadwal = Jadwal::with(['kapal', 'tiket' => function($query) {
+            $query->where('status', 'sukses');
+        }])->get();
 
         return response()->json([
             'success' => true,
-            'data' => $jadwal
+            'data' => $jadwal->map(function($item) {
+                $item->tiket_terjual = $item->tiket->sum('jumlah_penumpang');
+                return $item;
+            })
         ]);
     }
 
@@ -29,7 +34,9 @@ class JadwalController extends Controller
      */
     public function getJadwalById($id)
     {
-        $jadwal = Jadwal::with(['kapal', 'tiket'])->find($id);
+        $jadwal = Jadwal::with(['kapal', 'tiket' => function($query) {
+            $query->where('status', 'sukses');
+        }])->find($id);
 
         if (!$jadwal) {
             return response()->json(
@@ -40,6 +47,8 @@ class JadwalController extends Controller
                 404,
             );
         }
+
+        $jadwal->tiket_terjual = $jadwal->tiket->sum('jumlah_penumpang');
 
         return response()->json([
             'success' => true,
@@ -54,65 +63,49 @@ class JadwalController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'kapal_id' => 'required|string|exists:kapal,id',
-            'rute' => 'required|string|max:255',
-            'tanggal' => 'required|date',
-            'waktu_berangkat' => 'required|date',
-            'waktu_tiba' => 'required|date|after:waktu_berangkat',
-            'harga_tiket' => 'required|integer|min:0',
+            'rute_asal' => 'required|string|max:255',
+            'rute_tujuan' => 'required|string|max:255|different:rute_asal',
+            'tanggal' => 'required|date|after_or_equal:today',
+            'waktu_berangkat' => 'required|date_format:H:i',
+            'waktu_tiba' => 'required|date_format:H:i|after:waktu_berangkat',
+            'harga_tiket' => 'required|integer|min:1000',
+            'keterangan' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'errors' => $validator->errors(),
-                ],
-                422,
-            );
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+                'message' => 'Validasi gagal'
+            ], 422);
         }
 
-        $kapal = Kapal::find($request->kapal_id);
-        if (!$kapal || $kapal->status !== 'aktif') {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Kapal tidak tersedia atau tidak aktif',
-                ],
-                400,
-            );
-        }
+        try {
+            $jadwal = Jadwal::create([
+                'kapal_id' => $request->kapal_id,
+                'rute_asal' => $request->rute_asal,
+                'rute_tujuan' => $request->rute_tujuan,
+                'tanggal' => $request->tanggal,
+                'waktu_berangkat' => $request->waktu_berangkat,
+                'waktu_tiba' => $request->waktu_tiba,
+                'harga_tiket' => $request->harga_tiket,
+                'keterangan' => $request->keterangan,
+                'status' => 'aktif',
+            ]);
 
-        // Check if the ship already has a schedule at the same time
-        $existingSchedule = Jadwal::where('kapal_id', $request->kapal_id)->where('waktu_berangkat', '<=', $request->waktu_tiba)->where('waktu_tiba', '>=', $request->waktu_berangkat)->exists();
-
-        if ($existingSchedule) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Kapal sudah memiliki jadwal pada waktu tersebut',
-                ],
-                400,
-            );
-        }
-
-        $jadwal = Jadwal::create([
-            'kapal_id' => $request->kapal_id,
-            'rute' => $request->rute,
-            'tanggal' => $request->tanggal,
-            'waktu_berangkat' => $request->waktu_berangkat,
-            'waktu_tiba' => $request->waktu_tiba,
-            'harga_tiket' => $request->harga_tiket,
-            'status' => 'aktif',
-        ]);
-
-        return response()->json(
-            [
+            return response()->json([
                 'success' => true,
                 'data' => $jadwal,
-                'message' => 'Jadwal berhasil ditambahkan',
-            ],
-            201,
-        );
+                'message' => 'Jadwal berhasil ditambahkan'
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'error_details' => $e->getTraceAsString()
+            ], 500);
+        }
     }
 
     /**
@@ -134,12 +127,14 @@ class JadwalController extends Controller
 
         $validator = Validator::make($request->all(), [
             'kapal_id' => 'sometimes|string|exists:kapal,id',
-            'rute' => 'sometimes|string|max:255',
-            'tanggal' => 'sometimes|date',
-            'waktu_berangkat' => 'sometimes|date',
-            'waktu_tiba' => 'sometimes|date|after:waktu_berangkat',
-            'harga_tiket' => 'sometimes|integer|min:0',
-            'status' => 'sometimes|in:aktif,selesai',
+            'rute_asal' => 'sometimes|string|max:255',
+            'rute_tujuan' => 'sometimes|string|max:255|different:rute_asal',
+            'tanggal' => 'sometimes|date|after_or_equal:today',
+            'waktu_berangkat' => 'sometimes|date_format:H:i',
+            'waktu_tiba' => 'sometimes|date_format:H:i|after:waktu_berangkat',
+            'harga_tiket' => 'sometimes|integer|min:1000',
+            'keterangan' => 'nullable|string',
+            'status' => 'sometimes|in:aktif,selesai,dibatalkan',
         ]);
 
         if ($validator->fails()) {
@@ -177,12 +172,24 @@ class JadwalController extends Controller
         }
 
         // Check for schedule conflicts if changing time
-        if ($request->has('waktu_berangkat') || $request->has('waktu_tiba')) {
+        if ($request->has('waktu_berangkat') || $request->has('waktu_tiba') || $request->has('tanggal')) {
             $waktuBerangkat = $request->waktu_berangkat ?? $jadwal->waktu_berangkat;
             $waktuTiba = $request->waktu_tiba ?? $jadwal->waktu_tiba;
+            $tanggal = $request->tanggal ?? $jadwal->tanggal;
             $kapalId = $request->kapal_id ?? $jadwal->kapal_id;
 
-            $existingSchedule = Jadwal::where('kapal_id', $kapalId)->where('id', '!=', $id)->where('waktu_berangkat', '<=', $waktuTiba)->where('waktu_tiba', '>=', $waktuBerangkat)->exists();
+            $existingSchedule = Jadwal::where('kapal_id', $kapalId)
+                ->where('id', '!=', $id)
+                ->whereDate('tanggal', $tanggal)
+                ->where(function($query) use ($waktuBerangkat, $waktuTiba) {
+                    $query->whereBetween('waktu_berangkat', [$waktuBerangkat, $waktuTiba])
+                          ->orWhereBetween('waktu_tiba', [$waktuBerangkat, $waktuTiba])
+                          ->orWhere(function($q) use ($waktuBerangkat, $waktuTiba) {
+                              $q->where('waktu_berangkat', '<=', $waktuBerangkat)
+                                ->where('waktu_tiba', '>=', $waktuTiba);
+                          });
+                })
+                ->exists();
 
             if ($existingSchedule) {
                 return response()->json(
@@ -195,7 +202,17 @@ class JadwalController extends Controller
             }
         }
 
-        $jadwal->fill($request->only(['kapal_id', 'rute', 'tanggal', 'waktu_berangkat', 'waktu_tiba', 'harga_tiket', 'status']));
+        $jadwal->fill($request->only([
+            'kapal_id',
+            'rute_asal',
+            'rute_tujuan',
+            'tanggal',
+            'waktu_berangkat',
+            'waktu_tiba',
+            'harga_tiket',
+            'keterangan',
+            'status'
+        ]));
 
         $jadwal->save();
 

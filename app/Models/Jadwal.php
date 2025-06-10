@@ -7,25 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class Jadwal extends Model
 {
-    Use HasFactory;
+    use HasFactory;
 
     protected $table = 'jadwal';
 
     protected $fillable = [
         'kapal_id',
-        'rute',
+        'rute_asal',
+        'rute_tujuan',
         'tanggal',
         'waktu_berangkat',
         'waktu_tiba',
         'harga_tiket',
+        'keterangan',
         'status',
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
-        'waktu_berangkat' => 'datetime',
-        'waktu_tiba' => 'datetime',
+        'waktu_berangkat' => 'datetime:H:i',
+        'waktu_tiba' => 'datetime:H:i',
     ];
+
+    protected $appends = ['tiket_terjual'];
 
     const STATUS_AKTIF = 'aktif';
     const STATUS_SELESAI = 'selesai';
@@ -40,11 +43,14 @@ class Jadwal extends Model
         return $this->hasMany(Tiket::class);
     }
 
-    // Calculate available seats
+    public function getTiketTerjualAttribute()
+    {
+        return $this->tiket()->where('status', 'sukses')->sum('jumlah_penumpang');
+    }
+
     public function getAvailableSeatsAttribute()
     {
-        $totalTiket = $this->tiket()->where('status', 'sukses')->sum('jumlah_penumpang');
-        return $this->kapal->kapasitas - $totalTiket;
+        return $this->kapal->kapasitas - $this->tiket_terjual;
     }
 
     // Scope for active schedules
