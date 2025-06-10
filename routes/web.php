@@ -26,7 +26,7 @@ Route::get('/forgot-password', function () {
 
 
 Route::get('/search', function () {
-    return view('search.tickets');
+    return view('search-tickets');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -72,6 +72,14 @@ Route::middleware(['auth', 'role:wisatawan'])->prefix('user')->name('user.')->gr
     Route::get('/pemesanan', function () {
         return view('user.pemesanan');
     })->name('pemesanan');
+
+    Route::get('/pembayaran', function () {
+        return view('user.pembayaran');
+    })->name('pembayaran');
+
+    Route::get('/konfirmasi', function () {
+        return view('user.konfirmasi');
+    })->name('konfirmasi');
 });
 
 
