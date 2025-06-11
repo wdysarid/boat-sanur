@@ -29,7 +29,7 @@
         data-aos-duration="1000">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white rounded-lg shadow-xl p-6">
-                <form action="{{ route('search.tickets') }}" method="GET">
+                <form action="{{ route('search.tickets') }}?from=Sanur&to=Nusa Penida&departure_date={{ date('Y-m-d') }}" method="GET">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <!-- Destinations -->
                         {{-- <div data-aos="fade-up" data-aos-delay="700" data-aos-anchor=".bg-white">
