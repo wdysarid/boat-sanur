@@ -19,6 +19,23 @@ class AdminController extends Controller
         return view('admin.boats');
     }
 
-}
+     public function indexSchedule()
+    {
+        return view('admin.schedule');
+    }
 
-// tambah else error
+    public function apiRequest($method, $url, $data = [])
+    {
+        try {
+            $response = Http::withToken(session('token'))
+                ->$method($this->apiUrl.$url, $data);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error connecting to API: '.$e->getMessage()
+            ];
+        }
+    }
+}

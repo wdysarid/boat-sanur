@@ -40,9 +40,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     })->name('dashboard');
 
     // Schedule View
-    Route::get('/schedule', function () {
-        return view('admin.schedule');
-    })->name('schedule');
+    Route::get('/schedule', [AdminController::class, 'indexSchedule'])->name('schedule');
 
     // Boats and Tickets View
     Route::get('/boats', [AdminController::class,'indexKapal'])->name('boats');

@@ -31,7 +31,6 @@
                         <button data-status="semua" class="filter-btn px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-md font-medium transition-colors">Semua</button>
                         <button data-status="aktif" class="filter-btn px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Aktif</button>
                         <button data-status="selesai" class="filter-btn px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Selesai</button>
-                        <button data-status="dibatalkan" class="filter-btn px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Dibatalkan</button>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <div class="relative flex-grow">
@@ -408,10 +407,7 @@
                                 <input type="radio" id="edit_statusCompleted" name="status" value="selesai" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
                                 <label for="edit_statusCompleted" class="ml-2 text-sm text-gray-700">Selesai</label>
                             </div>
-                            <div class="flex items-center">
-                                <input type="radio" id="edit_statusCancelled" name="status" value="dibatalkan" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
-                                <label for="edit_statusCancelled" class="ml-2 text-sm text-gray-700">Dibatalkan</label>
-                            </div>
+
                         </div>
                     </div>
 
@@ -698,40 +694,45 @@
             return;
         }
 
-        const formData = new FormData(elements.addScheduleForm);
+        const formData = {
+            kapal_id: document.getElementById('add_kapal_id').value,
+            rute_asal: document.getElementById('add_rute_asal').value,
+            rute_tujuan: document.getElementById('add_rute_tujuan').value,
+            tanggal: document.getElementById('add_tanggal').value,
+            waktu_berangkat: document.getElementById('add_waktu_berangkat').value,
+            waktu_tiba: document.getElementById('add_waktu_tiba').value,
+            harga_tiket: document.getElementById('add_harga').value,
+            keterangan: document.getElementById('add_keterangan').value,
+            status: document.querySelector('input[name="status"]:checked').value
+        };
+
+        console.log('Data yang dikirim:', formData); // Debugging
 
         try {
             setLoadingButton(elements.saveScheduleBtn, true, 'Menyimpan...');
-            clearErrors(elements.addScheduleForm);
 
             const response = await fetch(`${API_BASE_URL}/jadwal`, {
                 method: 'POST',
-                body: formData,
                 headers: {
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(formData)
             });
 
             const result = await response.json();
 
             if (!response.ok) {
-                if (result.errors) {
-                    showFormErrors(elements.addScheduleForm, result.errors);
-                    showAlert('Mohon periksa kembali input Anda', 'error');
-                } else {
-                    showAlert(result.message || 'Gagal menambahkan jadwal', 'error');
-                }
-                return;
+                throw new Error(result.message || 'Gagal menyimpan jadwal');
             }
 
             showAlert('Jadwal berhasil ditambahkan', 'success');
             closeAddModal();
             loadSchedules();
-
         } catch (error) {
-            console.error('Error adding schedule:', error);
-            showAlert('Terjadi kesalahan sistem. Silakan coba lagi.', 'error');
+            console.error('Error:', error);
+            showAlert(error.message || 'Terjadi kesalahan saat menyimpan jadwal', 'error');
         } finally {
             setLoadingButton(elements.saveScheduleBtn, false, 'Simpan');
         }
@@ -744,21 +745,31 @@
             return;
         }
 
-        const formData = new FormData(elements.editScheduleForm);
         const scheduleId = document.getElementById('edit_schedule_id').value;
-        formData.append('_method', 'PUT');
+        const formData = {
+            kapal_id: document.getElementById('edit_kapal_id').value,
+            rute_asal: document.getElementById('edit_rute_asal').value,
+            rute_tujuan: document.getElementById('edit_rute_tujuan').value,
+            tanggal: document.getElementById('edit_tanggal').value,
+            waktu_berangkat: document.getElementById('edit_waktu_berangkat').value,
+            waktu_tiba: document.getElementById('edit_waktu_tiba').value,
+            harga_tiket: document.getElementById('edit_harga').value,
+            keterangan: document.getElementById('edit_keterangan').value,
+            status: document.querySelector('#editScheduleForm input[name="status"]:checked').value
+        };
 
         try {
             setLoadingButton(elements.updateScheduleBtn, true, 'Memperbaharui...');
             clearErrors(elements.editScheduleForm);
 
             const response = await fetch(`${API_BASE_URL}/jadwal/${scheduleId}`, {
-                method: 'POST',
-                body: formData,
+                method: 'PUT',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
+                },
+                body: JSON.stringify(formData)
             });
 
             const result = await response.json();
@@ -798,17 +809,16 @@
                 document.getElementById('edit_kapal_id').value = schedule.kapal_id;
                 document.getElementById('edit_rute_asal').value = schedule.rute_asal;
                 document.getElementById('edit_rute_tujuan').value = schedule.rute_tujuan;
-                document.getElementById('edit_tanggal').value = schedule.tanggal;
+                document.getElementById('edit_tanggal').value = schedule.tanggal.split('T')[0];
                 document.getElementById('edit_waktu_berangkat').value = schedule.waktu_berangkat;
                 document.getElementById('edit_waktu_tiba').value = schedule.waktu_tiba;
-                document.getElementById('edit_harga').value = schedule.harga;
+                document.getElementById('edit_harga').value = schedule.harga_tiket;
                 document.getElementById('edit_keterangan').value = schedule.keterangan || '';
 
                 // Set status radio button
                 const statusRadios = {
                     'aktif': document.getElementById('edit_statusActive'),
                     'selesai': document.getElementById('edit_statusCompleted'),
-                    'dibatalkan': document.getElementById('edit_statusCancelled')
                 };
 
                 Object.values(statusRadios).forEach(radio => {
@@ -891,6 +901,9 @@
             const boat = boats.find(b => b.id === schedule.kapal_id);
             const boatName = boat ? boat.nama_kapal : 'Unknown';
             const boatImage = boat && boat.foto_kapal ? `${IMAGES_BASE_URL}/storage/${boat.foto_kapal}` : '/placeholder.svg?height=40&width=40';
+            const tiketTerjual = schedule.tiket_terjual || 0;
+            const kapasitas = schedule.kapasitas_kapal || schedule.kapal?.kapasitas || 0;
+            const persentaseTerisi = kapasitas > 0 ? Math.min(100, Math.round((tiketTerjual / kapasitas) * 100)) : 0;
 
             return `
                 <tr class="hover:bg-gray-50 transition-colors">
@@ -908,16 +921,16 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">${schedule.rute_asal} → ${schedule.rute_tujuan}</div>
-                        <div class="text-sm text-gray-500">Rp ${parseInt(schedule.harga).toLocaleString('id-ID')}</div>
+                        <div class="text-sm text-gray-500">Rp ${parseInt(schedule.harga_tiket).toLocaleString('id-ID')}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">${formatDate(schedule.tanggal)}</div>
                         <div class="text-sm text-gray-500">${schedule.waktu_berangkat} - ${schedule.waktu_tiba}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">${schedule.tiket_terjual || 0}/${boat ? boat.kapasitas : 'N/A'}</div>
+                        <div class="text-sm font-medium text-gray-900">${tiketTerjual}/${kapasitas}</div>
                         <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1.5">
-                            <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${boat ? ((schedule.tiket_terjual || 0) / boat.kapasitas * 100) : 0}%"></div>
+                            <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${persentaseTerisi}%"></div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -1151,7 +1164,6 @@
         switch(status) {
             case 'aktif': return 'bg-green-100 text-green-800';
             case 'selesai': return 'bg-gray-100 text-gray-800';
-            case 'dibatalkan': return 'bg-red-100 text-red-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     }
@@ -1160,7 +1172,6 @@
         switch(status) {
             case 'aktif': return 'Aktif';
             case 'selesai': return 'Selesai';
-            case 'dibatalkan': return 'Dibatalkan';
             default: return status;
         }
     }
