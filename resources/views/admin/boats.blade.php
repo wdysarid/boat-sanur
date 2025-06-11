@@ -1129,7 +1129,7 @@
                 const errorDiv = capacityField.parentNode.querySelector('.error-message');
                 if (errorDiv) {
                     errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = 'Kapasitas harus antara 1-100 penumpang';
+                    errorDiv.textContent = 'Kapasitas maksimal penumpang adalah 100 orang';
                 }
                 isValid = false;
             }
