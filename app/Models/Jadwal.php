@@ -48,6 +48,11 @@ class Jadwal extends Model
         return $this->tiket()->where('status', 'sukses')->sum('jumlah_penumpang');
     }
 
+    public function getKapasitasKapalAttribute()
+    {
+        return $this->kapal ? $this->kapal->kapasitas : 0;
+    }
+
     public function getAvailableSeatsAttribute()
     {
         return $this->kapal->kapasitas - $this->tiket_terjual;

@@ -31,7 +31,6 @@
                         <button data-status="semua" class="filter-btn px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-md font-medium transition-colors">Semua</button>
                         <button data-status="aktif" class="filter-btn px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Aktif</button>
                         <button data-status="selesai" class="filter-btn px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Selesai</button>
-                        <button data-status="dibatalkan" class="filter-btn px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Dibatalkan</button>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <div class="relative flex-grow">
@@ -408,10 +407,7 @@
                                 <input type="radio" id="edit_statusCompleted" name="status" value="selesai" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
                                 <label for="edit_statusCompleted" class="ml-2 text-sm text-gray-700">Selesai</label>
                             </div>
-                            <div class="flex items-center">
-                                <input type="radio" id="edit_statusCancelled" name="status" value="dibatalkan" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
-                                <label for="edit_statusCancelled" class="ml-2 text-sm text-gray-700">Dibatalkan</label>
-                            </div>
+
                         </div>
                     </div>
 
@@ -823,7 +819,6 @@
                 const statusRadios = {
                     'aktif': document.getElementById('edit_statusActive'),
                     'selesai': document.getElementById('edit_statusCompleted'),
-                    'dibatalkan': document.getElementById('edit_statusCancelled')
                 };
 
                 Object.values(statusRadios).forEach(radio => {
@@ -907,7 +902,7 @@
             const boatName = boat ? boat.nama_kapal : 'Unknown';
             const boatImage = boat && boat.foto_kapal ? `${IMAGES_BASE_URL}/storage/${boat.foto_kapal}` : '/placeholder.svg?height=40&width=40';
             const tiketTerjual = schedule.tiket_terjual || 0;
-            const kapasitas = boat ? boat.kapasitas : 0;
+            const kapasitas = schedule.kapasitas_kapal || schedule.kapal?.kapasitas || 0;
             const persentaseTerisi = kapasitas > 0 ? Math.min(100, Math.round((tiketTerjual / kapasitas) * 100)) : 0;
 
             return `
@@ -1169,7 +1164,6 @@
         switch(status) {
             case 'aktif': return 'bg-green-100 text-green-800';
             case 'selesai': return 'bg-gray-100 text-gray-800';
-            case 'dibatalkan': return 'bg-red-100 text-red-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     }
@@ -1178,7 +1172,6 @@
         switch(status) {
             case 'aktif': return 'Aktif';
             case 'selesai': return 'Selesai';
-            case 'dibatalkan': return 'Dibatalkan';
             default: return status;
         }
     }

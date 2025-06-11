@@ -16,15 +16,12 @@ class JadwalController extends Controller
      */
     public function getJadwal()
     {
-        $jadwal = Jadwal::with(['kapal', 'tiket' => function($query) {
-            $query->where('status', 'sukses');
-        }])->get();
+        $jadwal = Jadwal::with(['kapal'])->get();
 
         return response()->json([
             'success' => true,
             'data' => $jadwal->map(function($item) {
-                $item->tiket_terjual = $item->tiket->sum('jumlah_penumpang');
-                return $item;
+                return $item->toArray(); // Biarkan append attribute bekerja
             })
         ]);
     }
