@@ -255,4 +255,58 @@ class JadwalController extends Controller
             'message' => 'Jadwal berhasil dihapus',
         ]);
     }
+
+    public function search(Request $request)
+{
+    $request->validate([
+        'from' => 'required|string',
+        'to' => 'required|string|different:from',
+        'departure_date' => 'required|date|after_or_equal:today'
+    ]);
+
+    $schedules = Jadwal::with('kapal')
+        ->where('rute_asal', $request->from)
+        ->where('rute_tujuan', $request->to)
+        ->where('tanggal', $request->departure_date)
+        ->where('status', 'aktif')
+        ->orderBy('waktu_berangkat')
+        ->get()
+        ->map(function ($schedule) {
+            return $this->formatScheduleData($schedule);
+        });
+
+    return view('search-tickets', [
+        'tickets' => $schedules,
+        'searchParams' => $request->all()
+    ]);
+}
+
+private function formatScheduleData($schedule)
+{
+    $departureTime = Carbon::parse($schedule->waktu_berangkat);
+    $arrivalTime = Carbon::parse($schedule->waktu_tiba);
+    $duration = $departureTime->diff($arrivalTime);
+
+    $durationText = $duration->h > 0
+        ? $duration->h . ' jam ' . $duration->i . ' menit'
+        : $duration->i . ' menit';
+
+    return [
+        'id' => $schedule->id,
+        'boat_name' => $schedule->kapal->nama_kapal,
+        'boat_image' => $schedule->kapal->foto_kapal_url ?? '/images/boats/default-boat.jpg',
+        'departure_port' => $schedule->rute_asal,
+        'arrival_port' => $schedule->rute_tujuan,
+        'departure_time' => $schedule->waktu_berangkat,
+        'arrival_time' => $schedule->waktu_tiba,
+        'duration' => $durationText,
+        'price' => $schedule->harga_tiket,
+        'available_seats' => $schedule->available_seats,
+        'has_ac' => true,
+        'has_luggage' => true,
+        'has_life_jacket' => true,
+        'has_insurance' => true
+    ];
+}
+
 }

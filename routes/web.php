@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Api\JadwalController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -28,6 +29,9 @@ Route::get('/forgot-password', function () {
 Route::get('/search', function () {
     return view('search-tickets');
 });
+
+// web.php
+Route::get('/search', [JadwalController::class, 'search'])->name('search.tickets');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

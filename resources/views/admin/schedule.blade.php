@@ -244,7 +244,7 @@
                             <option value="Nusa Penida">Nusa Penida</option>
                             <option value="Nusa Lembongan">Nusa Lembongan</option>
                             <option value="Nusa Ceningan">Nusa Ceningan</option>
-                            <option value="Gili Trawangan">Gili Trawangan</option>
+                            {{-- <option value="Gili Trawangan">Gili Trawangan</option> --}}
                         </select>
                         <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
                     </div>
@@ -257,7 +257,7 @@
                             <option value="Nusa Penida">Nusa Penida</option>
                             <option value="Nusa Lembongan">Nusa Lembongan</option>
                             <option value="Nusa Ceningan">Nusa Ceningan</option>
-                            <option value="Gili Trawangan">Gili Trawangan</option>
+                            {{-- <option value="Gili Trawangan">Gili Trawangan</option> --}}
                         </select>
                         <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
                     </div>
