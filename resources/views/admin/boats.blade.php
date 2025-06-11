@@ -5,8 +5,6 @@
 
 @section('content')
 
-
-
 <!-- Statistics Section -->
 <div class="bg-white rounded-lg shadow">
     <div class="px-6 py-4 border-b border-gray-200">
@@ -338,9 +336,8 @@
 <script>
     // Configuration
     const API_BASE_URL = '{{ env("APP_API_URL", "http://boat-sanur.test/api") }}';
-    // const IMAGES_BASE_URL = '{{ env("APP_IMAGES_URL", "http://boat-sanur.test/images") }}';
     const IMAGES_BASE_URL = '{{ url("") }}';
-    const ITEMS_PER_PAGE = 10; // Number of items per page
+    const ITEMS_PER_PAGE = 10;
 
     // Global variables
     let boats = [];
@@ -438,6 +435,124 @@
         elements.deleteModal.addEventListener('click', (e) => {
             if (e.target === elements.deleteModal) closeDeleteModal();
         });
+
+        // Add direct validation for capacity fields
+        const addCapacityField = document.getElementById('add_kapasitas');
+        const editCapacityField = document.getElementById('edit_kapasitas');
+
+        if (addCapacityField) {
+            addCapacityField.addEventListener('input', function() {
+                validateCapacity(this);
+            });
+            addCapacityField.addEventListener('blur', function() {
+                validateCapacity(this);
+            });
+        }
+
+        if (editCapacityField) {
+            editCapacityField.addEventListener('input', function() {
+                validateCapacity(this);
+            });
+            editCapacityField.addEventListener('blur', function() {
+                validateCapacity(this);
+            });
+        }
+    }
+
+    // Enhanced File validation with field-specific errors
+    function validateFile(input) {
+        const file = input.files[0];
+        if (!file) return true;
+
+        // Clear previous errors
+        clearFieldError(input);
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        const allowedExtensions = ['jpg', 'jpeg', 'png'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
+            showFieldError(input, 'Format file harus PNG, JPG, atau JPEG');
+            input.value = '';
+            return false;
+        }
+
+        // Validate file size (2MB)
+        const maxSize = 2 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showFieldError(input, 'Ukuran file maksimal 2MB');
+            input.value = '';
+            return false;
+        }
+
+        return true;
+    }
+
+    // Improved capacity validation
+    function validateCapacity(input) {
+        if (!input) return true;
+
+        // Get the parent container to find the error message div
+        const parentContainer = input.closest('.col-span-2');
+        const errorDiv = parentContainer.querySelector('.error-message');
+
+        // Clear previous errors
+        input.classList.remove('border-red-500');
+        if (errorDiv) {
+            errorDiv.classList.add('hidden');
+            errorDiv.textContent = '';
+        }
+
+        const capacity = parseInt(input.value);
+
+        if (!input.value.trim()) {
+            // Show error directly in the error div
+            input.classList.add('border-red-500');
+            if (errorDiv) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = 'Kapasitas wajib diisi';
+            }
+            return false;
+        } else if (isNaN(capacity) || capacity < 1) {
+            // Show error directly in the error div
+            input.classList.add('border-red-500');
+            if (errorDiv) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = 'Kapasitas minimal 1 penumpang';
+            }
+            return false;
+        } else if (capacity > 100) {
+            // Show error directly in the error div
+            input.classList.add('border-red-500');
+            if (errorDiv) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = 'Kapasitas maksimal 100 penumpang';
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    // Show field-specific error
+    function showFieldError(field, message) {
+        field.classList.add('border-red-500');
+        const errorDiv = field.parentNode.querySelector('.error-message');
+        if (errorDiv) {
+            errorDiv.classList.remove('hidden');
+            errorDiv.textContent = message;
+        }
+    }
+
+    // Clear field-specific error
+    function clearFieldError(field) {
+        field.classList.remove('border-red-500');
+        const errorDiv = field.parentNode.querySelector('.error-message');
+        if (errorDiv) {
+            errorDiv.classList.add('hidden');
+            errorDiv.textContent = '';
+        }
     }
 
     // File preview setup with validation
@@ -456,32 +571,6 @@
                 previewFile(this, 'edit_current_image', 'edit_current_image_preview');
             }
         });
-    }
-
-    function validateFile(input) {
-        const file = input.files[0];
-        if (!file) return true;
-
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        const allowedExtensions = ['jpg', 'jpeg', 'png'];
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-
-        if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
-            showAlert('Format file harus PNG, JPG, atau JPEG', 'error');
-            input.value = '';
-            return false;
-        }
-
-        // Validate file size (2MB = 2 * 1024 * 1024 bytes)
-        const maxSize = 2 * 1024 * 1024; // 2MB
-        if (file.size > maxSize) {
-            showAlert('Ukuran file maksimal 2MB', 'error');
-            input.value = '';
-            return false;
-        }
-
-        return true;
     }
 
     function previewFile(input, previewId, containerId) {
@@ -543,6 +632,58 @@
         });
     }
 
+    // Enhanced form validation
+    function validateFormInputs(form) {
+        let isValid = true;
+
+        // Clear all previous errors
+        clearErrors(form);
+
+        // Validate required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                showFieldError(field, 'Field ini wajib diisi');
+                isValid = false;
+            }
+        });
+
+        // Validate ID format
+        const idField = form.querySelector('[name="id"]');
+        if (idField && idField.value) {
+            const idPattern = /^[A-Z]{2}\d{3}$/;
+            if (!idPattern.test(idField.value)) {
+                showFieldError(idField, 'Format ID harus seperti: BT001 (2 huruf besar + 3 angka)');
+                isValid = false;
+            }
+        }
+
+        // Validate capacity - directly call validateCapacity
+        const capacityField = form.querySelector('[name="kapasitas"]');
+        if (capacityField) {
+            if (!validateCapacity(capacityField)) {
+                isValid = false;
+            }
+        }
+
+        // Validate file upload
+        const fileInput = form.querySelector('[name="foto_kapal"]');
+        if (fileInput && fileInput.files.length > 0 && !validateFile(fileInput)) {
+            isValid = false;
+        }
+
+        // If not valid, scroll to first error
+        if (!isValid) {
+            const firstError = form.querySelector('.border-red-500');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+
+        return isValid;
+    }
+
     // API functions
     async function loadBoats() {
         try {
@@ -553,7 +694,7 @@
             if (result.success) {
                 boats = result.data;
                 filteredBoats = [...boats];
-                currentPage = 1; // Reset to first page when loading new data
+                currentPage = 1;
                 renderTable();
                 updateStatistics();
                 updatePagination();
@@ -571,20 +712,16 @@
     async function handleAddBoat(e) {
         e.preventDefault();
 
-        // Validasi form sebelum submit
         if (!validateFormInputs(elements.addBoatForm)) {
             return;
         }
 
-        // Buat FormData object
         const formData = new FormData(elements.addBoatForm);
 
         try {
-            // Tampilkan loading state
             setLoadingButton(elements.saveBoatBtn, true, 'Menyimpan...');
             clearErrors(elements.addBoatForm);
 
-            // Kirim request ke API
             const response = await fetch(`${API_BASE_URL}/kapal`, {
                 method: 'POST',
                 body: formData,
@@ -597,28 +734,23 @@
             const result = await response.json();
 
             if (!response.ok) {
-                // Jika response error (status bukan 2xx)
                 if (result.errors) {
-                    // Tampilkan error validasi
                     showFormErrors(elements.addBoatForm, result.errors);
                     showAlert('Mohon periksa kembali input Anda', 'error');
                 } else {
-                    // Tampilkan error umum
                     showAlert(result.message || 'Gagal menambahkan kapal', 'error');
                 }
                 return;
             }
 
-            // Jika sukses
             showAlert('Kapal berhasil ditambahkan', 'success');
             closeAddModal();
-            loadBoats(); // Refresh data kapal
+            loadBoats();
 
         } catch (error) {
             console.error('Error adding boat:', error);
             showAlert('Terjadi kesalahan sistem. Silakan coba lagi.', 'error');
         } finally {
-            // Reset loading state
             setLoadingButton(elements.saveBoatBtn, false, 'Simpan');
         }
     }
@@ -626,7 +758,6 @@
     async function handleUpdateBoat(e) {
         e.preventDefault();
 
-        // Validate form before submission
         if (!validateFormInputs(elements.editBoatForm)) {
             return;
         }
@@ -634,7 +765,6 @@
         const formData = new FormData(elements.editBoatForm);
         const boatId = document.getElementById('edit_boat_id').value;
 
-        // Add _method for Laravel to recognize as PUT request
         formData.append('_method', 'PUT');
 
         try {
@@ -642,7 +772,7 @@
             clearErrors(elements.editBoatForm);
 
             const response = await fetch(`${API_BASE_URL}/kapal/${boatId}`, {
-                method: 'POST', // Using POST with _method=PUT for file uploads
+                method: 'POST',
                 body: formData,
                 headers: {
                     'Accept': 'application/json',
@@ -653,28 +783,23 @@
             const result = await response.json();
 
             if (!response.ok) {
-                // If response error (status bukan 2xx)
                 if (result.errors) {
-                    // Tampilkan error validasi
                     showFormErrors(elements.editBoatForm, result.errors);
                     showAlert('Mohon periksa kembali input Anda', 'error');
                 } else {
-                    // Tampilkan error umum
                     showAlert(result.message || 'Gagal mengupdate kapal', 'error');
                 }
                 return;
             }
 
-            // Jika sukses
             showAlert('Kapal berhasil diupdate', 'success');
             closeEditModal();
-            loadBoats(); // Refresh data kapal
+            loadBoats();
 
         } catch (error) {
             console.error('Error updating boat:', error);
             showAlert('Terjadi kesalahan sistem. Silakan coba lagi.', 'error');
         } finally {
-            // Reset loading state
             setLoadingButton(elements.updateBoatBtn, false, 'Update');
         }
     }
@@ -687,34 +812,28 @@
             if (result.success) {
                 const boat = result.data;
 
-                // Fill form fields
                 document.getElementById('edit_boat_id').value = boat.id;
                 document.getElementById('edit_id').value = boat.id;
                 document.getElementById('edit_nama_kapal').value = boat.nama_kapal;
                 document.getElementById('edit_kapasitas').value = boat.kapasitas;
                 document.getElementById('edit_deskripsi').value = boat.deskripsi || '';
 
-                // Set status radio button based on boat status
                 const statusRadios = {
                     'aktif': document.getElementById('edit_statusActive'),
                     'maintenance': document.getElementById('edit_statusMaintenance'),
                     'tidak aktif': document.getElementById('edit_statusInactive')
                 };
 
-                // Uncheck all radios first
                 Object.values(statusRadios).forEach(radio => {
                     radio.checked = false;
                 });
 
-                // Check the appropriate radio based on boat status
                 if (boat.status && statusRadios[boat.status]) {
                     statusRadios[boat.status].checked = true;
                 } else {
-                    // Default to 'aktif' if status is not set or invalid
                     statusRadios['aktif'].checked = true;
                 }
 
-                // Show current image if exists
                 const currentImagePreview = document.getElementById('edit_current_image_preview');
                 const currentImage = document.getElementById('edit_current_image');
                 if (boat.foto_kapal) {
@@ -724,7 +843,6 @@
                     currentImagePreview.classList.add('hidden');
                 }
 
-                // Clear file input
                 document.getElementById('edit_foto_kapal').value = '';
 
                 elements.editModal.classList.remove('hidden');
@@ -790,7 +908,6 @@
         elements.emptyState.classList.add('hidden');
         elements.pagination.classList.remove('hidden');
 
-        // Calculate pagination
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredBoats.length);
         const paginatedBoats = filteredBoats.slice(startIndex, endIndex);
@@ -835,7 +952,6 @@
             </tr>
         `).join('');
 
-        // Update pagination info
         updatePaginationInfo(startIndex, endIndex);
     }
 
@@ -861,7 +977,6 @@
 
         let html = '';
 
-        // Previous button
         html += `
             <button
                 class="px-3 py-1 border border-gray-300 rounded-md ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}"
@@ -871,7 +986,6 @@
             </button>
         `;
 
-        // Page numbers
         const maxVisiblePages = 5;
         const pages = getPageNumbers(totalPages, currentPage, maxVisiblePages);
 
@@ -890,7 +1004,6 @@
             }
         });
 
-        // Next button
         html += `
             <button
                 class="px-3 py-1 border border-gray-300 rounded-md ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}"
@@ -907,44 +1020,35 @@
         const pages = [];
 
         if (totalPages <= maxVisiblePages) {
-            // Show all pages if total pages is less than or equal to max visible pages
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
-            // Always show first page
             pages.push(1);
 
-            // Calculate start and end of visible pages
             let startPage = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2));
             let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 3);
 
-            // Adjust if we're near the beginning
             if (startPage === 2) {
                 endPage = Math.min(totalPages - 1, maxVisiblePages - 1);
             }
 
-            // Adjust if we're near the end
             if (endPage === totalPages - 1) {
                 startPage = Math.max(2, totalPages - maxVisiblePages + 2);
             }
 
-            // Add ellipsis after first page if needed
             if (startPage > 2) {
                 pages.push('...');
             }
 
-            // Add visible pages
             for (let i = startPage; i <= endPage; i++) {
                 pages.push(i);
             }
 
-            // Add ellipsis before last page if needed
             if (endPage < totalPages - 1) {
                 pages.push('...');
             }
 
-            // Always show last page
             pages.push(totalPages);
         }
 
@@ -961,8 +1065,6 @@
         currentPage = page;
         renderTable();
         renderPaginationControls();
-
-        // Scroll to top of table
         document.getElementById('boatsTable').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -974,7 +1076,6 @@
     }
 
     function handleFilter(e) {
-        // Update active filter button
         elements.filterButtons.forEach(btn => {
             btn.classList.remove('bg-blue-50', 'text-blue-600');
             btn.classList.add('text-gray-600');
@@ -1000,7 +1101,6 @@
             return matchesSearch && matchesFilter;
         });
 
-        // Reset to first page when filtering
         currentPage = 1;
         updatePagination();
     }
@@ -1050,12 +1150,7 @@
         Object.keys(errors).forEach(field => {
             const input = form.querySelector(`[name="${field}"]`);
             if (input) {
-                input.classList.add('border-red-500');
-                const errorDiv = input.parentNode.querySelector('.error-message');
-                if (errorDiv) {
-                    errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = errors[field][0];
-                }
+                showFieldError(input, errors[field][0]);
             }
         });
     }
@@ -1087,73 +1182,6 @@
         setTimeout(() => {
             elements.alertContainer.classList.add('hidden');
         }, 5000);
-    }
-
-    function validateFormInputs(form) {
-        const requiredFields = form.querySelectorAll('[required]');
-        let isValid = true;
-
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('border-red-500');
-                const errorDiv = field.parentNode.querySelector('.error-message');
-                if (errorDiv) {
-                    errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = 'Field ini wajib diisi';
-                }
-                isValid = false;
-            }
-        });
-
-        // Validasi ID format (contoh: BT001)
-        const idField = form.querySelector('[name="id"]');
-        if (idField && idField.value) {
-            const idPattern = /^[A-Z]{2}\d{3}$/;
-            if (!idPattern.test(idField.value)) {
-                idField.classList.add('border-red-500');
-                const errorDiv = idField.parentNode.querySelector('.error-message');
-                if (errorDiv) {
-                    errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = 'Format ID harus seperti: BT001 (2 huruf besar + 3 angka)';
-                }
-                isValid = false;
-            }
-        }
-
-        // Validasi kapasitas (1-100)
-        const capacityField = form.querySelector('[name="kapasitas"]');
-        if (capacityField && capacityField.value) {
-            const capacity = parseInt(capacityField.value);
-            if (capacity < 1 || capacity > 100) {
-                capacityField.classList.add('border-red-500');
-                const errorDiv = capacityField.parentNode.querySelector('.error-message');
-                if (errorDiv) {
-                    errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = 'Kapasitas maksimal penumpang adalah 100 orang';
-                }
-                isValid = false;
-            }
-        }
-
-        // Validasi file upload (jika ada)
-        const fileInput = form.querySelector('[name="foto_kapal"]');
-        if (fileInput && fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-            const maxSize = 2 * 1024 * 1024; // 2MB
-
-            if (!allowedTypes.includes(file.type)) {
-                showAlert('Format file harus JPG, JPEG, atau PNG', 'error');
-                isValid = false;
-            }
-
-            if (file.size > maxSize) {
-                showAlert('Ukuran file maksimal 2MB', 'error');
-                isValid = false;
-            }
-        }
-
-        return isValid;
     }
 
     // Make functions global for onclick handlers
