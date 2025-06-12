@@ -14,6 +14,8 @@ class TiketController extends Controller
     /**
      * Create new ticket
      */
+// Di dalam TiketController.php, modifikasi method pesanTiket:
+
     public function pesanTiket(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -36,6 +38,14 @@ class TiketController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Jadwal tidak tersedia untuk pemesanan'
+            ], 400);
+        }
+
+        // Check available seats
+        if ($jadwal->available_seats < $request->jumlah_penumpang) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kapasitas tidak mencukupi. Kursi tersedia: ' . $jadwal->available_seats
             ], 400);
         }
 

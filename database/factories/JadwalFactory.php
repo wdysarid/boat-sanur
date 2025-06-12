@@ -17,7 +17,7 @@ class JadwalFactory extends Factory
      */
     public function definition(): array
     {
-        $lokasi = ['Sanur', 'Nusa Penida', 'Nusa Lembongan', 'Nusa Ceningan', 'Gili Trawangan'];
+        $lokasi = ['Sanur', 'Nusa Penida', 'Nusa Lembongan', 'Nusa Ceningan'];
 
         // Pilih asal dan tujuan yang berbeda
         $asal = $this->faker->randomElement($lokasi);

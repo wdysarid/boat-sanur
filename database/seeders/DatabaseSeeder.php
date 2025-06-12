@@ -31,6 +31,16 @@ class DatabaseSeeder extends Seeder
             // 'remember_token' => Str::random(100),
         ]);
 
+        // Akun user
+        User::create([
+            'nama' => 'Sunny',
+            'email' => 'sunny@gmail.com',
+            'no_telp' => '081234567891',
+            'password' => Hash::make('sunny123'),
+            'role' => 'wisatawan',
+            // 'remember_token' => Str::random(100),
+        ]);
+
         // Buat 10 user wisatawan
         $users = User::factory(10)->create();
 
@@ -72,11 +82,21 @@ class DatabaseSeeder extends Seeder
 
         // Buat 30 tiket menggunakan jadwal yang sudah ada
         $tikets = new Collection();
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 300; $i++) {
+            $jadwal = $jadwals->random();
+            $kapal = $kapals->find($jadwal->kapal_id);
+            $tiketTerjual = $jadwal->tiket()->where('status', 'sukses')->sum('jumlah_penumpang');
+            $kapasitasTersedia = $kapal->kapasitas - $tiketTerjual;
+
+            if ($kapasitasTersedia <= 0) continue;
+
+            $jumlahPenumpang = rand(1, min(10, $kapasitasTersedia)); // Maksimal 10 penumpang per tiket
+
             $tikets->push(
                 Tiket::factory()->create([
                     'user_id' => $users->random()->id,
-                    'jadwal_id' => $jadwals->random()->id, // Gunakan jadwal yang sudah dibuat
+                    'jadwal_id' => $jadwal->id,
+                    'jumlah_penumpang' => $jumlahPenumpang,
                 ]),
             );
         }
