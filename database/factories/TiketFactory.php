@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\Jadwal;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,15 +20,26 @@ class TiketFactory extends Factory
     public function definition(): array
     {
         $jumlah = $this->faker->numberBetween(1, 5);
-        $jadwal = Jadwal::factory()->create();
+
+        // Format kode pemesanan: TKT + tanggal (ddmmyy) + random 4 digit
+        $kode = 'TKT' . now()->format('dmy') . strtoupper(Str::random(4));
 
         return [
             'user_id' => User::factory(),
-            'jadwal_id' => $jadwal->id,
-            'kode_pemesanan' => strtoupper($this->faker->bothify('??##??##')),
+            'jadwal_id' => function () {
+                // Jika sudah ada jadwal di database, gunakan random dari yang ada
+                if (Jadwal::count() > 0) {
+                    return Jadwal::inRandomOrder()->first()->id;
+                }
+                // Jika belum ada, buat baru
+                return Jadwal::factory()->create()->id;
+            },
+            'kode_pemesanan' => $kode,
             'jumlah_penumpang' => $jumlah,
-            'total_harga' => $jadwal->harga_tiket * $jumlah,
-            'status' => 'menunggu',
+            'total_harga' => function (array $attributes) {
+                return Jadwal::find($attributes['jadwal_id'])->harga_tiket * $attributes['jumlah_penumpang'];
+            },
+            'status' => 'sukses',
         ];
     }
 }

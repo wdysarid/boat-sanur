@@ -17,13 +17,18 @@ class KapalFactory extends Factory
      */
     public function definition(): array
     {
+        $shipNames = [
+            'Bali Sea', 'Nusa Indah', 'Ocean Star', 'Island Hopper', 'Sea Explorer',
+            'Blue Wave', 'Sunset Cruiser', 'Pearl Voyager', 'Coral Princess', 'Island Dream'
+        ];
+
         return [
-            'id' => Str::upper(Str::random(2)) . str_pad($this->faker->unique()->numberBetween(1, 99), 3, '0', STR_PAD_LEFT),
-            'nama_kapal' => $this->faker->company() . ' Express',
+            'id' => 'BT' . str_pad($this->faker->unique()->numberBetween(1, 99), 3, '0', STR_PAD_LEFT),
+            'nama_kapal' => $this->faker->randomElement($shipNames),
             'kapasitas' => $this->faker->numberBetween(50, 100),
-            'deskripsi' => fake()->sentence(6),
-            'foto_kapal' => $this->faker->optional()->imageUrl(640, 480, 'ship'), // 50% chance menghasilkan URL gambar
+            'deskripsi' => $this->faker->sentence(10),
+            'foto_kapal' => null, // Kosongkan saja atau bisa diisi dengan path default
             'status' => $this->faker->randomElement(['aktif', 'maintenance', 'tidak aktif']),
         ];
-    }
+        }
 }

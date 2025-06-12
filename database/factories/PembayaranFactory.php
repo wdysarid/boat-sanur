@@ -17,12 +17,17 @@ class PembayaranFactory extends Factory
      */
     public function definition(): array
     {
-        $tiket = Tiket::factory()->create();
+        $metode = $this->faker->randomElement([
+            'BCA', 'BRI', 'Mandiri', 'BNI', 'QRIS', 'DANA', 'OVO', 'Gopay'
+        ]);
+
         return [
-            'tiket_id' => $tiket->id,
-            'metode_bayar' => $this->faker->randomElement(['Transfer Bank', 'QRIS', 'E-Wallet']),
-            'jumlah_bayar' => $tiket->total_harga,
-            'bukti_transfer' => 'uploads/bukti/' . $this->faker->uuid() . '.jpg',
+            'tiket_id' => Tiket::factory(),
+            'metode_bayar' => $metode,
+            'jumlah_bayar' => function(array $attributes) {
+                return Tiket::find($attributes['tiket_id'])->total_harga;
+            },
+            'bukti_transfer' => null, // Kosongkan atau gunakan path default
             'status' => 'menunggu',
         ];
     }

@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('pembayaran', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tiket_id')->constrained(
-                table: 'tiket', 
+                table: 'tiket',
                 indexName: 'pembayaran_tiket_id')->onDelete('cascade');
             $table->string('metode_bayar');
             $table->integer('jumlah_bayar');
-            $table->string('bukti_transfer'); // nama file / path
+            $table->string('bukti_transfer')->nullable(); // nama file / path
             $table->enum('status', ['menunggu', 'terverifikasi', 'ditolak'])->default('menunggu');
             $table->timestamps();
         });
