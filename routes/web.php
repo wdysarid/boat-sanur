@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\JadwalController;
 
 // Route::get('/', function () {
@@ -77,6 +78,8 @@ Route::middleware(['auth', 'role:wisatawan'])->prefix('user')->name('user.')->gr
     Route::get('/konfirmasi', function () {
         return view('user.konfirmasi');
     })->name('konfirmasi');
+
+    Route::post('/reviews', [FeedbackController::class, 'store'])->name('reviews.store')->middleware('auth');
 });
 
 

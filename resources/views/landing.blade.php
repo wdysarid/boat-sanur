@@ -291,112 +291,251 @@
                         "Our trip to Bali was absolutely perfect! The accommodations were luxurious, and the itinerary was well-planned. I can't wait to book my next adventure with DreamIslands."
                     </p>
                 </div>
-
-                <!-- Testimonial 2 -->
-                <div class="bg-gray-50 p-6 rounded-lg shadow-sm" data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
-                    <div class="flex items-center mb-4">
-                        <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span class="text-blue-600 font-medium">JS</span>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-medium text-gray-900">Jane Smith</h3>
-                            <div class="flex text-yellow-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm md:text-base font-light">
-                        "The Maldives vacation exceeded all my expectations. The staff was incredibly attentive, and the overwater bungalow was a dream come true. Highly recommend DreamIslands!"
-                    </p>
-                </div>
-
-                <!-- Testimonial 3 -->
-                <div class="bg-gray-50 p-6 rounded-lg shadow-sm" data-aos="fade-up" data-aos-delay="300" data-aos-duration="800">
-                    <div class="flex items-center mb-4">
-                        <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span class="text-blue-600 font-medium">RJ</span>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-medium text-gray-900">Robert Johnson</h3>
-                            <div class="flex text-yellow-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm md:text-base font-light">
-                        "Santorini was magical! The views were breathtaking, and the local experiences arranged by DreamIslands were authentic and memorable. The customer service was top-notch."
-                    </p>
-                </div>
             </div>
         </div>
     </section>
 
-    <!-- Feedback Form Section -->
-    <section class="py-16 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-2xl mx-auto">
-                <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
-                    <p class="mt-3 text-base md:text-lg text-gray-600 font-light">
-                        Have questions or feedback? We'd love to hear from you.
-                    </p>
-                </div>
+<!-- Customer Reviews & Rating Section -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Share Your Experience</h2>
+                <p class="mt-3 text-base md:text-lg text-gray-600 font-light">
+                    Help other travelers by sharing your boat trip experience.
+                </p>
+            </div>
 
-                <form class="space-y-6" data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                        <div class="mt-1">
-                            <input id="name" name="name" class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md">
-                        </div>
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <div class="mt-1">
-                            <input id="email" name="email" type="email" class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md">
-                        </div>
-                    </div>
+            <!-- Review Form - Always visible -->
+            <form action="#" method="POST" class="space-y-6" data-aos="fade-up" data-aos-delay="200" data-aos-duration="800" id="review-form">
+                @csrf
 
-                    <div>
-                        <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
-                        <div class="mt-1">
-                            <textarea id="message" name="message" rows="4" class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"></textarea>
-                        </div>
-                    </div>
-
-                    <div data-aos="fade-up" data-aos-delay="300" data-aos-anchor-placement="top-bottom">
-                        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Send Message
+                <!-- Star Rating -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Rate Your Experience</label>
+                    <div class="flex items-center space-x-1" id="star-rating">
+                        <button type="button" class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="1">
+                            <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="2">
+                            <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="3">
+                            <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="4">
+                            <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="5">
+                            <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
                         </button>
                     </div>
-                </form>
-            </div>
+                    <div class="mt-2">
+                        <span id="rating-text" class="text-sm text-gray-500">Click stars to rate</span>
+                    </div>
+                    <input type="hidden" name="rating" id="rating-value" value="0">
+                </div>
+
+                <!-- Review Message -->
+                <div>
+                    <label for="review-message" class="block text-sm font-medium text-gray-700">Your Review</label>
+                    <div class="mt-1">
+                        <textarea id="review-message" name="review_message" rows="4" class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md" placeholder="Share your experience with other travelers...">{{ old('review_message') }}</textarea>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Tell us about your journey, what you liked, and any suggestions for improvement.</p>
+                </div>
+
+                {{-- <!-- Login Notice for Non-logged Users -->
+                @if(!Auth::check())
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                <strong>Note:</strong> You'll need to login to submit your review. Don't worry, your review will be saved!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @endif --}}
+
+                <!-- Submit Button -->
+                <div data-aos="fade-up" data-aos-delay="300" data-aos-anchor-placement="top-bottom">
+                    <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        @if(Auth::check())
+                            Submit Review
+                        @else
+                            Login & Submit Review
+                        @endif
+                    </button>
+                </div>
+            </form>
         </div>
-    </section>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Store form data in localStorage to preserve it across login redirect
+    function saveFormData() {
+        const formData = {
+            rating: document.getElementById('rating-value').value,
+            review_message: document.getElementById('review-message').value
+        };
+        localStorage.setItem('pendingReview', JSON.stringify(formData));
+    }
+
+    // Restore form data after login redirect
+    function restoreFormData() {
+        const savedData = localStorage.getItem('pendingReview');
+        if (savedData) {
+            const formData = JSON.parse(savedData);
+
+            // Restore rating
+            if (formData.rating && formData.rating !== '0') {
+                const rating = parseInt(formData.rating);
+                document.getElementById('rating-value').value = rating;
+
+                const ratingTexts = {
+                    1: 'Poor - Very disappointed',
+                    2: 'Fair - Below expectations',
+                    3: 'Good - Met expectations',
+                    4: 'Very Good - Exceeded expectations',
+                    5: 'Excellent - Outstanding experience!'
+                };
+
+                document.getElementById('rating-text').textContent = ratingTexts[rating];
+
+                // Update star colors
+                const starButtons = document.querySelectorAll('#star-rating .star-btn');
+                starButtons.forEach((star, starIndex) => {
+                    if (starIndex < rating) {
+                        star.classList.remove('text-gray-300');
+                        star.classList.add('text-yellow-400');
+                    }
+                });
+            }
+
+            // Restore review message
+            if (formData.review_message) {
+                document.getElementById('review-message').value = formData.review_message;
+            }
+
+            // Clear saved data
+            localStorage.removeItem('pendingReview');
+        }
+    }
+
+    // Restore data on page load
+    restoreFormData();
+
+    // Main star rating functionality
+    const starButtons = document.querySelectorAll('#star-rating .star-btn');
+    const ratingText = document.getElementById('rating-text');
+    const ratingValue = document.getElementById('rating-value');
+
+    const ratingTexts = {
+        1: 'Poor - Very disappointed',
+        2: 'Fair - Below expectations',
+        3: 'Good - Met expectations',
+        4: 'Very Good - Exceeded expectations',
+        5: 'Excellent - Outstanding experience!'
+    };
+
+    starButtons.forEach((button) => {
+        button.addEventListener('click', function() {
+            const rating = parseInt(this.dataset.rating);
+            ratingValue.value = rating;
+            ratingText.textContent = ratingTexts[rating];
+
+            // Update star colors
+            starButtons.forEach((star, starIndex) => {
+                if (starIndex < rating) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-300');
+                }
+            });
+        });
+
+        // Hover effect
+        button.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.dataset.rating);
+            starButtons.forEach((star, starIndex) => {
+                if (starIndex < rating) {
+                    star.classList.add('text-yellow-300');
+                }
+            });
+        });
+
+        button.addEventListener('mouseleave', function() {
+            starButtons.forEach(star => {
+                star.classList.remove('text-yellow-300');
+            });
+        });
+    });
+
+    // Form submission
+    const form = document.getElementById('review-form');
+    form.addEventListener('submit', function(e) {
+        // Validate form data
+        if (ratingValue.value === '0') {
+            e.preventDefault();
+            alert('Please provide a rating before submitting your review.');
+            return;
+        }
+
+        const reviewMessage = document.getElementById('review-message').value.trim();
+        if (!reviewMessage) {
+            e.preventDefault();
+            alert('Please write a review message.');
+            return;
+        }
+
+        // Check if user is logged in (you can pass this from Laravel)
+        const isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+
+        if (!isLoggedIn) {
+            e.preventDefault();
+
+            // Save form data before redirect
+            saveFormData();
+
+            // Redirect to login with return URL
+            const currentUrl = encodeURIComponent(window.location.href + '#review-section');
+            window.location.href = '{{ route("login") }}?redirect=' + currentUrl;
+            return;
+        }
+
+        // If logged in, form will submit normally
+        // You can add success handling here if needed
+    });
+
+    // Save form data when user types (in case they navigate away)
+    document.getElementById('review-message').addEventListener('input', function() {
+        if (this.value.trim() || ratingValue.value !== '0') {
+            saveFormData();
+        }
+    });
+});
+</script>
 @endsection
