@@ -12,6 +12,29 @@
         body {
             font-family: 'Roboto', sans-serif;
         }
+
+        /* Animasi slide background dari atas ke bawah (forgot password) */
+        .bg-slide-down {
+            animation: slideBackgroundDown 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideBackgroundDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        /* Hover effect untuk navigasi */
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateX(-2px);
+        }
     </style>
 </head>
 <body class="bg-white">
@@ -57,14 +80,14 @@
                 <div class="mt-6 text-center">
                     <p class="text-gray-600">
                         Remember your password?
-                        <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Back to login</a>
+                        <a href="{{ route('login') }}" class="text-blue-600 hover:underline nav-link">Back to login</a>
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- Right side - Image -->
-        <div class="hidden lg:block lg:w-1/2 relative">
+        <!-- Right side - Image dengan animasi slide -->
+        <div class="hidden lg:block lg:w-1/2 relative bg-slide-down">
             <div class="absolute inset-0 bg-black/20 z-10"></div>
             <img src="{{ asset('images/header-bg.jpg') }}"
                  alt="Beach view" class="w-full h-full object-cover">

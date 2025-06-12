@@ -147,7 +147,7 @@
 
 
 <!-- Add Boat Modal -->
-<div id="addBoatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+<div id="addBoatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-800">Tambah Kapal Baru</h3>
@@ -225,7 +225,7 @@
 </div>
 
 <!-- Edit Boat Modal -->
-<div id="editBoatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+<div id="editBoatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-800">Edit Kapal</h3>
@@ -305,7 +305,7 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div id="deleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+<div id="deleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
         <div class="px-6 py-4">
             <div class="flex items-center">

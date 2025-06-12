@@ -89,31 +89,114 @@
                                 </svg>
                                 Edit Profile
                             </a>
-
-
                         </div>
 
                         <!-- Logout section -->
                         <div class="border-t border-gray-100">
-                            <form method="POST" action="{{ route('logout') }}"
-                                onsubmit="return confirm('Apakah Anda yakin ingin logout?');">
+                            <button type="button" id="logoutButton"
+                                    class="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150">
+                                <svg class="mr-3 h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Sign Out
+                            </button>
+                            <form id="logoutForm" method="POST" action="{{ route('logout') }}" class="hidden">
                                 @csrf
-                                <button type="submit"
-                                        class="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150">
-                                    <svg class="mr-3 h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                    </svg>
-                                    Sign Out
-                                </button>
                             </form>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </header>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="logout-modal-overlay">
+    <div class="logout-modal-content">
+        <div class="p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-center text-gray-900 mb-2">Konfirmasi Logout</h3>
+            <p class="text-sm text-gray-500 text-center mb-6">
+                Apakah Anda yakin ingin keluar dari akun Anda?
+            </p>
+            <div class="flex justify-center space-x-3">
+                <button id="cancelLogout" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
+                    Batal
+                </button>
+                <button id="confirmLogout" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Ya, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Logout Modal Styles */
+.logout-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147483647; /* Maximum z-index value */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.logout-modal-overlay.show {
+    display: flex;
+    opacity: 1;
+}
+
+.logout-modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 400px;
+    width: 90%;
+    margin: 0 16px;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 2147483647;
+}
+
+.logout-modal-overlay.show .logout-modal-content {
+    transform: scale(1);
+}
+
+/* Force all elements to be below modal */
+body.modal-open > *:not(#logoutModal) {
+    position: relative;
+    z-index: 1 !important;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Specific override for common sidebar selectors */
+aside,
+.sidebar,
+nav,
+[class*="sidebar"],
+[class*="nav"] {
+    position: relative !important;
+    z-index: 1 !important;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -161,6 +244,111 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && isDropdownOpen) {
             toggleDropdown();
+        }
+    });
+
+    // Logout modal functionality
+    const logoutButton = document.getElementById('logoutButton');
+    const logoutModal = document.getElementById('logoutModal');
+    const cancelLogout = document.getElementById('cancelLogout');
+    const confirmLogout = document.getElementById('confirmLogout');
+    const logoutForm = document.getElementById('logoutForm');
+
+    // Force all elements to be below modal
+    function forceModalOnTop() {
+        // Get all elements and force them to have lower z-index
+        const allElements = document.querySelectorAll('*:not(#logoutModal):not(#logoutModal *)');
+        allElements.forEach(el => {
+            const computedStyle = window.getComputedStyle(el);
+            if (computedStyle.position !== 'static') {
+                el.style.zIndex = '1';
+            }
+        });
+
+        // Specifically target sidebar elements
+        const sidebarElements = document.querySelectorAll('aside, .sidebar, nav, [class*="sidebar"], [class*="nav"]');
+        sidebarElements.forEach(el => {
+            el.style.position = 'relative';
+            el.style.zIndex = '1';
+        });
+    }
+
+    // Show logout modal
+    function showLogoutModal() {
+        // Close dropdown first
+        if (isDropdownOpen) {
+            toggleDropdown();
+        }
+
+        // Force modal on top
+        forceModalOnTop();
+
+        // Add body class
+        document.body.classList.add('modal-open');
+
+        // Show modal
+        logoutModal.style.display = 'flex';
+
+        // Force reflow
+        logoutModal.offsetHeight;
+
+        // Add show class for animation
+        logoutModal.classList.add('show');
+    }
+
+    // Hide logout modal
+    function hideLogoutModal() {
+        logoutModal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+
+        setTimeout(() => {
+            logoutModal.style.display = 'none';
+
+            // Reset z-index for all elements
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(el => {
+                if (el.style.zIndex === '1') {
+                    el.style.zIndex = '';
+                }
+            });
+        }, 300);
+    }
+
+    // Logout button click
+    logoutButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        showLogoutModal();
+    });
+
+    // Cancel logout
+    cancelLogout.addEventListener('click', function() {
+        hideLogoutModal();
+    });
+
+    // Confirm logout
+    confirmLogout.addEventListener('click', function() {
+        // Add loading state
+        confirmLogout.disabled = true;
+        confirmLogout.innerHTML = '<span class="animate-pulse">Logging out...</span>';
+
+        // Submit the logout form
+        setTimeout(() => {
+            logoutForm.submit();
+        }, 500);
+    });
+
+    // Close modal when clicking outside
+    logoutModal.addEventListener('click', function(e) {
+        if (e.target === logoutModal) {
+            hideLogoutModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && logoutModal.classList.contains('show')) {
+            hideLogoutModal();
         }
     });
 });

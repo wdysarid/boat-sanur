@@ -59,6 +59,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/feedback', function () {
         return view('admin.feedback');
     })->name('feedback');
+
+    Route::post('/feedback/{feedback}/approve', [FeedbackController::class, 'approve'])->name('feedback.approve');
+    Route::post('/feedback/{feedback}/reject', [FeedbackController::class, 'reject'])->name('feedback.reject');
 });
 
 //User Views - data will be fetched from API

@@ -202,7 +202,7 @@
 </div>
 
 <!-- Add Schedule Modal -->
-<div id="addScheduleModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+<div id="addScheduleModal" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-800">Tambah Jadwal Baru</h3>
@@ -319,7 +319,7 @@
 </div>
 
 <!-- Edit Schedule Modal -->
-<div id="editScheduleModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+<div id="editScheduleModal" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-800">Edit Jadwal</h3>
@@ -427,7 +427,7 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div id="deleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+<div id="deleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
         <div class="px-6 py-4">
             <div class="flex items-center">
