@@ -59,16 +59,6 @@
                        Verifikasi Pembayaran
                    </a>
                </li>
-               <li>
-                   <a href="{{ route('admin.destinations') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('admin.destinations') ? 'custom-blue-light-bg custom-blue' : 'text-gray-600 hover:bg-gray-50' }}">
-                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {{ request()->routeIs('admin.destinations') ? 'custom-blue' : 'text-gray-400' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                           <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path>
-                           <circle cx="12" cy="10" r="3"></circle>
-                       </svg>
-                       Destination
-                   </a>
-               </li>
-               <li>
                    <a href="{{ route('admin.feedback') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('admin.feedback') ? 'custom-blue-light-bg custom-blue' : 'text-gray-600 hover:bg-gray-50' }}">
                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {{ request()->routeIs('admin.feedback') ? 'custom-blue' : 'text-gray-400' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>

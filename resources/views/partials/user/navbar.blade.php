@@ -52,13 +52,13 @@
     <!-- Mobile menu, show/hide based on menu state -->
     <div class="sm:hidden hidden" id="mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
-            <a href="#" class="bg-blue-50 border-blue-500 text-blue-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" data-aos="fade-right" data-aos-duration="400" data-aos-anchor="#mobile-menu">
+            <a href="#home" class="bg-blue-50 border-blue-500 text-blue-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" data-aos="fade-right" data-aos-duration="400" data-aos-anchor="#mobile-menu">
                 Home
             </a>
-            <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" data-aos="fade-right" data-aos-delay="100" data-aos-duration="400" data-aos-anchor="#mobile-menu">
+            <a href="#about-us" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" data-aos="fade-right" data-aos-delay="100" data-aos-duration="400" data-aos-anchor="#mobile-menu">
                 About Us
             </a>
-            <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" data-aos="fade-right" data-aos-delay="200" data-aos-duration="400" data-aos-anchor="#mobile-menu">
+            <a href="#destinations" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" data-aos="fade-right" data-aos-delay="200" data-aos-duration="400" data-aos-anchor="#mobile-menu">
                 Destinations
             </a>
             <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium" data-aos="fade-right" data-aos-delay="300" data-aos-duration="400" data-aos-anchor="#mobile-menu">

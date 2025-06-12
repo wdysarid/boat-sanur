@@ -54,11 +54,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         return view('admin.payments');
     })->name('payments');
 
-    // Destinations View
-    Route::get('/destinations', function () {
-        return view('admin.destinations');
-    })->name('destinations');
-
     // Feedback View
     Route::get('/feedback', function () {
         return view('admin.feedback');

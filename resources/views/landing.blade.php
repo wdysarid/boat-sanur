@@ -127,12 +127,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="text-center mt-10" data-aos="fade-up" data-aos-delay="400" data-aos-duration="800">
-                <a href="#" class="inline-block bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-md font-medium hover:bg-blue-50 transition duration-150 ease-in-out">
-                    Show more destinations
-                </a>
-            </div>
         </div>
     </section>
 

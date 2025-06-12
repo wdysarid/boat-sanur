@@ -160,7 +160,7 @@
                                                     {{ $date->translatedFormat('l, d F Y') }} {{ $departureTime }} -
                                                     {{ $arrivalTime }} ({{ $ticket['duration'] }})
                                                 </span>
-                
+
                                             </div>
                                             <div class="mt-2">
                                                 <span
