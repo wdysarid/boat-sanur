@@ -17,7 +17,7 @@
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h3 class="text-lg font-medium text-gray-800">Jadwal Perjalanan</h3>
+                    <h3 class="text-lg font-medium text-gray-800">Jadwal Keberangkatan</h3>
                     <button id="openModalBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                         Tambah Jadwal
                     </button>
