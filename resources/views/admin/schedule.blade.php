@@ -34,12 +34,22 @@
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <div class="relative flex-grow">
-                            <input type="text" id="searchInput" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Cari jadwal...">
+                            <input type="text" id="searchInput" class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Search" autocomplete="off">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                                 </svg>
                             </div>
+                            <!-- Clear search button -->
+                            <button type="button" id="clearSearchBtn" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 hidden" title="Clear search">
+                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- Search results counter -->
+                        <div id="searchResultsCounter" class="text-sm text-gray-500 hidden">
+                            <span id="searchResultsCount">0</span> hasil
                         </div>
                     </div>
                 </div>
@@ -74,8 +84,8 @@
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h6a2 2 0 012 2v4m-8 0h8m-8 0V7a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V9a2 2 0 00-2-2" />
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada jadwal</h3>
-                        <p class="mt-1 text-sm text-gray-500">Mulai dengan menambahkan jadwal baru.</p>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada jadwal ditemukan</h3>
+                        <p class="mt-1 text-sm text-gray-500" id="emptyStateMessage">Mulai dengan menambahkan jadwal baru atau ubah kata kunci pencarian.</p>
                     </div>
 
                     <!-- Pagination -->
@@ -453,6 +463,17 @@
     </div>
 </div>
 
+<style>
+    mark {
+        background-color: #fef08a;
+        padding: 0 2px;
+        border-radius: 2px;
+    }
+    .search-loading {
+        animation: spin 1s linear infinite;
+    }
+</style>
+
 <script>
     // Configuration
     const API_BASE_URL = '{{ env("APP_API_URL", "http://boat-sanur.test/api") }}';
@@ -466,6 +487,7 @@
     let currentDeleteId = null;
     let currentPage = 1;
     let totalPages = 1;
+    let searchTimeout = null;
 
     // DOM Elements
     const elements = {
@@ -484,6 +506,7 @@
         updateScheduleBtn: document.getElementById('updateScheduleBtn'),
         confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
         cancelDeleteBtn: document.getElementById('cancelDeleteBtn'),
+        clearSearchBtn: document.getElementById('clearSearchBtn'),
 
         // Forms
         addScheduleForm: document.getElementById('addScheduleForm'),
@@ -493,10 +516,13 @@
         schedulesTableBody: document.getElementById('schedulesTableBody'),
         loadingState: document.getElementById('loadingState'),
         emptyState: document.getElementById('emptyState'),
+        emptyStateMessage: document.getElementById('emptyStateMessage'),
 
         // Search and Filter
         searchInput: document.getElementById('searchInput'),
         filterButtons: document.querySelectorAll('.filter-btn'),
+        searchResultsCounter: document.getElementById('searchResultsCounter'),
+        searchResultsCount: document.getElementById('searchResultsCount'),
 
         // Alert
         alertContainer: document.getElementById('alertContainer'),
@@ -550,8 +576,23 @@
         elements.updateScheduleBtn.addEventListener('click', handleUpdateSchedule);
         elements.confirmDeleteBtn.addEventListener('click', handleConfirmDelete);
 
-        // Search and filter
+        // Search and filter - IMPROVED
         elements.searchInput.addEventListener('input', handleSearch);
+        elements.searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                clearSearch();
+            }
+        });
+        elements.searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+            }
+        });
+
+        // Clear search button
+        elements.clearSearchBtn.addEventListener('click', clearSearch);
+
         elements.filterButtons.forEach(btn => {
             btn.addEventListener('click', handleFilter);
         });
@@ -886,6 +927,14 @@
             tbody.innerHTML = '';
             elements.emptyState.classList.remove('hidden');
             elements.pagination.classList.add('hidden');
+
+            // Update empty state message based on search
+            const searchTerm = elements.searchInput.value.trim();
+            if (searchTerm) {
+                elements.emptyStateMessage.textContent = `Tidak ada jadwal yang cocok dengan pencarian "${searchTerm}". Coba kata kunci lain.`;
+            } else {
+                elements.emptyStateMessage.textContent = 'Mulai dengan menambahkan jadwal baru.';
+            }
             return;
         }
 
@@ -962,6 +1011,152 @@
         }).join('');
 
         updatePaginationInfo(startIndex, endIndex);
+
+        // Highlight search terms if there's a search
+        const searchTerm = elements.searchInput.value.trim();
+        if (searchTerm) {
+            highlightSearchTerms(searchTerm);
+        }
+    }
+
+    // IMPROVED Search and filter functions
+    function handleSearch() {
+        const searchTerm = elements.searchInput.value.toLowerCase().trim();
+        const activeFilter = getActiveFilter();
+
+        // Show/hide clear button
+        if (searchTerm.length > 0) {
+            elements.clearSearchBtn.classList.remove('hidden');
+        } else {
+            elements.clearSearchBtn.classList.add('hidden');
+        }
+
+        // Debouncing for better performance
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            filterTable(searchTerm, activeFilter);
+        }, 300);
+    }
+
+    function handleFilter(e) {
+        elements.filterButtons.forEach(btn => {
+            btn.classList.remove('bg-blue-50', 'text-blue-600');
+            btn.classList.add('text-gray-600');
+        });
+        e.target.classList.add('bg-blue-50', 'text-blue-600');
+        e.target.classList.remove('text-gray-600');
+
+        const status = e.target.getAttribute('data-status');
+        const searchTerm = elements.searchInput.value.toLowerCase().trim();
+        filterTable(searchTerm, status);
+    }
+
+    function getActiveFilter() {
+        const activeButton = document.querySelector('.filter-btn.bg-blue-50');
+        return activeButton ? activeButton.getAttribute('data-status') : 'semua';
+    }
+
+    // IMPROVED filterTable function with comprehensive search
+    function filterTable(searchTerm, status) {
+        filteredSchedules = schedules.filter(schedule => {
+            const boat = boats.find(b => b.id === schedule.kapal_id);
+            const boatName = boat ? boat.nama_kapal.toLowerCase() : '';
+            const route = `${schedule.rute_asal} ${schedule.rute_tujuan}`.toLowerCase();
+            const formattedDate = formatDate(schedule.tanggal).toLowerCase();
+            const price = parseInt(schedule.harga_tiket).toLocaleString('id-ID');
+
+            // Enhanced search - multiple fields
+            const matchesSearch = !searchTerm ||
+                schedule.id.toString().includes(searchTerm) ||
+                boatName.includes(searchTerm) ||
+                schedule.rute_asal.toLowerCase().includes(searchTerm) ||
+                schedule.rute_tujuan.toLowerCase().includes(searchTerm) ||
+                route.includes(searchTerm) ||
+                formattedDate.includes(searchTerm) ||
+                price.includes(searchTerm) ||
+                schedule.waktu_berangkat.includes(searchTerm) ||
+                schedule.waktu_tiba.includes(searchTerm) ||
+                (schedule.keterangan && schedule.keterangan.toLowerCase().includes(searchTerm));
+
+            const matchesFilter = status === 'semua' || schedule.status === status;
+            return matchesSearch && matchesFilter;
+        });
+
+        currentPage = 1;
+        updatePagination();
+        updateSearchResultsCounter();
+    }
+
+    // Clear search function
+    function clearSearch() {
+        elements.searchInput.value = '';
+        elements.clearSearchBtn.classList.add('hidden');
+        const activeFilter = getActiveFilter();
+        filterTable('', activeFilter);
+    }
+
+    // Update search results counter
+    function updateSearchResultsCounter() {
+        const searchTerm = elements.searchInput.value.trim();
+        if (searchTerm && filteredSchedules.length !== schedules.length) {
+            elements.searchResultsCount.textContent = filteredSchedules.length;
+            elements.searchResultsCounter.classList.remove('hidden');
+        } else {
+            elements.searchResultsCounter.classList.add('hidden');
+        }
+    }
+
+    // Highlight search terms function
+    function highlightSearchTerms(searchTerm) {
+        const tableRows = document.querySelectorAll('#schedulesTableBody tr');
+        tableRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            cells.forEach(cell => {
+                // Skip cells with complex HTML (images, buttons, etc.)
+                if (cell.querySelector('img, button, svg, div.w-full')) {
+                    return;
+                }
+
+                const textNodes = getTextNodes(cell);
+                textNodes.forEach(textNode => {
+                    const text = textNode.textContent;
+                    if (text.toLowerCase().includes(searchTerm)) {
+                        const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+                        const highlightedText = text.replace(regex, '<mark>$1</mark>');
+
+                        if (highlightedText !== text) {
+                            const wrapper = document.createElement('span');
+                            wrapper.innerHTML = highlightedText;
+                            textNode.parentNode.replaceChild(wrapper, textNode);
+                        }
+                    }
+                });
+            });
+        });
+    }
+
+    // Helper function to get text nodes
+    function getTextNodes(element) {
+        const textNodes = [];
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent.trim()) {
+                textNodes.push(node);
+            }
+        }
+        return textNodes;
+    }
+
+    // Helper function to escape regex special characters
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     // Pagination functions
@@ -1079,48 +1274,6 @@
         renderPaginationControls();
 
         document.getElementById('schedulesTable').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // Search and filter
-    function handleSearch() {
-        const searchTerm = elements.searchInput.value.toLowerCase();
-        const activeFilter = getActiveFilter();
-        filterTable(searchTerm, activeFilter);
-    }
-
-    function handleFilter(e) {
-        elements.filterButtons.forEach(btn => {
-            btn.classList.remove('bg-blue-50', 'text-blue-600');
-            btn.classList.add('text-gray-600');
-        });
-        e.target.classList.add('bg-blue-50', 'text-blue-600');
-        e.target.classList.remove('text-gray-600');
-
-        const status = e.target.getAttribute('data-status');
-        const searchTerm = elements.searchInput.value.toLowerCase();
-        filterTable(searchTerm, status);
-    }
-
-    function getActiveFilter() {
-        const activeButton = document.querySelector('.filter-btn.bg-blue-50');
-        return activeButton ? activeButton.getAttribute('data-status') : 'semua';
-    }
-
-    function filterTable(searchTerm, status) {
-        filteredSchedules = schedules.filter(schedule => {
-            const boat = boats.find(b => b.id === schedule.kapal_id);
-            const boatName = boat ? boat.nama_kapal.toLowerCase() : '';
-            const route = `${schedule.rute_asal} ${schedule.rute_tujuan}`.toLowerCase();
-
-            const matchesSearch = schedule.id.toLowerCase().includes(searchTerm) ||
-                                boatName.includes(searchTerm) ||
-                                route.includes(searchTerm);
-            const matchesFilter = status === 'semua' || schedule.status === status;
-            return matchesSearch && matchesFilter;
-        });
-
-        currentPage = 1;
-        updatePagination();
     }
 
     // Utility functions
@@ -1267,5 +1420,6 @@
     window.editSchedule = editSchedule;
     window.deleteSchedule = deleteSchedule;
     window.changePage = changePage;
+    window.clearSearch = clearSearch;
 </script>
 @endsection

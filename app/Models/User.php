@@ -10,7 +10,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'user';
@@ -26,7 +25,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'remember_token'
+        'remember_token',
+        'google_id',
+        'avatar',
+        'reset_token'
     ];
 
     /**
@@ -37,6 +39,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'reset_token',
     ];
 
     /**
@@ -47,7 +50,6 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            // 'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -66,5 +68,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Feedback::class);
     }
-
 }

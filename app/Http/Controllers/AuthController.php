@@ -6,7 +6,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
+use Exception;
 
 class AuthController extends Controller
 {
@@ -76,6 +79,12 @@ class AuthController extends Controller
     //logout akun
     public function logout(Request $request)
     {
+        // Ambil nama user sebelum logout (jika ada) - PERBAIKAN ERROR
+        $userName = 'User';
+        if (Auth::check() && Auth::user()) {
+            $userName = Auth::user()->nama ?? 'User';
+        }
+
         if ($request->user()) {
             $request->user()->currentAccessToken()?->delete();
         }
@@ -84,6 +93,9 @@ class AuthController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        // Log logout activity
+        Log::info('User logged out', ['user' => $userName]);
 
         if ($request->wantsJson()) {
         return response()->json(['message' => 'Logout berhasil']);
@@ -101,8 +113,6 @@ class AuthController extends Controller
 
 
     }
-
-
 
     public function updateProfile(Request $request)
     {
@@ -164,5 +174,177 @@ class AuthController extends Controller
         ]);
 
         return response()->json(['message' => 'Password berhasil direset']);
+    }
+
+    // ========== TAMBAHAN GOOGLE OAUTH METHODS ==========
+
+    // Web Login - untuk form login (tambahan untuk web)
+    public function webLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $remember = $request->has('remember');
+
+        Log::info('Login attempt', ['email' => $credentials['email']]);
+
+        if (!Auth::attempt($credentials, $remember)) {
+            Log::warning('Login failed', ['email' => $credentials['email']]);
+            return back()->withErrors([
+                'email' => 'Email atau password salah'
+            ])->withInput($request->only('email', 'remember'));
+        }
+
+        $user = Auth::user();
+        Log::info('Login successful', [
+            'user_id' => $user->id,
+            'role' => $user->role,
+            'nama' => $user->nama
+        ]);
+
+        $request->session()->regenerate();
+
+        // Redirect berdasarkan role
+        return $this->redirectBasedOnRole($user);
+    }
+
+    // Web Register Google - untuk form register (tambahan untuk web)
+    public function webRegister(Request $request)
+    {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'no_telp' => 'required|string|max:20',
+            'email' => 'required|email|unique:user,email|max:255',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        try {
+            $user = User::create([
+                'nama' => $validated['nama'],
+                'no_telp' => $validated['no_telp'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'wisatawan', // Selalu wisatawan untuk registrasi
+            ]);
+
+            Log::info('User registered', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'role' => $user->role
+            ]);
+
+            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
+
+        } catch (Exception $e) {
+            Log::error('Registration failed', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Registrasi gagal. Silakan coba lagi.')->withInput();
+        }
+    }
+
+    // Google OAuth - Redirect to Google
+    public function redirectToGoogle()
+    {
+        try {
+            Log::info('Redirecting to Google OAuth');
+            return Socialite::driver('google')->redirect();
+        } catch (Exception $e) {
+            Log::error('Google OAuth Redirect Error: ' . $e->getMessage());
+            return redirect()->route('login')->with('error', 'Tidak dapat terhubung ke Google. Silakan coba lagi.');
+        }
+    }
+
+    // Google OAuth - Handle callback (REGISTRASI + LOGIN SEPERTI GOOGLE UMUMNYA)
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            Log::info('Google OAuth Success', [
+                'google_id' => $googleUser->id,
+                'email' => $googleUser->email,
+                'name' => $googleUser->name
+            ]);
+
+            // Check if user already exists with this Google ID
+            $user = User::where('google_id', $googleUser->id)->first();
+
+            if ($user) {
+                Auth::login($user);
+                Log::info('Existing Google user logged in', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'role' => $user->role
+                ]);
+                // SELALU REDIRECT KE DASHBOARD WISATAWAN
+                return redirect()->route('user.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
+            }
+
+            // Check if user exists with this email (untuk link akun existing)
+            $existingUser = User::where('email', $googleUser->email)->first();
+
+            if ($existingUser) {
+                // Link Google account ke user yang sudah ada
+                $existingUser->update([
+                    'google_id' => $googleUser->id,
+                    'avatar' => $googleUser->avatar,
+                ]);
+
+                Auth::login($existingUser);
+                Log::info('Existing user linked with Google', [
+                    'user_id' => $existingUser->id,
+                    'email' => $existingUser->email,
+                    'role' => $existingUser->role
+                ]);
+                // SELALU REDIRECT KE DASHBOARD WISATAWAN
+                return redirect()->route('user.dashboard')->with('success', 'Selamat datang, ' . $existingUser->nama . '!');
+            }
+
+            // CREATE NEW USER - REGISTRASI OTOMATIS SEPERTI GOOGLE UMUMNYA
+            $newUser = User::create([
+                'nama' => $googleUser->name,
+                'email' => $googleUser->email,
+                'google_id' => $googleUser->id,
+                'avatar' => $googleUser->avatar,
+                'password' => Hash::make(Str::random(24)), // Random password karena login pakai Google
+                'role' => 'wisatawan', // Selalu wisatawan untuk Google OAuth
+                'no_telp' => '', // Kosong, bisa diisi nanti di profile
+            ]);
+
+            Auth::login($newUser);
+            Log::info('New Google user created and logged in', [
+                'user_id' => $newUser->id,
+                'email' => $newUser->email,
+                'role' => $newUser->role
+            ]);
+
+            // SELALU REDIRECT KE DASHBOARD WISATAWAN
+            return redirect()->route('user.dashboard')->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
+
+        } catch (Exception $e) {
+            Log::error('Google OAuth Error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return redirect()->route('login')->with('error', 'Login dengan Google gagal. Silakan coba lagi.');
+        }
+    }
+
+    // Helper method untuk redirect berdasarkan role (HANYA UNTUK FORM LOGIN)
+    private function redirectBasedOnRole($user)
+    {
+        Log::info('Redirecting user based on role', [
+            'user_id' => $user->id,
+            'role' => $user->role,
+            'nama' => $user->nama
+        ]);
+
+        if ($user->role === 'admin') {
+            Log::info('Redirecting to admin dashboard');
+            return redirect()->route('admin.dashboard')->with('success', 'Selamat datang, Admin ' . $user->nama . '!');
+        } else {
+            Log::info('Redirecting to user dashboard');
+            return redirect()->route('user.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
+        }
     }
 }

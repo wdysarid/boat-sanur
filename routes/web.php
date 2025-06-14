@@ -36,6 +36,16 @@ Route::get('/search', [JadwalController::class, 'search'])->name('search.tickets
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// ========== TAMBAHAN GOOGLE OAUTH ROUTES ==========
+// Web Authentication Routes
+Route::post('/login', [AuthController::class, 'webLogin'])->name('login.post');
+Route::post('/register', [AuthController::class, 'webRegister'])->name('register.post');
+
+// Google OAuth Routes
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+// ========== END GOOGLE OAUTH ROUTES ==========
+
 // Admin Views - Only for rendering views, data will be fetched from API
 // Route::prefix('admin')->name('admin.')->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {

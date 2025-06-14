@@ -1,5 +1,6 @@
 // import { dashboardApi } from "./api"
-
+// Dashboard JavaScript
+console.log('Dashboard loaded');
 // document.addEventListener("DOMContentLoaded", () => {
 //   initDashboard()
 // })
