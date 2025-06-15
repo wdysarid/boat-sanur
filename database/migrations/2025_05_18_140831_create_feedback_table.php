@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('feedback', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained(
-                table: 'user', 
+                table: 'user',
                 indexName: 'feedback_user_id')->onDelete('cascade');
             $table->text('pesan');
-            // $table->tinyInteger('rating')->unsigned(); // contoh: 1 sampai 5
-            $table->boolean('disetujui')->default(false);
+            $table->tinyInteger('rating')->unsigned(); // contoh: 1 sampai 5
+            $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
             $table->timestamps();
         });
     }

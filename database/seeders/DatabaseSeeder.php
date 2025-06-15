@@ -88,7 +88,9 @@ class DatabaseSeeder extends Seeder
             $tiketTerjual = $jadwal->tiket()->where('status', 'sukses')->sum('jumlah_penumpang');
             $kapasitasTersedia = $kapal->kapasitas - $tiketTerjual;
 
-            if ($kapasitasTersedia <= 0) continue;
+            if ($kapasitasTersedia <= 0) {
+                continue;
+            }
 
             $jumlahPenumpang = rand(1, min(10, $kapasitasTersedia)); // Maksimal 10 penumpang per tiket
 
@@ -131,10 +133,24 @@ class DatabaseSeeder extends Seeder
             Feedback::create([
                 'user_id' => $userId,
                 'pesan' => 'Pelayanan sangat memuaskan, kapal nyaman dan tepat waktu.',
-                'disetujui' => rand(0, 1) === 1, // 50% kemungkinan disetujui
-                'created_at' => now(),
-                'updated_at' => now(),
+                'rating' => rand(4, 5), // Rating tinggi untuk pengalaman positif
+                'status' => rand(0, 1) ? 'disetujui' : 'pending', // 50% disetujui, 50% pending
             ]);
         }
+
+        // Tambahkan beberapa feedback ditolak
+        Feedback::create([
+            'user_id' => $users->random()->id,
+            'pesan' => 'Kapal sangat terlambat dan tidak nyaman.',
+            'rating' => 1,
+            'status' => 'ditolak',
+        ]);
+
+        Feedback::create([
+            'user_id' => $users->random()->id,
+            'pesan' => 'Pelayanan buruk, kru tidak ramah.',
+            'rating' => 2,
+            'status' => 'ditolak',
+        ]);
     }
 }

@@ -9,12 +9,13 @@ use App\Http\Controllers\api\JadwalController;
 use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\PembayaranController;
 
-
 Route::get('user', [AuthController::class, 'getUser']); // buat test aja ini
 
 // Authentication Routes
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login'])->name('api.login')->middleware('web');
+Route::post('/login', [AuthController::class, 'login'])
+    ->name('api.login')
+    ->middleware('web');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
@@ -25,8 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'profile']);
     Route::patch('/profile', [AuthController::class, 'updateProfile']);
 });
-
-
 
 // Kapal (Boat) Routes
 Route::prefix('kapal')->group(function () {
@@ -75,21 +74,21 @@ Route::prefix('pembayaran')->group(function () {
 
 // Feedback Routes
 Route::prefix('feedback')->group(function () {
-
-
     // Public routes
     Route::get('/', [FeedbackController::class, 'getFeedbackDisetujui']);
 
     // User routes (protected)
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/', [FeedbackController::class, 'tambahFeedback']);
+        Route::post('/', [FeedbackController::class, 'tambahFeedback'])->name('api.feedback.tambah');
         Route::get('/saya', [FeedbackController::class, 'getFeedbackSaya']);
     });
 
     // Admin routes (protected)
-    Route::middleware(['auth:sanctum', 'can:admin'])->group(function () {
-        Route::get('/semua', [FeedbackController::class, 'getSemuaFeedback']);
-        Route::post('/{id}/setujui', [FeedbackController::class, 'setujuiFeedback']);
-        Route::delete('/{id}', [FeedbackController::class, 'hapusFeedback']);
-    });
+    // Route::middleware(['auth:sanctum', 'can:admin'])->group(function () {
+    Route::get('/semua', [FeedbackController::class, 'getSemuaFeedback']);
+    Route::post('/{id}/{action}', [FeedbackController::class, 'handleStatus'])
+        ->where('action', 'approve|reject')
+        ->name('feedback.handle-status');
+    Route::delete('/{id}', [FeedbackController::class, 'hapusFeedback']);
+    // });
 });

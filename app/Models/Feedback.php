@@ -11,16 +11,10 @@ class Feedback extends Model
 
     protected $table = 'feedback';
 
-    protected $fillable = [
-        'user_id',
-        'pesan',
-        // 'rating',
-        'disetujui',
-    ];
+    protected $fillable = ['user_id', 'pesan', 'rating', 'status'];
 
     protected $casts = [
-        'disetujui' => 'boolean',
-        // 'rating' => 'integer'
+        'rating' => 'integer',
     ];
 
     public function user()

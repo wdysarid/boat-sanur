@@ -2,9 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\JadwalController;
+use App\Http\Controllers\Api\FeedbackController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -70,8 +71,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         return view('admin.feedback');
     })->name('feedback');
 
-    Route::post('/feedback/{feedback}/approve', [FeedbackController::class, 'approve'])->name('feedback.approve');
-    Route::post('/feedback/{feedback}/reject', [FeedbackController::class, 'reject'])->name('feedback.reject');
+    Route::get('/feedback', [AdminController::class, 'indexFeedback'])->name('feedback');
+    Route::get('/feedback/data', [AdminController::class, 'getFeedbackData'])->name('feedback.data');
+
 });
 
 //User Views - data will be fetched from API
@@ -93,8 +95,8 @@ Route::middleware(['auth', 'role:wisatawan'])->prefix('user')->name('user.')->gr
     })->name('konfirmasi');
 
     Route::post('/reviews', [FeedbackController::class, 'store'])->name('reviews.store')->middleware('auth');
+
+    Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])
+        ->name('user.feedback.tambah');
 });
 
-
-Route::post('/kapal', [AdminController::class,'storeKapal']);
-Route::get('/kapal/{id}/edit', [AdminController::class,'editKapal']);

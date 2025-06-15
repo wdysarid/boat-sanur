@@ -497,38 +497,66 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission
     const form = document.getElementById('review-form');
     form.addEventListener('submit', function(e) {
-        // Validate form data
+        e.preventDefault();
+
+        // Validasi
         if (ratingValue.value === '0') {
-            e.preventDefault();
             alert('Please provide a rating before submitting your review.');
             return;
         }
 
         const reviewMessage = document.getElementById('review-message').value.trim();
         if (!reviewMessage) {
-            e.preventDefault();
             alert('Please write a review message.');
             return;
         }
 
-        // Check if user is logged in (you can pass this from Laravel)
-        const isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+        // Buat FormData
+        const formData = new FormData();
+        formData.append('pesan', reviewMessage);
+        formData.append('rating', ratingValue.value);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
-        if (!isLoggedIn) {
-            e.preventDefault();
+        fetch('{{ route("api.feedback.tambah") }}', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            credentials: 'include', // Ini yang paling penting!
+            body: JSON.stringify({
+                pesan: reviewMessage,
+                rating: ratingValue.value
+            })
+        })
+        .then(response => {
+            if (response.status === 401) {
+                saveFormData();
+                window.location.href = '{{ route("login") }}?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return;
 
-            // Save form data before redirect
-            saveFormData();
-
-            // Redirect to login with return URL
-            const currentUrl = encodeURIComponent(window.location.href + '#review-section');
-            window.location.href = '{{ route("login") }}?redirect=' + currentUrl;
-            return;
-        }
-
-        // If logged in, form will submit normally
-        // You can add success handling here if needed
+            if (data.success) {
+                alert(data.message || 'Ulasan berhasil dikirim!');
+                form.reset();
+                starButtons.forEach(star => star.classList.remove('text-yellow-400'));
+                ratingValue.value = '0';
+                ratingText.textContent = 'Click stars to rate';
+            } else {
+                throw new Error(data.message || 'Gagal mengirim ulasan');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error: ' + error.message);
+        });
     });
+
 
     // Save form data when user types (in case they navigate away)
     document.getElementById('review-message').addEventListener('input', function() {
@@ -537,5 +565,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 </script>
 @endsection
