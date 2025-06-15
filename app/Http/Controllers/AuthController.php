@@ -72,7 +72,7 @@ class AuthController extends Controller
             'user' => $user,
             'redirect' => $user->role === 'admin'
                 ? route('admin.dashboard')
-                : route('user.dashboard')
+                : route('wisatawan.dashboard')
         ]);
     }
 
@@ -278,7 +278,7 @@ class AuthController extends Controller
                     'role' => $user->role
                 ]);
                 // SELALU REDIRECT KE DASHBOARD WISATAWAN
-                return redirect()->route('user.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
+                return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
             }
 
             // Check if user exists with this email (untuk link akun existing)
@@ -298,7 +298,7 @@ class AuthController extends Controller
                     'role' => $existingUser->role
                 ]);
                 // SELALU REDIRECT KE DASHBOARD WISATAWAN
-                return redirect()->route('user.dashboard')->with('success', 'Selamat datang, ' . $existingUser->nama . '!');
+                return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $existingUser->nama . '!');
             }
 
             // CREATE NEW USER - REGISTRASI OTOMATIS SEPERTI GOOGLE UMUMNYA
@@ -320,7 +320,7 @@ class AuthController extends Controller
             ]);
 
             // SELALU REDIRECT KE DASHBOARD WISATAWAN
-            return redirect()->route('user.dashboard')->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
+            return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
 
         } catch (Exception $e) {
             Log::error('Google OAuth Error: ' . $e->getMessage());
@@ -344,7 +344,7 @@ class AuthController extends Controller
             return redirect()->route('admin.dashboard')->with('success', 'Selamat datang, Admin ' . $user->nama . '!');
         } else {
             Log::info('Redirecting to user dashboard');
-            return redirect()->route('user.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
+            return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
         }
     }
 }

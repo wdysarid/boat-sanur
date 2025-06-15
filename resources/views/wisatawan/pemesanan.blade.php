@@ -1,58 +1,58 @@
-@extends('layouts.app')
+@extends('layouts.wisatawan')
 
-@section('title', 'Booking - E-Ticketing Boat Sanur')
+@section('title', 'Pemesanan Tiket')
 
 @section('content')
-<!-- Navbar -->
-<nav class="bg-white shadow-sm fixed w-full z-50 transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <!-- Logo (Left Side) -->
-            <div class="flex-shrink-0 flex items-center" data-aos="fade-right" data-aos-duration="800">
-                <div class="flex items-center">
-                    <img src="{{ asset('images/logo-trans.png') }}" alt="DreamIslands Logo" class="h-10 w-auto mr-2">
-                    <a href="/" class="text-blue-600 font-bold text-xl">SanurBoat</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</nav>
-
 <div class="min-h-screen bg-gray-50">
-    <!-- Header Section -->
-    <div class="bg-white shadow-sm border-b pt-20 md:pt-24">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex items-center space-x-4 mb-4">
-                <a href="{{ url()->previous() }}" class="text-blue-600 hover:text-blue-800">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </a>
-                <h1 class="text-2xl font-bold text-gray-900">Booking Details</h1>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-4">
+                    <li>
+                        <a href="{{ route('wisatawan.dashboard') }}" class="text-gray-500 hover:text-gray-700">
+                            <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                            </svg>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-4 text-sm font-medium text-gray-900">Pemesanan Tiket</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            <div class="mt-4">
+                <h1 class="text-3xl font-bold text-gray-900">Detail Pemesanan</h1>
+                <p class="mt-2 text-gray-600">Lengkapi informasi penumpang untuk melanjutkan pemesanan</p>
             </div>
+        </div>
 
-            <!-- Booking Progress -->
-            <div class="flex items-center space-x-4 text-sm">
+        <!-- Booking Progress -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div class="flex items-center justify-center space-x-4 text-sm">
                 <div class="flex items-center text-blue-600">
-                    <div class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">1</div>
-                    <span class="ml-2 font-medium">Passenger Details</span>
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
+                    <span class="ml-3 font-medium">Detail Penumpang</span>
                 </div>
-                <div class="w-8 h-px bg-gray-300"></div>
+                <div class="w-16 h-px bg-gray-300"></div>
                 <div class="flex items-center text-gray-400">
-                    <div class="w-6 h-6 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-medium">2</div>
-                    <span class="ml-2">Payment</span>
+                    <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">2</div>
+                    <span class="ml-3">Pembayaran</span>
                 </div>
-                <div class="w-8 h-px bg-gray-300"></div>
+                <div class="w-16 h-px bg-gray-300"></div>
                 <div class="flex items-center text-gray-400">
-                    <div class="w-6 h-6 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-medium">3</div>
-                    <span class="ml-2">Confirmation</span>
+                    <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">3</div>
+                    <span class="ml-3">Konfirmasi</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Form Section -->
             <div class="lg:col-span-2">
                 <form id="bookingForm" method="POST" action="#" class="space-y-6">
@@ -67,15 +67,15 @@
                     <input type="hidden" name="to" value="{{ request('to') }}">
 
                     <!-- Contact Information -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
-                            Contact Information
+                            Informasi Kontak
                         </h2>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="nama_lengkap" class="block text-sm font-medium text-gray-700 mb-2">
                                     Nama Lengkap <span class="text-red-500">*</span>
@@ -84,7 +84,8 @@
                                        id="nama_lengkap"
                                        name="nama_lengkap"
                                        required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       value="{{ old('nama_lengkap', Auth::user()->name ?? '') }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                        placeholder="Masukkan nama lengkap">
                                 @error('nama_lengkap')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -99,7 +100,8 @@
                                        id="no_telepon"
                                        name="no_telepon"
                                        required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       value="{{ old('no_telepon', Auth::user()->phone ?? '') }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                        placeholder="Contoh: +62812345678">
                                 @error('no_telepon')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -114,7 +116,8 @@
                                        id="no_identitas"
                                        name="no_identitas"
                                        required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       value="{{ old('no_identitas') }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                        placeholder="Masukkan nomor identitas">
                                 @error('no_identitas')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -129,7 +132,8 @@
                                        id="email"
                                        name="email"
                                        required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       value="{{ old('email', Auth::user()->email ?? '') }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                        placeholder="contoh@email.com">
                                 @error('email')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -146,9 +150,27 @@
                                        required
                                        min="1"
                                        max="120"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       value="{{ old('usia') }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                        placeholder="Masukkan usia">
                                 @error('usia')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="jenis_kelamin" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Jenis Kelamin <span class="text-red-500">*</span>
+                                </label>
+                                <select id="jenis_kelamin"
+                                        name="jenis_kelamin"
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                                    <option value="">Pilih jenis kelamin</option>
+                                    <option value="laki-laki" {{ old('jenis_kelamin') == 'laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                    <option value="perempuan" {{ old('jenis_kelamin') == 'perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                </select>
+                                @error('jenis_kelamin')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -157,17 +179,20 @@
 
                     <!-- Additional Passengers (if more than 1) -->
                     @if(request('passenger_count', 1) > 1)
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
-                            Additional Passengers ({{ request('passenger_count', 1) - 1 }} more)
+                            Penumpang Tambahan ({{ request('passenger_count', 1) - 1 }} orang)
                         </h2>
 
                         @for($i = 2; $i <= request('passenger_count', 1); $i++)
-                        <div class="mb-6 p-4 border border-gray-200 rounded-lg">
-                            <h3 class="font-medium text-gray-900 mb-3">Passenger {{ $i }}</h3>
+                        <div class="mb-6 p-6 border border-gray-200 rounded-lg bg-gray-50">
+                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center">
+                                <span class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">{{ $i }}</span>
+                                Penumpang {{ $i }}
+                            </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="passenger_{{ $i }}_nama" class="block text-sm font-medium text-gray-700 mb-2">
@@ -177,7 +202,7 @@
                                            id="passenger_{{ $i }}_nama"
                                            name="passengers[{{ $i }}][nama_lengkap]"
                                            required
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                            placeholder="Masukkan nama lengkap">
                                 </div>
                                 <div>
@@ -188,7 +213,7 @@
                                            id="passenger_{{ $i }}_identitas"
                                            name="passengers[{{ $i }}][no_identitas]"
                                            required
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                            placeholder="Masukkan nomor identitas">
                                 </div>
                                 <div>
@@ -201,8 +226,21 @@
                                            required
                                            min="1"
                                            max="120"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                                            placeholder="Masukkan usia">
+                                </div>
+                                <div>
+                                    <label for="passenger_{{ $i }}_gender" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Jenis Kelamin <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="passenger_{{ $i }}_gender"
+                                            name="passengers[{{ $i }}][jenis_kelamin]"
+                                            required
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                                        <option value="">Pilih jenis kelamin</option>
+                                        <option value="laki-laki">Laki-laki</option>
+                                        <option value="perempuan">Perempuan</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -211,7 +249,7 @@
                     @endif
 
                     <!-- Terms and Conditions -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <div class="flex items-start space-x-3">
                             <input type="checkbox"
                                    id="terms"
@@ -219,19 +257,34 @@
                                    required
                                    class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="terms" class="text-sm text-gray-700">
-                                Saya menyetujui <a href="#" class="text-blue-600 hover:underline">syarat dan ketentuan</a>
-                                serta <a href="#" class="text-blue-600 hover:underline">kebijakan privasi</a> yang berlaku.
+                                Saya menyetujui <a href="#" class="text-blue-600 hover:underline font-medium">syarat dan ketentuan</a>
+                                serta <a href="#" class="text-blue-600 hover:underline font-medium">kebijakan privasi</a> yang berlaku.
                                 <span class="text-red-500">*</span>
                             </label>
                         </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-between">
+                        <a href="{{ route('wisatawan.dashboard') }}"
+                           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                            Kembali
+                        </a>
+                        <button type="submit"
+                                class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Lanjutkan ke Pembayaran
+                        </button>
                     </div>
                 </form>
             </div>
 
             <!-- Booking Summary Sidebar -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Booking Summary</h2>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Ringkasan Pemesanan</h2>
 
                     <!-- Ticket Details -->
                     <div class="space-y-4 mb-6">
@@ -240,36 +293,36 @@
                                  alt="{{ $ticket['boat_name'] ?? 'Fast Boat' }}"
                                  class="w-16 h-16 rounded-lg object-cover">
                             <div>
-                                <h3 class="font-medium text-gray-900">{{ $ticket['boat_name'] ?? 'Semabu Hills Fast Boat' }}</h3>
-                                <p class="text-sm text-gray-600">{{ $ticket['duration'] ?? '45 minutes' }}</p>
+                                <h3 class="font-semibold text-gray-900">{{ $ticket['boat_name'] ?? 'Semabu Hills Fast Boat' }}</h3>
+                                <p class="text-sm text-gray-600">{{ $ticket['duration'] ?? '45 menit' }}</p>
                             </div>
                         </div>
 
-                        <div class="border-t pt-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm text-gray-600">Route</span>
+                        <div class="border-t pt-4 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Rute</span>
                                 <span class="text-sm font-medium">
                                     {{ ucfirst(str_replace('_', ' ', request('from', 'sanur'))) }} →
                                     {{ ucfirst(str_replace('_', ' ', request('to', 'nusa_penida'))) }}
                                 </span>
                             </div>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm text-gray-600">Date</span>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Tanggal</span>
                                 <span class="text-sm font-medium">
-                                    {{ \Carbon\Carbon::parse(request('departure_date', date('Y-m-d')))->format('d M, Y') }}
+                                    {{ \Carbon\Carbon::parse(request('departure_date', date('Y-m-d')))->format('d M Y') }}
                                 </span>
                             </div>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm text-gray-600">Time</span>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Waktu</span>
                                 <span class="text-sm font-medium">{{ $ticket['departure_time'] ?? '06:30' }}</span>
                             </div>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm text-gray-600">Passengers</span>
-                                <span class="text-sm font-medium">{{ request('passenger_count', 1) }} person{{ request('passenger_count', 1) > 1 ? 's' : '' }}</span>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Penumpang</span>
+                                <span class="text-sm font-medium">{{ request('passenger_count', 1) }} orang</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Type</span>
-                                <span class="text-sm font-medium">{{ request('passenger_type') == 'foreign' ? 'Foreign' : 'Domestic' }}</span>
+                                <span class="text-sm text-gray-600">Tipe</span>
+                                <span class="text-sm font-medium">{{ request('passenger_type') == 'foreign' ? 'Asing' : 'Domestik' }}</span>
                             </div>
                         </div>
                     </div>
@@ -277,47 +330,34 @@
                     <!-- Price Breakdown -->
                     <div class="border-t pt-4 mb-6">
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm text-gray-600">Price per person</span>
-                            <span class="text-sm">Rp. {{ number_format($ticket['price'] ?? 145000, 0, ',', '.') }}</span>
+                            <span class="text-sm text-gray-600">Harga per orang</span>
+                            <span class="text-sm">Rp {{ number_format($ticket['price'] ?? 145000, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm text-gray-600">Quantity</span>
+                            <span class="text-sm text-gray-600">Jumlah</span>
                             <span class="text-sm">{{ request('passenger_count', 1) }}x</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Biaya Admin</span>
+                            <span class="text-sm">Rp 5.000</span>
                         </div>
                         <div class="flex justify-between items-center font-semibold text-lg border-t pt-2">
                             <span>Total</span>
                             <span class="text-blue-600">
-                                Rp. {{ number_format(($ticket['price'] ?? 145000) * request('passenger_count', 1), 0, ',', '.') }}
+                                Rp {{ number_format((($ticket['price'] ?? 145000) * request('passenger_count', 1)) + 5000, 0, ',', '.') }}
                             </span>
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="space-y-3">
-                        <button type="submit"
-                                form="bookingForm"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200 flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Continue to Payment
-                        </button>
-
-                        <a href="{{ url()->previous() }}"
-                           class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-md transition duration-200 text-center block">
-                            Back to Search
-                        </a>
-                    </div>
-
                     <!-- Contact Support -->
-                    <div class="mt-6 pt-6 border-t">
-                        <p class="text-xs text-gray-500 text-center mb-2">Need help?</p>
+                    <div class="border-t pt-4">
+                        <p class="text-xs text-gray-500 text-center mb-3">Butuh bantuan?</p>
                         <div class="flex justify-center space-x-4">
                             <a href="tel:+6281234567890" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                                 </svg>
-                                Call
+                                Telepon
                             </a>
                             <a href="https://wa.me/6281234567890" class="text-green-600 hover:text-green-800 text-sm flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
@@ -346,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Disable submit button
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processing...';
+        submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Memproses...';
 
         // Submit form
         this.submit();

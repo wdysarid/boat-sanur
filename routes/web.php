@@ -75,21 +75,21 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 //User Views - data will be fetched from API
-Route::middleware(['auth', 'role:wisatawan'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth', 'role:wisatawan'])->prefix('wisatawan')->name('wisatawan.')->group(function () {
     Route::get('/dashboard', function () {
-        return view('user.dashboard');
+        return view('wisatawan.dashboard');
     })->name('dashboard');
 
     Route::get('/pemesanan', function () {
-        return view('user.pemesanan');
+        return view('wisatawan.pemesanan');
     })->name('pemesanan');
 
     Route::get('/pembayaran', function () {
-        return view('user.pembayaran');
+        return view('wisatawan.pembayaran');
     })->name('pembayaran');
 
     Route::get('/konfirmasi', function () {
-        return view('user.konfirmasi');
+        return view('wisatawan.konfirmasi');
     })->name('konfirmasi');
 
     Route::post('/reviews', [FeedbackController::class, 'store'])->name('reviews.store')->middleware('auth');
