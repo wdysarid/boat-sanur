@@ -66,7 +66,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
         session(['token' => $token]);
-        
+
         logger()->info('User logged in', [
             'user_id' => auth()->id(),
             'session_id' => session()->getId(),

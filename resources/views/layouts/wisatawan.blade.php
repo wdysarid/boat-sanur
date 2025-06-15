@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', 'Dashboard Wisatawan') - {{ config('app.name', 'SanurBoat') }}</title>
+    <!-- logo -->
+    <link rel="icon" type="image/png" href="/images/logo.png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

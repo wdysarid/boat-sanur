@@ -94,6 +94,22 @@ Route::middleware(['auth', 'role:wisatawan'])->prefix('wisatawan')->name('wisata
         return view('wisatawan.konfirmasi');
     })->name('konfirmasi');
 
+    Route::get('/profile', function () {
+        return view('wisatawan.profile');
+    })->name('profile');
+
+    Route::get('/profile/edit', function () {
+        return view('wisatawan.edit-profile');
+    })->name('profile.edit');
+
+    Route::get('/profile/ubah-password', function () {
+        return view('wisatawan.ubah-password');
+    })->name('profile.change-password');
+
+    Route::get('/tiket', function () {
+        return view('wisatawan.tiket');
+    })->name('tiket');
+
     Route::post('/reviews', [FeedbackController::class, 'store'])->name('reviews.store')->middleware('auth');
 
     Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])
