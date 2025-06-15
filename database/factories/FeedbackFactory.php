@@ -20,8 +20,8 @@ class FeedbackFactory extends Factory
         return [
             'user_id' => User::factory(),
             'pesan' => $this->faker->sentence(10),
-            // 'rating' => $this->faker->numberBetween(1, 5),
-            'disetujui' => $this->faker->boolean(30), // 30% kemungkinan disetujui
+            'rating' => $this->faker->numberBetween(1, 5),
+            'status' => $this->faker->randomElement(['pending', 'disetujui', 'ditolak']),
         ];
     }
 }

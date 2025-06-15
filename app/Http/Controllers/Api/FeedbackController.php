@@ -9,57 +9,72 @@ use Illuminate\Support\Facades\Validator;
 
 class FeedbackController extends Controller
 {
-
-    public function index(Request $request)
+    /**
+     * Get all feedback (admin only)
+     */
+    public function getSemuaFeedback(Request $request)
     {
-        $query = Feedback::query();
+        try {
+            $query = Feedback::with(['user']);
 
-        // Filter by status
-        if ($request->has('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
+            // Filter by status
+            if ($request->has('status') && $request->status !== 'all') {
+                $query->where('status', $request->status);
+            }
+
+            // Search functionality
+            if ($request->has('search') && !empty($request->search)) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
+                    })->orWhere('pesan', 'like', "%{$search}%");
+                });
+            }
+
+            $feedbacks = $query->orderBy('created_at', 'desc')->paginate(15);
+
+            // Calculate statistics - ensure average_rating is always a number
+            $approvedFeedbacks = Feedback::where('status', 'disetujui');
+            $averageRating = $approvedFeedbacks->avg('rating');
+
+            $stats = [
+                'total' => Feedback::count(),
+                'pending' => Feedback::where('status', 'pending')->count(),
+                'approved' => $approvedFeedbacks->count(),
+                'rejected' => Feedback::where('status', 'ditolak')->count(),
+                'average_rating' => $averageRating ? (float) $averageRating : 0, // Ensure it's a number
+                'rating_distribution' => $this->getRatingDistribution(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $feedbacks->items(),
+                // ... (keep your existing pagination data) ...
+                'stats' => $stats,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Error: ' . $e->getMessage(),
+                ],
+                500,
+            );
         }
+    }
 
-        // Search functionality
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('review', 'like', "%{$search}%");
-            });
-        }
+    private function getRatingDistribution()
+    {
+        $total = Feedback::count();
+        $distribution = [];
 
-        // Paginate results (15 per page)
-        $feedbacks = $query->orderBy('created_at', 'desc')->paginate(15);
-
-        // Preserve query parameters in pagination links
-        $feedbacks->appends($request->query());
-
-        // Calculate statistics
-        $totalFeedback = Feedback::count();
-        $pendingCount = Feedback::where('status', 'pending')->count();
-        $approvedCount = Feedback::where('status', 'approved')->count();
-        $rejectedCount = Feedback::where('status', 'rejected')->count();
-
-        $averageRating = Feedback::where('status', 'approved')->avg('rating') ?? 0;
-
-        // Calculate rating distribution
-        $ratingDistribution = [];
         for ($i = 1; $i <= 5; $i++) {
             $count = Feedback::where('rating', $i)->count();
-            $percentage = $totalFeedback > 0 ? round(($count / $totalFeedback) * 100) : 0;
-            $ratingDistribution[$i] = $percentage;
+            $distribution[$i] = $total > 0 ? round(($count / $total) * 100) : 0;
         }
 
-        return view('admin.feedback', compact(
-            'feedbacks',
-            'totalFeedback',
-            'pendingCount',
-            'approvedCount',
-            'rejectedCount',
-            'averageRating',
-            'ratingDistribution'
-        ));
+        return $distribution;
     }
 
     /**
@@ -67,29 +82,11 @@ class FeedbackController extends Controller
      */
     public function getFeedbackDisetujui()
     {
-        $feedback = Feedback::with('user')
-            ->where('disetujui', true)
-            ->latest()
-            ->get();
+        $feedback = Feedback::with('user')->where('status', 'disetujui')->latest()->get();
 
         return response()->json([
             'success' => true,
-            'data' => $feedback
-        ]);
-    }
-
-    /**
-     * Get all feedback (admin only)
-     */
-    public function getSemuaFeedback()
-    {
-        $feedback = Feedback::with('user')
-            ->latest()
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'data' => $feedback
+            'data' => $feedback,
         ]);
     }
 
@@ -98,30 +95,47 @@ class FeedbackController extends Controller
      */
     public function tambahFeedback(Request $request)
     {
+        if (!auth()->guard('web')->check()) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Unauthenticated',
+                ],
+                401,
+            );
+        }
+
         $validator = Validator::make($request->all(), [
             'pesan' => 'required|string|max:500',
-            // 'rating' => 'sometimes|integer|between:1,5'
+            'rating' => 'required|integer|between:1,5',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors(),
+                ],
+                422,
+            );
         }
 
         $feedback = Feedback::create([
             'user_id' => $request->user()->id,
             'pesan' => $request->pesan,
-            // 'rating' => $request->rating ?? null,
-            'disetujui' => false
+            'rating' => $request->rating,
+            'status' => 'pending',
         ]);
 
-        return response()->json([
-            'success' => true,
-            'data' => $feedback,
-            'message' => 'Feedback berhasil dikirim'
-        ], 201);
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $feedback,
+                'message' => 'Feedback dan rating berhasil dikirim!',
+            ],
+            201,
+        );
     }
 
     /**
@@ -135,29 +149,46 @@ class FeedbackController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $feedback
+            'data' => $feedback,
         ]);
     }
 
     /**
-     * Approve feedback (Admin)
+     * Approve/reject feedback (Admin)
      */
-    public function setujuiFeedback($id)
+    public function handleStatus($id, $action)
     {
+        $validActions = ['approve', 'reject'];
+
+        if (!in_array($action, $validActions)) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Aksi tidak valid',
+                ],
+                400,
+            );
+        }
+
         $feedback = Feedback::find($id);
 
         if (!$feedback) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Feedback tidak ditemukan'
-            ], 404);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Feedback tidak ditemukan',
+                ],
+                404,
+            );
         }
 
-        $feedback->update(['disetujui' => true]);
+        $status = $action === 'approve' ? 'disetujui' : 'ditolak';
+        $feedback->update(['status' => $status]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Feedback berhasil disetujui'
+            'message' => 'Feedback berhasil ' . $status,
+            'data' => $feedback,
         ]);
     }
 
@@ -169,19 +200,20 @@ class FeedbackController extends Controller
         $feedback = Feedback::find($id);
 
         if (!$feedback) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Feedback tidak ditemukan'
-            ], 404);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Feedback tidak ditemukan',
+                ],
+                404,
+            );
         }
 
         $feedback->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Feedback berhasil dihapus'
+            'message' => 'Feedback berhasil dihapus',
         ]);
     }
-
-
 }
