@@ -13,13 +13,22 @@ use App\Http\Controllers\Api\FeedbackController;
 
 Route::get('/', function () {
     return view('landing');
-});
+})->name('home');
 
-Route::get('/login', function () {
+// MODIFIKASI: Tambahkan parameter intended untuk login dan register
+Route::get('/login', function (Illuminate\Http\Request $request) {
+    // Store intended URL jika ada
+    if ($request->has('intended')) {
+        session(['url.intended' => $request->get('intended')]);
+    }
     return view('auth.login');
 })->name('login');
 
-Route::get('/register', function () {
+Route::get('/register', function (Illuminate\Http\Request $request) {
+    // Store intended URL jika ada
+    if ($request->has('intended')) {
+        session(['url.intended' => $request->get('intended')]);
+    }
     return view('auth.register');
 })->name('register');
 
@@ -110,7 +119,11 @@ Route::middleware(['auth', 'role:wisatawan'])->prefix('wisatawan')->name('wisata
         return view('wisatawan.tiket');
     })->name('tiket');
 
+        // TAMBAHAN ROUTE FEEDBACK
+    Route::get('/feedback', function () {
+        return view('wisatawan.feedback');
+    })->name('feedback');
+
      Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])
         ->name('feedback.tambah');
 });
-

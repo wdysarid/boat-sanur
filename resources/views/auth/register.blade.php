@@ -29,6 +29,54 @@
             }
         }
 
+        /* Home Button Styles */
+        .home-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .home-btn:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #3b82f6;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .home-btn:hover .home-btn-icon {
+            color: white;
+            transform: translateX(-2px);
+        }
+
+        .home-btn:hover .home-btn-text {
+            color: white;
+        }
+
+        .home-btn-icon {
+            transition: all 0.3s ease;
+            color: #64748b;
+        }
+
+        .home-btn-text {
+            transition: all 0.3s ease;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        /* Mobile Home Button */
+        .mobile-home-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-home-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
         /* Hover effect untuk navigasi */
         .nav-link {
             transition: all 0.3s ease;
@@ -184,11 +232,30 @@
         </div>
     </div>
 
+    <!-- Desktop Home Button - Fixed Position -->
+    <div class="hidden md:block fixed top-6 right-6 z-50">
+        <a href="/" class="home-btn inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-medium shadow-sm">
+            <svg class="home-btn-icon w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span class="home-btn-text">Home</span>
+        </a>
+    </div>
+
     <div class="flex flex-col md:flex-row h-screen">
-        <!-- Mobile logo (only visible on mobile) -->
-        <div class="flex md:hidden items-center p-6 bg-blue-50">
-            <img src="{{ asset('images/logo-trans.png') }}" alt="SanurFerryPass Logo" class="h-8 w-auto">
-            <a href="/" class="ml-3 text-blue-500 font-bold text-xl tracking-tight">SanurBoat</a>
+        <!-- Mobile header with logo (hidden on desktop) -->
+        <div class="flex md:hidden items-center justify-between p-6 bg-blue-50">
+            <div class="flex items-center">
+                <img src="{{ asset('images/logo-trans.png') }}" alt="SanurFerryPass Logo" class="h-8 w-auto">
+                <a href="/" class="ml-3 text-blue-500 font-bold text-xl tracking-tight">SanurBoat</a>
+            </div>
+            <!-- Mobile Home Button -->
+            <a href="/" class="mobile-home-btn inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-blue-600">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span class="font-medium">Home</span>
+            </a>
         </div>
 
         <!-- Left side - Image (hidden on mobile) dengan animasi slide -->
@@ -218,7 +285,7 @@
 
         <!-- Right side - Form (full width on mobile) -->
         <div class="w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-12">
-            <div class="w-full max-w-md px-4">
+            <div class="w-full max-w-md px-4 relative">
                 <!-- User icon and title -->
                 <div class="flex flex-col items-center mb-8">
                     <div class="w-12 h-12 mb-4">

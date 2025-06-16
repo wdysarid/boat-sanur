@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class FeedbackController extends Controller
 {
@@ -95,7 +96,8 @@ class FeedbackController extends Controller
      */
     public function tambahFeedback(Request $request)
     {
-        if (!auth()->guard('web')->check()) {
+        // Cek authentication dengan web guard
+        if (!Auth::check()) {
             return response()->json(
                 [
                     'success' => false,
@@ -122,7 +124,7 @@ class FeedbackController extends Controller
         }
 
         $feedback = Feedback::create([
-            'user_id' => $request->user()->id,
+            'user_id' => Auth::id(),
             'pesan' => $request->pesan,
             'rating' => $request->rating,
             'status' => 'pending',
@@ -143,13 +145,115 @@ class FeedbackController extends Controller
      */
     public function getFeedbackSaya(Request $request)
     {
-        $feedback = Feedback::where('user_id', $request->user()->id)
+        // Cek authentication
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
+        $feedback = Feedback::where('user_id', Auth::id())
             ->latest()
             ->get();
 
         return response()->json([
             'success' => true,
             'data' => $feedback,
+        ]);
+    }
+
+    /**
+     * Update user's feedback
+     */
+    public function updateFeedback(Request $request, $id)
+    {
+        // Cek authentication
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
+        $feedback = Feedback::find($id);
+
+        if (!$feedback) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Feedback tidak ditemukan',
+            ], 404);
+        }
+
+        // Pastikan user hanya bisa update feedback miliknya sendiri
+        if ($feedback->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk mengedit feedback ini.',
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'pesan' => 'required|string|max:500',
+            'rating' => 'required|integer|between:1,5',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $feedback->update([
+            'pesan' => $request->pesan,
+            'rating' => $request->rating,
+            'status' => 'pending', // Reset status to pending after edit
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $feedback,
+            'message' => 'Feedback berhasil diperbarui',
+        ]);
+    }
+
+    /**
+     * Delete user's feedback
+     */
+    public function deleteFeedback(Request $request, $id)
+    {
+        // Cek authentication
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
+        $feedback = Feedback::find($id);
+
+        if (!$feedback) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Feedback tidak ditemukan',
+            ], 404);
+        }
+
+        // Pastikan user hanya bisa hapus feedback miliknya sendiri
+        if ($feedback->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk menghapus feedback ini.',
+            ], 403);
+        }
+
+        $feedback->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback berhasil dihapus',
         ]);
     }
 

@@ -3,6 +3,26 @@
 @section('content')
     @include('partials.user.header')
 
+    <!-- Modal Notification -->
+    <div id="notificationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div id="modalIcon" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4">
+                    <!-- Icon will be inserted here -->
+                </div>
+                <h3 id="modalTitle" class="text-lg font-medium text-gray-900 mb-2"></h3>
+                <div class="mt-2 px-7 py-3">
+                    <p id="modalMessage" class="text-sm text-gray-500"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="modalCloseBtn" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors duration-200">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- About Us Section -->
     <section id="about-us" class="relative py-16 bg-white pt-20 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -355,19 +375,7 @@
                     </p>
                 </div>
 
-                {{-- @if (session('success'))
-                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                        {{ session('error') }}
-                    </div>
-                @endif --}}
-
-                <!-- Review Form -->
+                <!-- Universal Feedback Form -->
                 <form action="{{ route('wisatawan.feedback.tambah') }}" method="POST" class="space-y-6"
                     data-aos="fade-up" data-aos-delay="200" data-aos-duration="800" id="review-form">
                     @csrf
@@ -376,46 +384,16 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-3">Rate Your Experience</label>
                         <div class="flex items-center space-x-1" id="star-rating">
-                            <button type="button"
-                                class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200"
-                                data-rating="1">
-                                <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
-                            </button>
-                            <button type="button"
-                                class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200"
-                                data-rating="2">
-                                <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
-                            </button>
-                            <button type="button"
-                                class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200"
-                                data-rating="3">
-                                <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
-                            </button>
-                            <button type="button"
-                                class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200"
-                                data-rating="4">
-                                <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
-                            </button>
-                            <button type="button"
-                                class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200"
-                                data-rating="5">
-                                <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
-                            </button>
+                            @for($i = 1; $i <= 5; $i++)
+                                <button type="button"
+                                    class="star-btn text-gray-300 hover:text-yellow-400 transition-colors duration-200"
+                                    data-rating="{{ $i }}">
+                                    <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                        <path
+                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                </button>
+                            @endfor
                         </div>
                         <div class="mt-2">
                             <span id="rating-text" class="text-sm text-gray-500">Click stars to rate</span>
@@ -439,41 +417,35 @@
                         @enderror
                     </div>
 
-                    <!-- Login Notice for Non-logged Users -->
-                    {{-- @if (!Auth::check())
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-blue-700">
-                                        <strong>Note:</strong> You'll need to login to submit your review. Don't worry, your
-                                        review will be saved!
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    @endif --}}
-
-                    <!-- Submit Button -->
+                    <!-- Dynamic Submit Button -->
                     <div data-aos="fade-up" data-aos-delay="300" data-aos-anchor-placement="top-bottom">
-                        <button type="submit"
-                            class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                            @if (Auth::check())
+                        @auth
+                            <!-- User sudah login - tombol submit biasa -->
+                            <button type="submit"
+                                class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
                                 Submit Review
-                            @else
-                                Login & Submit Review
-                            @endif
-                        </button>
+                            </button>
+                        @else
+                            <!-- User belum login - tombol login dan submit -->
+                            <div class="space-y-3">
+                                <button type="button" id="loginAndSubmitBtn"
+                                    class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    Login & Submit Review
+                                </button>
+                                <p class="text-sm text-gray-500 text-center">
+                                    Belum punya akun?
+                                    <a href="{{ route('register') }}?intended={{ urlencode(url()->current() . '#feedback') }}"
+                                        class="text-blue-600 hover:text-blue-700 font-medium">Daftar di sini</a>
+                                </p>
+                            </div>
+                        @endauth
                     </div>
                 </form>
             </div>
@@ -481,137 +453,267 @@
     </section>
 
     <script>
+        // Modal Functions
+        function showNotificationModal(type, title, message) {
+            const modal = document.getElementById('notificationModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+            // Set icon and colors based on type
+            let iconHTML = '';
+            let iconBgColor = '';
+            let buttonColor = '';
+
+            switch(type) {
+                case 'success':
+                    iconHTML = `
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    `;
+                    iconBgColor = 'bg-green-100';
+                    modalIcon.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-green-500';
+                    buttonColor = 'bg-green-500 hover:bg-green-700 focus:ring-green-300';
+                    break;
+                case 'error':
+                    iconHTML = `
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    `;
+                    iconBgColor = 'bg-red-100';
+                    modalIcon.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-red-500';
+                    buttonColor = 'bg-red-500 hover:bg-red-700 focus:ring-red-300';
+                    break;
+                case 'info':
+                default:
+                    iconHTML = `
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    `;
+                    iconBgColor = 'bg-blue-100';
+                    modalIcon.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-blue-500';
+                    buttonColor = 'bg-blue-500 hover:bg-blue-700 focus:ring-blue-300';
+                    break;
+            }
+
+            modalIcon.innerHTML = iconHTML;
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalCloseBtn.className = `px-4 py-2 text-white text-base font-medium rounded-md w-full shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 ${buttonColor}`;
+
+            modal.classList.remove('hidden');
+
+            // Auto close after 5 seconds for success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    closeNotificationModal();
+                }, 5000);
+            }
+        }
+
+        function closeNotificationModal() {
+            const modal = document.getElementById('notificationModal');
+            modal.classList.add('hidden');
+        }
+
+        // Close modal when clicking outside or on close button
+        document.getElementById('notificationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNotificationModal();
+            }
+        });
+
+        document.getElementById('modalCloseBtn').addEventListener('click', closeNotificationModal);
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeNotificationModal();
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
-        // Restore form data from session or local storage
-        function restoreFormData() {
-            // Check for old input from session (after login redirect)
+            // Update rating display
+            function updateRatingDisplay(rating) {
+                const ratingTexts = {
+                    1: 'Poor - Very disappointed',
+                    2: 'Fair - Below expectations',
+                    3: 'Good - Met expectations',
+                    4: 'Very Good - Exceeded expectations',
+                    5: 'Excellent - Outstanding experience!'
+                };
+
+                document.getElementById('rating-value').value = rating;
+                document.getElementById('rating-text').textContent = ratingTexts[rating];
+
+                // Update star colors
+                const starButtons = document.querySelectorAll('#star-rating .star-btn');
+                starButtons.forEach((star, starIndex) => {
+                    if (starIndex < rating) {
+                        star.classList.remove('text-gray-300');
+                        star.classList.add('text-yellow-400');
+                    } else {
+                        star.classList.remove('text-yellow-400');
+                        star.classList.add('text-gray-300');
+                    }
+                });
+            }
+
+            // Star rating functionality
+            const starButtons = document.querySelectorAll('#star-rating .star-btn');
+            starButtons.forEach((button) => {
+                button.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    updateRatingDisplay(rating);
+                });
+
+                // Hover effect
+                button.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    starButtons.forEach((star, starIndex) => {
+                        if (starIndex < rating) {
+                            star.classList.add('text-yellow-300');
+                        }
+                    });
+                });
+
+                button.addEventListener('mouseleave', function() {
+                    starButtons.forEach(star => {
+                        star.classList.remove('text-yellow-300');
+                    });
+                });
+            });
+
+            // Function to restore form data from localStorage
+            function restoreFormData() {
+                console.log('Attempting to restore form data...');
+
+                // Check localStorage for saved data
+                const savedData = localStorage.getItem('pendingReview');
+                console.log('Saved data from localStorage:', savedData);
+
+                if (savedData) {
+                    try {
+                        const formData = JSON.parse(savedData);
+                        console.log('Parsed form data:', formData);
+
+                        // Restore rating
+                        if (formData.rating && formData.rating !== '0' && formData.rating > 0) {
+                            console.log('Restoring rating:', formData.rating);
+                            updateRatingDisplay(parseInt(formData.rating));
+                        }
+
+                        // Restore message
+                        if (formData.pesan && formData.pesan.trim() !== '') {
+                            console.log('Restoring message:', formData.pesan);
+                            const pesanField = document.getElementById('pesan');
+                            if (pesanField) {
+                                pesanField.value = formData.pesan;
+                            }
+                        }
+
+                        // Clear localStorage after restoring
+                        localStorage.removeItem('pendingReview');
+                        console.log('Form data restored and localStorage cleared');
+
+                        // Show notification that data was restored
+                        showNotificationModal('info', 'Data Dipulihkan', 'Data review Anda telah dipulihkan. Silakan lanjutkan untuk mengirim review.');
+
+                    } catch (error) {
+                        console.error('Error parsing saved form data:', error);
+                        localStorage.removeItem('pendingReview');
+                    }
+                }
+            }
+
+            @auth
+            // Form validation for logged in users
+            document.getElementById('review-form').addEventListener('submit', function(e) {
+                const rating = document.getElementById('rating-value').value;
+
+                if (rating === '0') {
+                    e.preventDefault();
+                    showNotificationModal('error', 'Rating Diperlukan', 'Silakan berikan rating sebelum mengirim review Anda.');
+                    return false;
+                }
+
+                return true;
+            });
+
+            // Restore form data from session (Laravel old input)
             const oldRating = {{ old('rating', 0) }};
             const oldPesan = `{{ old('pesan', '') }}`;
 
+            console.log('Laravel old rating:', oldRating);
+            console.log('Laravel old pesan:', oldPesan);
+
             if (oldRating > 0) {
                 updateRatingDisplay(oldRating);
+            } else {
+                // If no Laravel old data, try to restore from localStorage
+                restoreFormData();
             }
 
             if (oldPesan.trim() !== '') {
                 document.getElementById('pesan').value = oldPesan;
             }
+            @else
+            // Handle login and submit for non-authenticated users
+            const loginBtn = document.getElementById('loginAndSubmitBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function() {
+                    const rating = document.getElementById('rating-value').value;
+                    const pesan = document.getElementById('pesan').value;
 
-            // Check local storage for unsaved data (before login)
-            const savedData = localStorage.getItem('pendingReview');
-            if (savedData && !oldRating && !oldPesan) {
-                const formData = JSON.parse(savedData);
+                    console.log('Saving form data before login:', { rating, pesan });
 
-                if (formData.rating && formData.rating !== '0') {
-                    updateRatingDisplay(parseInt(formData.rating));
-                }
+                    // Save form data to localStorage before redirecting to login
+                    const formData = {
+                        rating: rating,
+                        pesan: pesan
+                    };
+                    localStorage.setItem('pendingReview', JSON.stringify(formData));
+                    console.log('Form data saved to localStorage');
 
-                if (formData.pesan) {
-                    document.getElementById('pesan').value = formData.pesan;
-                }
-            }
-        }
-
-        // Update rating display
-        function updateRatingDisplay(rating) {
-            const ratingTexts = {
-                1: 'Poor - Very disappointed',
-                2: 'Fair - Below expectations',
-                3: 'Good - Met expectations',
-                4: 'Very Good - Exceeded expectations',
-                5: 'Excellent - Outstanding experience!'
-            };
-
-            document.getElementById('rating-value').value = rating;
-            document.getElementById('rating-text').textContent = ratingTexts[rating];
-
-            // Update star colors
-            const starButtons = document.querySelectorAll('#star-rating .star-btn');
-            starButtons.forEach((star, starIndex) => {
-                if (starIndex < rating) {
-                    star.classList.remove('text-gray-300');
-                    star.classList.add('text-yellow-400');
-                } else {
-                    star.classList.remove('text-yellow-400');
-                    star.classList.add('text-gray-300');
-                }
-            });
-        }
-
-        // Star rating functionality
-        const starButtons = document.querySelectorAll('#star-rating .star-btn');
-        starButtons.forEach((button) => {
-            button.addEventListener('click', function() {
-                const rating = parseInt(this.dataset.rating);
-                updateRatingDisplay(rating);
-            });
-
-            // Hover effect
-            button.addEventListener('mouseenter', function() {
-                const rating = parseInt(this.dataset.rating);
-                starButtons.forEach((star, starIndex) => {
-                    if (starIndex < rating) {
-                        star.classList.add('text-yellow-300');
-                    }
+                    // Redirect to login with intended URL
+                    window.location.href = "{{ route('login') }}?intended={{ urlencode(url()->current() . '#feedback') }}";
                 });
-            });
-
-            button.addEventListener('mouseleave', function() {
-                starButtons.forEach(star => {
-                    star.classList.remove('text-yellow-300');
-                });
-            });
-        });
-
-        // Save form data when user interacts with form (in case they navigate away)
-        document.getElementById('review-form').addEventListener('input', function() {
-            const formData = {
-                rating: document.getElementById('rating-value').value,
-                pesan: document.getElementById('pesan').value
-            };
-
-            localStorage.setItem('pendingReview', JSON.stringify(formData));
-        });
-
-        // Form validation before submit
-        document.getElementById('review-form').addEventListener('submit', function(e) {
-            const rating = document.getElementById('rating-value').value;
-
-            if (rating === '0') {
-                e.preventDefault();
-                alert('Please provide a rating before submitting your review.');
-                return false;
             }
 
-            // If user is not logged in, save to local storage and redirect to login
-            if (!{{ Auth::check() ? 'true' : 'false' }}) {
-                e.preventDefault();
+            // Try to restore form data when page loads (for users who just logged in)
+            restoreFormData();
+            @endauth
 
-                const formData = {
-                    rating: rating,
-                    pesan: document.getElementById('pesan').value
-                };
-
-                localStorage.setItem('pendingReview', JSON.stringify(formData));
-                window.location.href = '{{ route('login') }}?redirect=' + encodeURIComponent(window.location.pathname);
-                return false;
+            // Auto scroll to feedback section if hash is present
+            if (window.location.hash === '#feedback') {
+                setTimeout(() => {
+                    document.getElementById('feedback').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 500);
             }
 
-            return true;
+            // Show success/error messages using modal instead of alert
+            @if(session('success'))
+                showNotificationModal('success', 'Berhasil!', '{{ session('success') }}');
+            @endif
+
+            @if(session('error'))
+                showNotificationModal('error', 'Terjadi Kesalahan', '{{ session('error') }}');
+            @endif
+
+            @if($errors->any())
+                let errorMessages = [];
+                @foreach($errors->all() as $error)
+                    errorMessages.push('{{ $error }}');
+                @endforeach
+                showNotificationModal('error', 'Validasi Error', errorMessages.join('\n'));
+            @endif
         });
-
-        // Restore data on page load
-        restoreFormData();
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        @if(session('success'))
-            alert('{{ session('success') }}');
-        @endif
-
-        @if(session('error'))
-            alert('{{ session('error') }}');
-        @endif
-    });
-    
     </script>
 @endsection

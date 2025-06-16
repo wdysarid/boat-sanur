@@ -77,11 +77,15 @@ Route::prefix('feedback')->group(function () {
     // Public routes
     Route::get('/', [FeedbackController::class, 'getFeedbackDisetujui']);
 
-    // User routes (protected)
-    // Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/', [FeedbackController::class, 'tambahFeedback'])->name('api.feedback.tambah');
-    Route::get('/saya', [FeedbackController::class, 'getFeedbackSaya']);
-    // });
+    // User routes (protected) - PERBAIKAN: Gunakan web middleware untuk session auth
+    Route::middleware(['web', 'auth'])->group(function () {
+        Route::post('/', [FeedbackController::class, 'tambahFeedback'])->name('api.feedback.tambah');
+        Route::get('/saya', [FeedbackController::class, 'getFeedbackSaya']);
+
+        // PERBAIKAN: Route yang benar untuk update dan delete
+        Route::put('/{id}', [FeedbackController::class, 'updateFeedback']);
+        Route::delete('/{id}', [FeedbackController::class, 'deleteFeedback']);
+    });
 
     // Admin routes (protected)
     // Route::middleware(['auth:sanctum', 'can:admin'])->group(function () {
@@ -89,6 +93,6 @@ Route::prefix('feedback')->group(function () {
     Route::post('/{id}/{action}', [FeedbackController::class, 'handleStatus'])
         ->where('action', 'approve|reject')
         ->name('feedback.handle-status');
-    Route::delete('/{id}', [FeedbackController::class, 'hapusFeedback']);
+    Route::delete('/admin/{id}', [FeedbackController::class, 'hapusFeedback']); // Beda route untuk admin delete
     // });
 });

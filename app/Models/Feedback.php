@@ -15,6 +15,8 @@ class Feedback extends Model
 
     protected $casts = [
         'rating' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function user()

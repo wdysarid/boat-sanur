@@ -188,6 +188,11 @@ class AuthController extends Controller
     // Web Login - untuk form login (tambahan untuk web)
     public function webLogin(Request $request)
     {
+        // TAMBAHAN: Store intended URL jika ada
+        if ($request->has('intended')) {
+            session(['url.intended' => $request->get('intended')]);
+        }
+
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -213,13 +218,32 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        // Redirect berdasarkan role
+        // MODIFIKASI: Cek intended URL sebelum redirect berdasarkan role
+        $intendedUrl = session('url.intended');
+
+        if ($intendedUrl) {
+            session()->forget('url.intended');
+
+            // Add success message for feedback context
+            if (str_contains($intendedUrl, '#feedback')) {
+                return redirect($intendedUrl)->with('success', 'Login berhasil! Sekarang Anda dapat memberikan feedback.');
+            }
+
+            return redirect($intendedUrl)->with('success', 'Login berhasil! Selamat datang, ' . $user->nama . '!');
+        }
+
+        // Default redirect berdasarkan role jika tidak ada intended URL
         return $this->redirectBasedOnRole($user);
     }
 
     // Web Register Google - untuk form register (tambahan untuk web)
     public function webRegister(Request $request)
     {
+        // TAMBAHAN: Store intended URL jika ada
+        if ($request->has('intended')) {
+            session(['url.intended' => $request->get('intended')]);
+        }
+
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'no_telp' => 'required|string|max:20',
@@ -242,7 +266,24 @@ class AuthController extends Controller
                 'role' => $user->role
             ]);
 
-            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
+            // MODIFIKASI: Auto login dan cek intended URL
+            Auth::login($user);
+
+            $intendedUrl = session('url.intended');
+
+            if ($intendedUrl) {
+                session()->forget('url.intended');
+
+                // Add success message for feedback context
+                if (str_contains($intendedUrl, '#feedback')) {
+                    return redirect($intendedUrl)->with('success', 'Registrasi berhasil! Sekarang Anda dapat memberikan feedback.');
+                }
+
+                return redirect($intendedUrl)->with('success', 'Registrasi berhasil! Selamat datang di SanurBoat.');
+            }
+
+            // Default redirect ke dashboard jika tidak ada intended URL
+            return redirect()->route('wisatawan.dashboard')->with('success', 'Registrasi berhasil! Silakan login.');
 
         } catch (Exception $e) {
             Log::error('Registration failed', ['error' => $e->getMessage()]);
@@ -284,7 +325,21 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'role' => $user->role
                 ]);
-                // SELALU REDIRECT KE DASHBOARD WISATAWAN
+
+                // TAMBAHAN: Cek intended URL untuk Google OAuth juga
+                $intendedUrl = session('url.intended');
+
+                if ($intendedUrl) {
+                    session()->forget('url.intended');
+
+                    if (str_contains($intendedUrl, '#feedback')) {
+                        return redirect($intendedUrl)->with('success', 'Selamat datang kembali, ' . $user->nama . '! Sekarang Anda dapat memberikan feedback.');
+                    }
+
+                    return redirect($intendedUrl)->with('success', 'Selamat datang kembali, ' . $user->nama . '!');
+                }
+
+                // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
                 return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
             }
 
@@ -304,7 +359,21 @@ class AuthController extends Controller
                     'email' => $existingUser->email,
                     'role' => $existingUser->role
                 ]);
-                // SELALU REDIRECT KE DASHBOARD WISATAWAN
+
+                // TAMBAHAN: Cek intended URL untuk existing user juga
+                $intendedUrl = session('url.intended');
+
+                if ($intendedUrl) {
+                    session()->forget('url.intended');
+
+                    if (str_contains($intendedUrl, '#feedback')) {
+                        return redirect($intendedUrl)->with('success', 'Selamat datang kembali, ' . $existingUser->nama . '! Sekarang Anda dapat memberikan feedback.');
+                    }
+
+                    return redirect($intendedUrl)->with('success', 'Selamat datang kembali, ' . $existingUser->nama . '!');
+                }
+
+                // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
                 return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $existingUser->nama . '!');
             }
 
@@ -326,7 +395,20 @@ class AuthController extends Controller
                 'role' => $newUser->role
             ]);
 
-            // SELALU REDIRECT KE DASHBOARD WISATAWAN
+            // TAMBAHAN: Cek intended URL untuk new user juga
+            $intendedUrl = session('url.intended');
+
+            if ($intendedUrl) {
+                session()->forget('url.intended');
+
+                if (str_contains($intendedUrl, '#feedback')) {
+                    return redirect($intendedUrl)->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis. Sekarang Anda dapat memberikan feedback.');
+                }
+
+                return redirect($intendedUrl)->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
+            }
+
+            // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
             return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
 
         } catch (Exception $e) {
