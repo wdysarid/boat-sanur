@@ -78,10 +78,10 @@ Route::prefix('feedback')->group(function () {
     Route::get('/', [FeedbackController::class, 'getFeedbackDisetujui']);
 
     // User routes (protected)
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/', [FeedbackController::class, 'tambahFeedback'])->name('api.feedback.tambah');
-        Route::get('/saya', [FeedbackController::class, 'getFeedbackSaya']);
-    });
+    // Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/', [FeedbackController::class, 'tambahFeedback'])->name('api.feedback.tambah');
+    Route::get('/saya', [FeedbackController::class, 'getFeedbackSaya']);
+    // });
 
     // Admin routes (protected)
     // Route::middleware(['auth:sanctum', 'can:admin'])->group(function () {

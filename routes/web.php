@@ -110,9 +110,7 @@ Route::middleware(['auth', 'role:wisatawan'])->prefix('wisatawan')->name('wisata
         return view('wisatawan.tiket');
     })->name('tiket');
 
-    Route::post('/reviews', [FeedbackController::class, 'store'])->name('reviews.store')->middleware('auth');
-
-    Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])
-        ->name('user.feedback.tambah');
+     Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])
+        ->name('feedback.tambah');
 });
 

@@ -94,7 +94,77 @@
         </div>
     </div>
 
+    <!-- Approval Confirmation Modal -->
+    <div id="approvalConfirmModal"
+        class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="px-6 py-4">
+                <div class="flex items-center">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100">
+                        <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-3 text-center sm:mt-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="approvalModalTitle">
+                        Konfirmasi
+                    </h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-500" id="approvalConfirmText">
+                            Apakah Anda yakin ingin menyetujui review ini?
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 flex flex-row-reverse gap-2">
+                <button id="confirmApprovalBtn"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">Setujui</button>
+                <button id="cancelApprovalBtn"
+                    class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Confirmation Modal -->
+    <div id="rejectionConfirmModal"
+        class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="px-6 py-4">
+                <div class="flex items-center">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                        <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-3 text-center sm:mt-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="rejectionModalTitle">
+                        Konfirmasi
+                    </h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-500" id="rejectionConfirmText">
+                            Apakah Anda yakin ingin menolak review ini?
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 flex flex-row-reverse gap-2">
+                <button id="confirmRejectionBtn"
+                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">Tolak</button>
+                <button id="cancelRejectionBtn"
+                    class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let currentFeedbackId = null;
+        let currentFeedbackAction = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             // Load initial data
             loadFeedbackData();
@@ -114,6 +184,24 @@
                     loadFeedbackData();
                 });
             });
+
+            document.getElementById('confirmApprovalBtn').addEventListener('click', function() {
+                if (currentFeedbackId) {
+                    processFeedbackStatus(currentFeedbackId, 'approve');
+                }
+                closeApprovalModal();
+            });
+
+            document.getElementById('cancelApprovalBtn').addEventListener('click', closeApprovalModal);
+
+            document.getElementById('confirmRejectionBtn').addEventListener('click', function() {
+                if (currentFeedbackId) {
+                    processFeedbackStatus(currentFeedbackId, 'reject');
+                }
+                closeRejectionModal();
+            });
+
+            document.getElementById('cancelRejectionBtn').addEventListener('click', closeRejectionModal);
         });
 
         function loadFeedbackData(page = 1) {
@@ -218,14 +306,14 @@
             <h4 class="text-sm font-medium text-gray-700 mb-4">Distribusi Rating</h4>
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 ${Object.entries(stats.rating_distribution).map(([rating, percentage]) => `
-                        <div class="flex items-center">
-                            <div class="text-sm text-gray-700 w-8">${rating}★</div>
-                            <div class="flex-1 h-3 bg-gray-200 rounded-full mx-2">
-                                <div class="bg-yellow-400 h-3 rounded-full" style="width: ${percentage}%"></div>
-                            </div>
-                            <div class="text-sm text-gray-700 w-12">${percentage}%</div>
-                        </div>
-                    `).join('')}
+                                    <div class="flex items-center">
+                                        <div class="text-sm text-gray-700 w-8">${rating}★</div>
+                                        <div class="flex-1 h-3 bg-gray-200 rounded-full mx-2">
+                                            <div class="bg-yellow-400 h-3 rounded-full" style="width: ${percentage}%"></div>
+                                        </div>
+                                        <div class="text-sm text-gray-700 w-12">${percentage}%</div>
+                                    </div>
+                                `).join('')}
             </div>
         </div>
     `;
@@ -352,7 +440,7 @@
                     </svg>
                     Disetujui
                 </button>
-                <button class="reject-feedback text-red-600 hover:text-red-900 px-3 py-1 bg-red-50 hover:bg-red-100 rounded-md transition-colors duration-200" data-id="${feedback.id}">
+                <button onclick="showRejectionModal('${feedback.id}')" class="text-red-600 hover:text-red-900 px-3 py-1 bg-red-50 hover:bg-red-100 rounded-md transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
@@ -363,7 +451,7 @@
             } else if (feedback.status === 'ditolak') {
                 return `
             <div class="flex space-x-2">
-                <button class="approve-feedback text-green-600 hover:text-green-900 px-3 py-1 bg-green-50 hover:bg-green-100 rounded-md transition-colors duration-200" data-id="${feedback.id}">
+                <button onclick="showApprovalModal('${feedback.id}')" class="text-green-600 hover:text-green-900 px-3 py-1 bg-green-50 hover:bg-green-100 rounded-md transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
@@ -380,13 +468,13 @@
             } else {
                 return `
             <div class="flex space-x-2">
-                <button class="approve-feedback text-green-600 hover:text-green-900 px-3 py-1 bg-green-50 hover:bg-green-100 rounded-md transition-colors duration-200" data-id="${feedback.id}">
+                <button onclick="showApprovalModal('${feedback.id}')" class="text-green-600 hover:text-green-900 px-3 py-1 bg-green-50 hover:bg-green-100 rounded-md transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Setujui
                 </button>
-                <button class="reject-feedback text-red-600 hover:text-red-900 px-3 py-1 bg-red-50 hover:bg-red-100 rounded-md transition-colors duration-200" data-id="${feedback.id}">
+                <button onclick="showRejectionModal('${feedback.id}')" class="text-red-600 hover:text-red-900 px-3 py-1 bg-red-50 hover:bg-red-100 rounded-md transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
@@ -433,7 +521,62 @@
     `;
         }
 
-        function updateFeedbackStatus(feedbackId, action) {
+        // function updateFeedbackStatus(feedbackId, action) {
+        //     fetch(`/api/feedback/${feedbackId}/${action}`, {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'Accept': 'application/json',
+        //                 'Authorization': 'Bearer {{ session('token') }}',
+        //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        //             }
+        //         })
+        //         .then(response => {
+        //             if (!response.ok) {
+        //                 return response.json().then(err => {
+        //                     throw err;
+        //                 });
+        //             }
+        //             return response.json();
+        //         })
+        //         .then(data => {
+        //             if (data.success) {
+        //                 loadFeedbackData(); // Refresh data
+        //             } else {
+        //                 alert(data.message || 'Gagal memperbarui status feedback');
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error:', error);
+        //             alert('Terjadi kesalahan saat memperbarui status feedback: ' + (error.message || error));
+        //         });
+        // }
+
+        function showApprovalModal(feedbackId) {
+            currentFeedbackId = feedbackId;
+            document.getElementById('approvalConfirmModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function showRejectionModal(feedbackId) {
+            currentFeedbackId = feedbackId;
+            document.getElementById('rejectionConfirmModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeApprovalModal() {
+            document.getElementById('approvalConfirmModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentFeedbackId = null;
+        }
+
+        function closeRejectionModal() {
+            document.getElementById('rejectionConfirmModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentFeedbackId = null;
+        }
+
+        function processFeedbackStatus(feedbackId, action) {
             fetch(`/api/feedback/${feedbackId}/${action}`, {
                     method: 'POST',
                     headers: {
