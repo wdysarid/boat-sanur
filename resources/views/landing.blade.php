@@ -246,8 +246,8 @@
                 <!-- Wahana Gili Ocean -->
                 <div class="flex justify-center" data-aos="fade-up" data-aos-delay="100" data-aos-duration="600">
                     <div
-                        class="h-16 w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
-                        <img src="{{ asset('images/partners/wahana-gili.png') }}" alt="Wahana Gili Ocean"
+                        class="h-30 w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
+                        <img src="{{ asset('images/wahana-gili.png') }}" alt="Wahana Gili Ocean"
                             class="max-h-full max-w-full object-contain"
                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 40\'><rect width=\'100\' height=\'40\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'25\' font-family=\'Arial\' font-size=\'10\' text-anchor=\'middle\' fill=\'%236b7280\'>Wahana Gili Ocean</text></svg>';">
                     </div>
@@ -256,8 +256,8 @@
                 <!-- Eka Jaya Fast Boat -->
                 <div class="flex justify-center" data-aos="fade-up" data-aos-delay="200" data-aos-duration="600">
                     <div
-                        class="h-16 w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
-                        <img src="{{ asset('images/partners/eka-jaya.png') }}" alt="Eka Jaya Fast Boat"
+                        class="h-30  w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
+                        <img src="{{ asset('images/ekajaya.png') }}" alt="Eka Jaya Fast Boat"
                             class="max-h-full max-w-full object-contain"
                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 40\'><rect width=\'100\' height=\'40\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'25\' font-family=\'Arial\' font-size=\'10\' text-anchor=\'middle\' fill=\'%236b7280\'>Eka Jaya Fast Boat</text></svg>';">
                     </div>
@@ -266,8 +266,8 @@
                 <!-- Scoot Fast Cruises -->
                 <div class="flex justify-center" data-aos="fade-up" data-aos-delay="300" data-aos-duration="600">
                     <div
-                        class="h-16 w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
-                        <img src="{{ asset('images/partners/scoot-fast.png') }}" alt="Scoot Fast Cruises"
+                        class="h-30  w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
+                        <img src="{{ asset('images/ganggari.png') }}" alt="Scoot Fast Cruises"
                             class="max-h-full max-w-full object-contain"
                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 40\'><rect width=\'100\' height=\'40\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'25\' font-family=\'Arial\' font-size=\'10\' text-anchor=\'middle\' fill=\'%236b7280\'>Scoot Fast Cruises</text></svg>';">
                     </div>
@@ -276,8 +276,8 @@
                 <!-- Bali Hai Cruises -->
                 <div class="flex justify-center" data-aos="fade-up" data-aos-delay="400" data-aos-duration="600">
                     <div
-                        class="h-16 w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
-                        <img src="{{ asset('images/partners/bali-hai.png') }}" alt="Bali Hai Cruises"
+                        class="h-30  w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
+                        <img src="{{ asset('images/gili-fast.png') }}" alt="Bali Hai Cruises"
                             class="max-h-full max-w-full object-contain"
                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 40\'><rect width=\'100\' height=\'40\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'25\' font-family=\'Arial\' font-size=\'10\' text-anchor=\'middle\' fill=\'%236b7280\'>Bali Hai Cruises</text></svg>';">
                     </div>
@@ -286,8 +286,8 @@
                 <!-- BlueWater Express -->
                 <div class="flex justify-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="600">
                     <div
-                        class="h-16 w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
-                        <img src="{{ asset('images/partners/bluewater.png') }}" alt="BlueWater Express"
+                        class="h-30  w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
+                        <img src="{{ asset('images/mahi-mahi.png') }}" alt="BlueWater Express"
                             class="max-h-full max-w-full object-contain"
                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 40\'><rect width=\'100\' height=\'40\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'25\' font-family=\'Arial\' font-size=\'10\' text-anchor=\'middle\' fill=\'%236b7280\'>BlueWater Express</text></svg>';">
                     </div>
@@ -296,8 +296,8 @@
                 <!-- Gili Cat -->
                 <div class="flex justify-center" data-aos="fade-up" data-aos-delay="600" data-aos-duration="600">
                     <div
-                        class="h-16 w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
-                        <img src="{{ asset('images/partners/gili-cat.png') }}" alt="Gili Cat"
+                        class="h-30  w-full max-w-[140px] bg-white rounded-lg shadow-sm p-3 flex items-center justify-center hover:shadow-md transition-all duration-300">
+                        <img src="{{ asset('images/semaya-gili.png') }}" alt="Gili Cat"
                             class="max-h-full max-w-full object-contain"
                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 40\'><rect width=\'100\' height=\'40\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'25\' font-family=\'Arial\' font-size=\'10\' text-anchor=\'middle\' fill=\'%236b7280\'>Gili Cat</text></svg>';">
                     </div>
@@ -306,8 +306,8 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section id="feedback" class="py-16 bg-white">
+    <!-- FIXED: Customer Testimonials Section with Infinite Loop Carousel -->
+    <section id="testimonials" class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900">What Our Customers Say</h2>
@@ -316,48 +316,55 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Testimonial 1 -->
-                <div class="bg-gray-50 p-6 rounded-lg shadow-sm" data-aos="fade-up" data-aos-delay="100"
-                    data-aos-duration="800">
-                    <div class="flex items-center mb-4">
-                        <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span class="text-blue-600 font-medium">JD</span>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-medium text-gray-900">John Doe</h3>
-                            <div class="flex text-yellow-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path
-                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                            </div>
-                        </div>
+            <!-- Loading State -->
+            <div id="testimonials-loading" class="text-center py-12">
+                <div class="inline-flex items-center px-6 py-3 font-semibold leading-6 text-sm shadow-sm rounded-xl text-blue-600 bg-blue-50 border border-blue-100">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Memuat testimoni pelanggan...
+                </div>
+            </div>
+
+            <!-- Testimonials Carousel Container -->
+            <div id="testimonials-container" class="hidden">
+                <div class="relative overflow-hidden">
+                    <!-- Carousel Track -->
+                    <div id="testimonials-track" class="flex">
+                        <!-- Testimonials will be loaded here dynamically -->
                     </div>
-                    <p class="text-gray-600 text-sm md:text-base font-light">
-                        "Our trip to Bali was absolutely perfect! The accommodations were luxurious, and the itinerary was
-                        well-planned. I can't wait to book my next adventure with DreamIslands."
+
+                    <!-- Navigation Arrows -->
+                    <button id="prev-testimonial" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button id="next-testimonial" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Carousel Indicators -->
+                <div id="testimonials-indicators" class="flex justify-center mt-8 space-x-2">
+                    <!-- Indicators will be generated dynamically -->
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="testimonials-empty" class="hidden text-center py-12">
+                <div class="max-w-md mx-auto">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Belum Ada Testimoni</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Jadilah yang pertama memberikan testimoni tentang pengalaman perjalanan Anda bersama kami.
                     </p>
                 </div>
             </div>
@@ -365,7 +372,7 @@
     </section>
 
     <!-- Customer Reviews & Rating Section -->
-    <section class="py-16 bg-gray-50">
+    <section id="feedback" class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl mx-auto">
                 <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
@@ -453,6 +460,13 @@
     </section>
 
     <script>
+        // Testimonials Carousel Variables - UPDATED for infinite loop
+        let testimonialsData = [];
+        let currentTestimonialIndex = 0;
+        let testimonialInterval;
+        let testimonialsPerView = 3; // Default for desktop
+        let isTransitioning = false;
+
         // Modal Functions
         function showNotificationModal(type, title, message) {
             const modal = document.getElementById('notificationModal');
@@ -536,7 +550,326 @@
             }
         });
 
+        // Load Approved Testimonials
+        async function loadTestimonials() {
+            try {
+                console.log('Loading testimonials...');
+                const response = await fetch('/api/feedback/', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Testimonials data:', data);
+
+                if (data.success && data.data && data.data.length > 0) {
+                    testimonialsData = data.data;
+                    renderTestimonials();
+                    startInfiniteCarousel();
+                } else {
+                    showEmptyTestimonials();
+                }
+            } catch (error) {
+                console.error('Error loading testimonials:', error);
+                showEmptyTestimonials();
+            } finally {
+                document.getElementById('testimonials-loading').classList.add('hidden');
+            }
+        }
+
+        // UPDATED: Render Testimonials for Infinite Loop
+        function renderTestimonials() {
+            const track = document.getElementById('testimonials-track');
+            const indicators = document.getElementById('testimonials-indicators');
+
+            // Clear existing content
+            track.innerHTML = '';
+            indicators.innerHTML = '';
+
+            // Determine testimonials per view based on screen size
+            updateTestimonialsPerView();
+
+            // Create original testimonial cards
+            testimonialsData.forEach((testimonial, index) => {
+                const testimonialCard = createTestimonialCard(testimonial);
+                track.appendChild(testimonialCard);
+            });
+
+            // UPDATED: Clone first few testimonials for infinite loop
+            const cloneCount = testimonialsPerView;
+            for (let i = 0; i < cloneCount; i++) {
+                const testimonial = testimonialsData[i % testimonialsData.length];
+                const clonedCard = createTestimonialCard(testimonial);
+                clonedCard.classList.add('cloned');
+                track.appendChild(clonedCard);
+            }
+
+            // Create indicators based on original testimonials only
+            const totalSlides = Math.ceil(testimonialsData.length / testimonialsPerView);
+            for (let i = 0; i < totalSlides; i++) {
+                const indicator = document.createElement('button');
+                indicator.className = `w-3 h-3 rounded-full transition-all duration-300 ${i === 0 ? 'bg-blue-600' : 'bg-gray-300'}`;
+                indicator.addEventListener('click', () => goToSlide(i));
+                indicators.appendChild(indicator);
+            }
+
+            // Show container
+            document.getElementById('testimonials-container').classList.remove('hidden');
+
+            // Setup navigation
+            setupTestimonialNavigation();
+        }
+
+        // Create Testimonial Card
+        function createTestimonialCard(testimonial) {
+            const card = document.createElement('div');
+            card.className = `flex-shrink-0 w-full md:w-1/2 lg:w-1/3 px-4`;
+
+            const stars = generateStars(testimonial.rating);
+            const initials = testimonial.user.nama.split(' ').map(n => n[0]).join('').toUpperCase();
+            const formattedDate = new Date(testimonial.created_at).toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            card.innerHTML = `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm mr-4">
+                            ${initials}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">${testimonial.user.nama}</h3>
+                            <div class="flex items-center mt-1">
+                                <div class="flex text-yellow-400 mr-2">
+                                    ${stars}
+                                </div>
+                                <span class="text-sm text-gray-500">${testimonial.rating}/5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-4">
+                        "${testimonial.pesan}"
+                    </p>
+                    <div class="text-xs text-gray-400">
+                        ${formattedDate}
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Generate Stars
+        function generateStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    stars += `<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>`;
+                } else if (i === fullStars + 1 && hasHalfStar) {
+                    stars += `<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <defs>
+                            <linearGradient id="half-star-${rating}">
+                                <stop offset="50%" stop-color="currentColor"/>
+                                <stop offset="50%" stop-color="#d1d5db"/>
+                            </linearGradient>
+                        </defs>
+                        <path fill="url(#half-star-${rating})" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>`;
+                } else {
+                    stars += `<svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>`;
+                }
+            }
+            return stars;
+        }
+
+        // Update testimonials per view based on screen size
+        function updateTestimonialsPerView() {
+            if (window.innerWidth >= 1024) {
+                testimonialsPerView = 3; // lg screens
+            } else if (window.innerWidth >= 768) {
+                testimonialsPerView = 2; // md screens
+            } else {
+                testimonialsPerView = 1; // sm screens
+            }
+        }
+
+        // Setup Testimonial Navigation
+        function setupTestimonialNavigation() {
+            const prevBtn = document.getElementById('prev-testimonial');
+            const nextBtn = document.getElementById('next-testimonial');
+
+            prevBtn.addEventListener('click', () => {
+                if (!isTransitioning) {
+                    previousSlide();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (!isTransitioning) {
+                    nextSlide();
+                }
+            });
+        }
+
+        // UPDATED: Infinite Loop Carousel Functions
+        function nextSlide() {
+            if (isTransitioning) return;
+
+            isTransitioning = true;
+            const track = document.getElementById('testimonials-track');
+            const totalOriginalSlides = Math.ceil(testimonialsData.length / testimonialsPerView);
+
+            currentTestimonialIndex++;
+
+            // Apply transition
+            track.style.transition = 'transform 0.5s ease-in-out';
+            track.style.transform = `translateX(-${currentTestimonialIndex * 100}%)`;
+
+            // Check if we've reached the cloned slides
+            if (currentTestimonialIndex >= totalOriginalSlides) {
+                setTimeout(() => {
+                    // Reset to beginning without transition
+                    track.style.transition = 'none';
+                    currentTestimonialIndex = 0;
+                    track.style.transform = `translateX(0%)`;
+
+                    // Re-enable transitions after a brief delay
+                    setTimeout(() => {
+                        track.style.transition = 'transform 0.5s ease-in-out';
+                        isTransitioning = false;
+                    }, 50);
+                }, 500);
+            } else {
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 500);
+            }
+
+            updateIndicators();
+        }
+
+        function previousSlide() {
+            if (isTransitioning) return;
+
+            isTransitioning = true;
+            const track = document.getElementById('testimonials-track');
+            const totalOriginalSlides = Math.ceil(testimonialsData.length / testimonialsPerView);
+
+            if (currentTestimonialIndex <= 0) {
+                // Jump to the end without transition
+                track.style.transition = 'none';
+                currentTestimonialIndex = totalOriginalSlides;
+                track.style.transform = `translateX(-${currentTestimonialIndex * 100}%)`;
+
+                // Then slide to the previous slide with transition
+                setTimeout(() => {
+                    track.style.transition = 'transform 0.5s ease-in-out';
+                    currentTestimonialIndex--;
+                    track.style.transform = `translateX(-${currentTestimonialIndex * 100}%)`;
+
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 500);
+                }, 50);
+            } else {
+                currentTestimonialIndex--;
+                track.style.transition = 'transform 0.5s ease-in-out';
+                track.style.transform = `translateX(-${currentTestimonialIndex * 100}%)`;
+
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 500);
+            }
+
+            updateIndicators();
+        }
+
+        function goToSlide(index) {
+            if (isTransitioning) return;
+
+            isTransitioning = true;
+            const track = document.getElementById('testimonials-track');
+
+            currentTestimonialIndex = index;
+            track.style.transition = 'transform 0.5s ease-in-out';
+            track.style.transform = `translateX(-${currentTestimonialIndex * 100}%)`;
+
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 500);
+
+            updateIndicators();
+        }
+
+        function updateIndicators() {
+            const indicators = document.getElementById('testimonials-indicators').children;
+            const totalOriginalSlides = Math.ceil(testimonialsData.length / testimonialsPerView);
+            const activeIndex = currentTestimonialIndex % totalOriginalSlides;
+
+            Array.from(indicators).forEach((indicator, index) => {
+                if (index === activeIndex) {
+                    indicator.className = 'w-3 h-3 rounded-full transition-all duration-300 bg-blue-600';
+                } else {
+                    indicator.className = 'w-3 h-3 rounded-full transition-all duration-300 bg-gray-300';
+                }
+            });
+        }
+
+        // UPDATED: Start Infinite Carousel
+        function startInfiniteCarousel() {
+            testimonialInterval = setInterval(() => {
+                nextSlide();
+            }, 4000); // Move every 4 seconds
+        }
+
+        function stopTestimonialCarousel() {
+            if (testimonialInterval) {
+                clearInterval(testimonialInterval);
+            }
+        }
+
+        // Show Empty State
+        function showEmptyTestimonials() {
+            document.getElementById('testimonials-empty').classList.remove('hidden');
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (testimonialsData.length > 0) {
+                updateTestimonialsPerView();
+                // Re-render testimonials for new screen size
+                renderTestimonials();
+                startInfiniteCarousel();
+            }
+        });
+
+        // Pause carousel on hover
         document.addEventListener('DOMContentLoaded', function() {
+            const testimonialsContainer = document.getElementById('testimonials-container');
+
+            testimonialsContainer.addEventListener('mouseenter', stopTestimonialCarousel);
+            testimonialsContainer.addEventListener('mouseleave', startInfiniteCarousel);
+
+            // Load testimonials when page loads
+            loadTestimonials();
+
             // Update rating display
             function updateRatingDisplay(rating) {
                 const ratingTexts = {
@@ -716,4 +1049,103 @@
             @endif
         });
     </script>
+
+    <style>
+        /* Carousel Styles */
+        .line-clamp-4 {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* UPDATED: Infinite carousel styles */
+        #testimonials-track {
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* Hide scrollbar for carousel */
+        #testimonials-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        #testimonials-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #testimonials-track .flex-shrink-0 {
+                width: 100% !important;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1023px) {
+            #testimonials-track .flex-shrink-0 {
+                width: 50% !important;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #testimonials-track .flex-shrink-0 {
+                width: 33.333333% !important;
+            }
+        }
+
+        /* Smooth transition effects */
+        #testimonials-track .flex-shrink-0 {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Indicator hover effects */
+        #testimonials-indicators button:hover {
+            transform: scale(1.2);
+            background-color: #9ca3af;
+        }
+
+        /* Navigation button hover effects */
+        #prev-testimonial:hover,
+        #next-testimonial:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Pause animation on hover for better control */
+        #testimonials-container:hover #testimonials-track {
+            animation-play-state: paused;
+        }
+
+        /* Ensure smooth infinite loop */
+        #testimonials-track.no-transition {
+            transition: none !important;
+        }
+
+        /* Loading animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #testimonials-container {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Testimonial card hover effects */
+        #testimonials-track .bg-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Star rating animations */
+        .star-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive text sizing */
+        @media (max-width: 640px) {
+            .line-clamp-4 {
+                -webkit-line-clamp: 3;
+            }
+        }
+    </style>
 @endsection

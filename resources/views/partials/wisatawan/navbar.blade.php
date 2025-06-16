@@ -14,21 +14,24 @@
 
             <!-- Desktop Navigation -->
             <div class="hidden md:flex md:items-center md:space-x-6">
-                <a href="{{ route('home') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                <a href="{{ route('home') }}"
+                   class="{{ request()->routeIs('home') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600' }} px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                     Beranda
                 </a>
 
-                <a href="{{ route('wisatawan.dashboard') }}" class="bg-blue-50 text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                <a href="{{ route('wisatawan.dashboard') }}"
+                   class="{{ request()->routeIs('wisatawan.dashboard') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600' }} px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     Dashboard
                 </a>
 
-                <a href="{{ route('wisatawan.pemesanan') }}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                <a href="{{ route('wisatawan.pemesanan') }}"
+                   class="{{ request()->routeIs('wisatawan.pemesanan') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600' }} px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
@@ -120,36 +123,40 @@
                             <p class="text-sm text-gray-500 truncate">{{ Auth::user()->email ?? 'user@example.com' }}</p>
                         </div>
 
-                        <a href="{{ route('wisatawan.dashboard') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('wisatawan.dashboard') }}"
+                           class="{{ request()->routeIs('wisatawan.dashboard') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' }} flex items-center px-4 py-2 text-sm transition-colors">
                             <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                             Dashboard
                         </a>
 
-                        <a href="{{ route('wisatawan.profile') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('wisatawan.profile') }}"
+                           class="{{ request()->routeIs('wisatawan.profile') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' }} flex items-center px-4 py-2 text-sm transition-colors">
                             <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                             Profile Saya
                         </a>
 
-                        <a href="{{ route('wisatawan.tiket') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('wisatawan.tiket') }}"
+                           class="{{ request()->routeIs('wisatawan.tiket') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' }} flex items-center px-4 py-2 text-sm transition-colors">
                             <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                             </svg>
                             Tiket Saya
                         </a>
 
-                        <a href="{{ route('wisatawan.pembayaran') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('wisatawan.pembayaran') }}"
+                           class="{{ request()->routeIs('wisatawan.pembayaran') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' }} flex items-center px-4 py-2 text-sm transition-colors">
                             <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                             </svg>
                             Pembayaran
                         </a>
 
-                        <!-- TAMBAHAN MENU FEEDBACK -->
-                        <a href="{{ route('wisatawan.feedback') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('wisatawan.feedback') }}"
+                           class="{{ request()->routeIs('wisatawan.feedback') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' }} flex items-center px-4 py-2 text-sm transition-colors">
                             <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
@@ -196,19 +203,22 @@
          x-transition:leave-end="opacity-0 scale-95"
          class="md:hidden bg-white border-t border-gray-200 shadow-lg">
         <div class="px-2 pt-2 pb-3 space-y-1">
-            <a href="{{ route('home') }}" class="flex items-center px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+            <a href="{{ route('home') }}"
+               class="{{ request()->routeIs('home') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
                 Beranda
             </a>
-            <a href="{{ route('wisatawan.dashboard') }}" class="flex items-center px-3 py-2 text-base font-medium bg-blue-50 text-blue-600 rounded-md">
+            <a href="{{ route('wisatawan.dashboard') }}"
+               class="{{ request()->routeIs('wisatawan.dashboard') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
                 Dashboard
             </a>
-            <a href="{{ route('wisatawan.pemesanan') }}" class="flex items-center px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+            <a href="{{ route('wisatawan.pemesanan') }}"
+               class="{{ request()->routeIs('wisatawan.pemesanan') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                 </svg>
@@ -229,26 +239,29 @@
                 </div>
             </div>
             <div class="mt-3 space-y-1">
-                <a href="{{ route('wisatawan.profile') }}" class="flex items-center px-4 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                <a href="{{ route('wisatawan.profile') }}"
+                   class="{{ request()->routeIs('wisatawan.profile') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-4 py-2 text-base font-medium transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     Profile Saya
                 </a>
-                <a href="{{ route('wisatawan.tiket') }}" class="flex items-center px-4 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                <a href="{{ route('wisatawan.tiket') }}"
+                   class="{{ request()->routeIs('wisatawan.tiket') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-4 py-2 text-base font-medium transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
                     Tiket Saya
                 </a>
-                <a href="{{ route('wisatawan.pembayaran') }}" class="flex items-center px-4 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                <a href="{{ route('wisatawan.pembayaran') }}"
+                   class="{{ request()->routeIs('wisatawan.pembayaran') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-4 py-2 text-base font-medium transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
                     Pembayaran
                 </a>
-                <!-- TAMBAHAN MENU FEEDBACK MOBILE -->
-                <a href="{{ route('wisatawan.feedback') }}" class="flex items-center px-4 py-2 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                <a href="{{ route('wisatawan.feedback') }}"
+                   class="{{ request()->routeIs('wisatawan.feedback') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-4 py-2 text-base font-medium transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
