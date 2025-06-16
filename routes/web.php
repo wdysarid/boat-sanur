@@ -7,10 +7,36 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\FeedbackController;
 
+// TAMBAHAN: Import controller yang diperlukan untuk navbar
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AboutController;
+use App\Http\Controllers\FeedbackController as WebFeedbackController;
+
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
+// MODIFIKASI: Ganti route home untuk menggunakan HomeController
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// TAMBAHAN: Route untuk About Us dan Feedback (untuk navbar active state)
+Route::get('/about', [AboutController::class, 'index'])->name('about');
+Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
+
+// TAMBAHAN: Route untuk submit feedback dari landing page (harus login)
+Route::middleware(['auth'])->group(function () {
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('wisatawan.feedback.tambah');
+});
+
+// TAMBAHAN: API route untuk mendapatkan feedback (untuk carousel di landing page)
+Route::get('/api/feedback', [FeedbackController::class, 'getFeedback']);
+
+Route::get('/', 'HomeController@index')->name('home');
+Route::get('/about', 'AboutController@index')->name('about');
+Route::get('/feedback', 'FeedbackController@index')->name('feedback');
+Route::get('/tickets', 'TicketController@index')->name('tickets');
+
+// Route yang sudah ada - TIDAK DIUBAH
 Route::get('/', function () {
     return view('landing');
 })->name('home');

@@ -9,6 +9,9 @@ use App\Http\Controllers\api\JadwalController;
 use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\PembayaranController;
 
+// TAMBAHAN: Import controller untuk web feedback
+use App\Http\Controllers\FeedbackController as WebFeedbackController;
+
 Route::get('user', [AuthController::class, 'getUser']); // buat test aja ini
 
 // Authentication Routes
@@ -74,8 +77,15 @@ Route::prefix('pembayaran')->group(function () {
 
 // Feedback Routes
 Route::prefix('feedback')->group(function () {
-    // Public routes
-    Route::get('/', [FeedbackController::class, 'getFeedbackDisetujui']);
+    // Public routes - MODIFIKASI: Gunakan WebFeedbackController untuk konsistensi
+    Route::get('/', [FeedbackController::class, 'getFeedback']);
+
+    // TAMBAHAN: Route untuk user feedback management (dari halaman feedback.blade.php)
+    Route::middleware(['web', 'auth'])->group(function () {
+        Route::get('/saya', [FeedbackController::class, 'getUserFeedback']);
+        Route::put('/{id}', [FeedbackController::class, 'update']);
+        Route::delete('/{id}', [FeedbackController::class, 'destroy']);
+    });
 
     // User routes (protected) - PERBAIKAN: Gunakan web middleware untuk session auth
     Route::middleware(['web', 'auth'])->group(function () {
