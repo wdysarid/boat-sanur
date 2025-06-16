@@ -27,6 +27,7 @@ class UserFactory extends Factory
             'nama' => $this->faker->name(),
             'no_telp' => $this->faker->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),
+            'foto_user' => null,
             'password' => static::$password ??= Hash::make('password'),
             'role' => 'wisatawan',
 

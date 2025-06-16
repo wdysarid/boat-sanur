@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
-use Exception;
 
 class AuthController extends Controller
 {
@@ -123,23 +124,43 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        // $user = Auth::guard('sanctum')->user();
-        $user = $request->user();
+        // Dapatkan user_id dari input form
+        $userId = $request->input('user_id');
+
+        // Cari user berdasarkan ID
+        $user = User::find($userId);
 
         if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
         }
 
         $validated = $request->validate([
             'nama' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:user,email,' . $user->id,
-            'password' => 'required|string',
+            'no_telp' => 'sometimes|string|max:20',
+            'foto_user' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // $user->fill($validated)->save();
+        // Handle file upload
+        if ($request->hasFile('foto_user')) {
+            // Hapus foto lama jika ada
+            if ($user->foto_user && Storage::disk('public')->exists($user->foto_user)) {
+                Storage::disk('public')->delete($user->foto_user);
+            }
+
+            $file = $request->file('foto_user');
+            $filename = 'profile_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('profile_photos', $filename, 'public');
+            $validated['foto_user'] = $path;
+        }
 
         $user->update($validated);
-        return response()->json(['message' => 'Profil diperbarui', 'user' => $user]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diperbarui',
+            'user' => $user
+        ]);
     }
 
     public function forgotPassword(Request $request)

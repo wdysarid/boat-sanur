@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('no_telp');
             $table->string('email')->unique();
             $table->string('password');
+            $table->string('foto_user')->nullable();
             $table->string('role')->default('wisatawan');
             // $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

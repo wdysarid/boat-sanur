@@ -24,6 +24,7 @@ class User extends Authenticatable
         'no_telp',
         'email',
         'password',
+        'foto_user',
         'role',
         'remember_token',
         'google_id',
