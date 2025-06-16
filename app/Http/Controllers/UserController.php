@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Feedback;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -14,6 +16,56 @@ class UserController extends Controller
     public function __construct()
     {
         $this->apiUrl = env('APP_API_URL', 'http://localhost:8000/api');
+    }
+
+    public function showProfile()
+    {
+        return view('wisatawan.profile', [
+            'user' => auth()->user(),
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        try {
+            $user = auth()->user(); // Get authenticated user
+
+            $validated = $request->validate([
+                'nama' => 'required|string|max:255',
+                'email' => 'required|email|unique:user,email,' . $user->id,
+                'no_telp' => 'required|string|max:20',
+                'foto_user' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            // Handle file upload
+            if ($request->hasFile('foto_user')) {
+                // Delete old photo if exists
+                if ($user->foto_user && Storage::disk('public')->exists($user->foto_user)) {
+                    Storage::disk('public')->delete($user->foto_user);
+                }
+
+                $file = $request->file('foto_user');
+                $filename = 'profile_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('profile_photos', $filename, 'public');
+                $validated['foto_user'] = $path;
+            }
+
+            $user->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profil berhasil diperbarui',
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Gagal memperbarui profil: ' . $e->getMessage(),
+                ],
+                500,
+            );
+        }
     }
 
     /**

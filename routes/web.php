@@ -137,6 +137,8 @@ Route::middleware(['auth', 'role:wisatawan'])->prefix('wisatawan')->name('wisata
         return view('wisatawan.edit-profile');
     })->name('profile.edit');
 
+    Route::patch('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+
     Route::get('/profile/ubah-password', function () {
         return view('wisatawan.ubah-password');
     })->name('profile.change-password');
