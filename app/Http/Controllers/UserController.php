@@ -31,6 +31,13 @@ class UserController extends Controller
      */
     public function tambahFeedback(Request $request)
     {
+        // Cek apakah user sudah pernah memberikan feedback
+        $existingFeedback = Feedback::where('user_id', auth()->id())->first();
+
+        if ($existingFeedback) {
+            return back()->with('error', 'Anda sudah memberikan feedback sebelumnya.');
+        }
+
         // Validasi input
         $validator = Validator::make($request->all(), [
             'pesan' => 'required|string|max:500',
@@ -50,7 +57,7 @@ class UserController extends Controller
                 'status' => 'pending',
             ]);
 
-            return back()->with('success', 'Feedback berhasil dikirim! Menunggu persetujuan admin.');
+            return back()->with('success', 'Feedback berhasil dikirim!');
         } catch (\Exception $e) {
             logger()->error('Feedback submission error', ['error' => $e->getMessage()]);
             return back()->with('error', 'Terjadi kesalahan saat mengirim feedback');

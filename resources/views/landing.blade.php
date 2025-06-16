@@ -355,7 +355,7 @@
                     </p>
                 </div>
 
-                @if (session('success'))
+                {{-- @if (session('success'))
                     <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
                         {{ session('success') }}
                     </div>
@@ -365,7 +365,7 @@
                     <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
                         {{ session('error') }}
                     </div>
-                @endif
+                @endif --}}
 
                 <!-- Review Form -->
                 <form action="{{ route('wisatawan.feedback.tambah') }}" method="POST" class="space-y-6"
@@ -602,5 +602,16 @@
         // Restore data on page load
         restoreFormData();
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(session('success'))
+            alert('{{ session('success') }}');
+        @endif
+
+        @if(session('error'))
+            alert('{{ session('error') }}');
+        @endif
+    });
+    
     </script>
 @endsection
