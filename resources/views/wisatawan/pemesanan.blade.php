@@ -61,18 +61,60 @@
                     <!-- Hidden Fields for Ticket Data -->
                     <input type="hidden" name="jadwal_id" value="{{ $ticket['id'] ?? '' }}">
                     <input type="hidden" name="departure_date" value="{{ request('departure_date') }}">
-                    <input type="hidden" name="passenger_count" value="{{ request('passenger_count', 1) }}">
-                    <input type="hidden" name="passenger_type" value="{{ request('passenger_type') }}">
                     <input type="hidden" name="from" value="{{ request('from') }}">
                     <input type="hidden" name="to" value="{{ request('to') }}">
+                    <input type="hidden" name="passenger_type" value="{{ request('passenger_type') }}">
 
-                    <!-- Contact Information -->
+                    <!-- Passenger Count Selection -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            Jumlah Penumpang
+                        </h2>
+
+                        <div class="flex items-center space-x-4">
+                            <div class="w-32">
+                                <label for="passenger_count" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Jumlah <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex items-center">
+                                    <button type="button" id="decreasePassengers" class="px-3 py-2 bg-gray-200 text-gray-700 rounded-l-lg hover:bg-gray-300 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                        </svg>
+                                    </button>
+                                    <input type="number"
+                                           id="passenger_count"
+                                           name="passenger_count"
+                                           min="1"
+                                           max="10"
+                                           value="{{ request('passenger_count', 1) }}"
+                                           class="w-11 text-center py-2 border-y border-gray-300 focus:outline-none"
+                                           readonly>
+                                    <button type="button" id="increasePassengers" class="px-3 py-2 bg-gray-200 text-gray-700 rounded-r-lg hover:bg-gray-300 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-600">
+                                    Jumlah penumpang yang akan melakukan perjalanan. Maksimal 10 orang per pemesanan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Passenger (Pemesan) -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
                             <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
-                            Informasi Kontak
+                            Informasi Pemesan
                         </h2>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -177,76 +219,10 @@
                         </div>
                     </div>
 
-                    <!-- Additional Passengers (if more than 1) -->
-                    @if(request('passenger_count', 1) > 1)
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                            <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            Penumpang Tambahan ({{ request('passenger_count', 1) - 1 }} orang)
-                        </h2>
-
-                        @for($i = 2; $i <= request('passenger_count', 1); $i++)
-                        <div class="mb-6 p-6 border border-gray-200 rounded-lg bg-gray-50">
-                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center">
-                                <span class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">{{ $i }}</span>
-                                Penumpang {{ $i }}
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="passenger_{{ $i }}_nama" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Nama Lengkap <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="text"
-                                           id="passenger_{{ $i }}_nama"
-                                           name="passengers[{{ $i }}][nama_lengkap]"
-                                           required
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                           placeholder="Masukkan nama lengkap">
-                                </div>
-                                <div>
-                                    <label for="passenger_{{ $i }}_identitas" class="block text-sm font-medium text-gray-700 mb-2">
-                                        No. Identitas <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="text"
-                                           id="passenger_{{ $i }}_identitas"
-                                           name="passengers[{{ $i }}][no_identitas]"
-                                           required
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                           placeholder="Masukkan nomor identitas">
-                                </div>
-                                <div>
-                                    <label for="passenger_{{ $i }}_usia" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Usia <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="number"
-                                           id="passenger_{{ $i }}_usia"
-                                           name="passengers[{{ $i }}][usia]"
-                                           required
-                                           min="1"
-                                           max="120"
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                           placeholder="Masukkan usia">
-                                </div>
-                                <div>
-                                    <label for="passenger_{{ $i }}_gender" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Jenis Kelamin <span class="text-red-500">*</span>
-                                    </label>
-                                    <select id="passenger_{{ $i }}_gender"
-                                            name="passengers[{{ $i }}][jenis_kelamin]"
-                                            required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
-                                        <option value="">Pilih jenis kelamin</option>
-                                        <option value="laki-laki">Laki-laki</option>
-                                        <option value="perempuan">Perempuan</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        @endfor
+                    <!-- Additional Passengers Container -->
+                    <div id="additional-passengers-container" class="space-y-6">
+                        <!-- Additional passenger forms will be dynamically added here -->
                     </div>
-                    @endif
 
                     <!-- Terms and Conditions -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -318,7 +294,7 @@
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Penumpang</span>
-                                <span class="text-sm font-medium">{{ request('passenger_count', 1) }} orang</span>
+                                <span class="text-sm font-medium" id="passenger-count-display">{{ request('passenger_count', 1) }} orang</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Tipe</span>
@@ -335,7 +311,7 @@
                         </div>
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-sm text-gray-600">Jumlah</span>
-                            <span class="text-sm">{{ request('passenger_count', 1) }}x</span>
+                            <span class="text-sm" id="passenger-multiplier">{{ request('passenger_count', 1) }}x</span>
                         </div>
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-sm text-gray-600">Biaya Admin</span>
@@ -343,7 +319,7 @@
                         </div>
                         <div class="flex justify-between items-center font-semibold text-lg border-t pt-2">
                             <span>Total</span>
-                            <span class="text-blue-600">
+                            <span class="text-blue-600" id="total-price">
                                 Rp {{ number_format((($ticket['price'] ?? 145000) * request('passenger_count', 1)) + 5000, 0, ',', '.') }}
                             </span>
                         </div>
@@ -377,6 +353,136 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Variables
+    const passengerCountInput = document.getElementById('passenger_count');
+    const decreaseBtn = document.getElementById('decreasePassengers');
+    const increaseBtn = document.getElementById('increasePassengers');
+    const additionalPassengersContainer = document.getElementById('additional-passengers-container');
+    const passengerCountDisplay = document.getElementById('passenger-count-display');
+    const passengerMultiplier = document.getElementById('passenger-multiplier');
+    const totalPriceDisplay = document.getElementById('total-price');
+    const ticketPrice = {{ $ticket['price'] ?? 145000 }};
+    const adminFee = 5000;
+
+    // Initialize passenger forms
+    updatePassengerForms();
+
+    // Event listeners for passenger count buttons
+    decreaseBtn.addEventListener('click', function() {
+        if (parseInt(passengerCountInput.value) > 1) {
+            passengerCountInput.value = parseInt(passengerCountInput.value) - 1;
+            updatePassengerForms();
+            updatePriceSummary();
+        }
+    });
+
+    increaseBtn.addEventListener('click', function() {
+        if (parseInt(passengerCountInput.value) < 10) {
+            passengerCountInput.value = parseInt(passengerCountInput.value) + 1;
+            updatePassengerForms();
+            updatePriceSummary();
+        }
+    });
+
+    // Function to update passenger forms based on count
+    function updatePassengerForms() {
+        const passengerCount = parseInt(passengerCountInput.value);
+        additionalPassengersContainer.innerHTML = '';
+
+        // Create additional passenger forms if count > 1
+        if (passengerCount > 1) {
+            for (let i = 2; i <= passengerCount; i++) {
+                additionalPassengersContainer.appendChild(createPassengerForm(i));
+            }
+        }
+    }
+
+    // Function to create a passenger form
+    function createPassengerForm(index) {
+        const formContainer = document.createElement('div');
+        formContainer.className = 'bg-white rounded-xl shadow-sm border border-gray-100 p-6';
+        formContainer.innerHTML = `
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <span class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">${index}</span>
+                    Penumpang ${index}
+                </h3>
+                <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Data Penumpang</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="passenger_${index}_nama" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nama Lengkap <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           id="passenger_${index}_nama"
+                           name="passengers[${index}][nama_lengkap]"
+                           required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                           placeholder="Masukkan nama lengkap">
+                </div>
+
+                <div>
+                    <label for="passenger_${index}_identitas" class="block text-sm font-medium text-gray-700 mb-2">
+                        No. Identitas <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           id="passenger_${index}_identitas"
+                           name="passengers[${index}][no_identitas]"
+                           required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                           placeholder="Masukkan nomor identitas">
+                </div>
+
+                <div>
+                    <label for="passenger_${index}_usia" class="block text-sm font-medium text-gray-700 mb-2">
+                        Usia <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number"
+                           id="passenger_${index}_usia"
+                           name="passengers[${index}][usia]"
+                           required
+                           min="1"
+                           max="120"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                           placeholder="Masukkan usia">
+                </div>
+
+                <div>
+                    <label for="passenger_${index}_gender" class="block text-sm font-medium text-gray-700 mb-2">
+                        Jenis Kelamin <span class="text-red-500">*</span>
+                    </label>
+                    <select id="passenger_${index}_gender"
+                            name="passengers[${index}][jenis_kelamin]"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                        <option value="">Pilih jenis kelamin</option>
+                        <option value="laki-laki">Laki-laki</option>
+                        <option value="perempuan">Perempuan</option>
+                    </select>
+                </div>
+            </div>
+        `;
+
+        return formContainer;
+    }
+
+    // Function to update price summary
+    function updatePriceSummary() {
+        const passengerCount = parseInt(passengerCountInput.value);
+        const totalPrice = (ticketPrice * passengerCount) + adminFee;
+
+        passengerCountDisplay.textContent = `${passengerCount} orang`;
+        passengerMultiplier.textContent = `${passengerCount}x`;
+        totalPriceDisplay.textContent = `Rp ${formatNumber(totalPrice)}`;
+    }
+
+    // Helper function to format number as currency
+    function formatNumber(number) {
+        return new Intl.NumberFormat('id-ID').format(number);
+    }
+
     // Form validation
     const form = document.getElementById('bookingForm');
     const submitBtn = form.querySelector('button[type="submit"]');
@@ -410,6 +516,13 @@ document.addEventListener('DOMContentLoaded', function() {
     identityInput.addEventListener('input', function(e) {
         // Remove non-alphanumeric characters
         e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+    });
+
+    // Add validation for dynamically created identity inputs
+    additionalPassengersContainer.addEventListener('input', function(e) {
+        if (e.target.id && e.target.id.includes('_identitas')) {
+            e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+        }
     });
 });
 </script>
