@@ -2,7 +2,7 @@
 
 @section('title', 'Feedback')
 
-@section('header', 'Feedback Pelanggan')
+@section('header', 'Feedback Wisatawan')
 
 @section('content')
     <div id="feedback-container">
