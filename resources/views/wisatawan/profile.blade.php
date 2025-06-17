@@ -136,17 +136,29 @@
                                     <input type="file" name="foto_user" id="foto_user"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         disabled>
-                                    @if (Auth::user()->foto_user)
-                                        <div class="mt-2" id="foto_preview_container">
-                                            <img src="{{ asset('storage/' . Auth::user()->foto_user) }}" id="foto_preview"
-                                                alt="Preview Foto" class="w-20 h-20 object-cover rounded-full">
-                                        </div>
-                                    @else
-                                        <div class="mt-2" id="foto_preview_container" style="display: none;">
+
+                                    <div class="mt-2 flex items-center space-x-4" id="foto_preview_container"
+                                        style="display: none;">
+                                        <div
+                                            class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
                                             <img id="foto_preview" src="#" alt="Preview Foto"
-                                                class="w-20 h-20 object-cover rounded-full">
+                                                class="w-full h-full object-cover hidden">
+                                            <svg id="foto_placeholder" class="w-12 h-12 text-blue-600" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
                                         </div>
-                                    @endif
+                                        <button type="button" id="removePhotoBtn"
+                                            class="text-red-500 hover:text-red-700">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                        <input type="hidden" name="remove_photo" id="remove_photo" value="0">
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
@@ -241,16 +253,50 @@
                 input.disabled = false;
             });
 
-            // Setup file preview
-            document.getElementById('foto_user').addEventListener('change', function(e) {
+            // Hide profile photo in card
+            const profilePhoto = document.getElementById('profilePhoto');
+            if (profilePhoto) profilePhoto.style.display = 'none';
+
+            // Setup file preview elements
+            const fotoInput = document.getElementById('foto_user');
+            const fotoPreview = document.getElementById('foto_preview');
+            const fotoPlaceholder = document.getElementById('foto_placeholder');
+            const fotoContainer = document.getElementById('foto_preview_container');
+            const removePhotoBtn = document.getElementById('removePhotoBtn');
+            const removePhotoInput = document.getElementById('remove_photo');
+
+            // Show current photo if exists
+            if ('{{ Auth::user()->foto_user }}') {
+                fotoPreview.src = '{{ asset('storage/' . Auth::user()->foto_user) }}';
+                fotoPreview.classList.remove('hidden');
+                fotoPlaceholder.classList.add('hidden');
+                fotoContainer.style.display = 'flex';
+            } else {
+                fotoPlaceholder.classList.remove('hidden');
+                fotoContainer.style.display = 'flex';
+            }
+
+            fotoInput.addEventListener('change', function(e) {
                 if (this.files && this.files[0]) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        document.getElementById('foto_preview').src = e.target.result;
-                        document.getElementById('foto_preview_container').style.display = 'block';
+                        fotoPreview.src = e.target.result;
+                        fotoPreview.classList.remove('hidden');
+                        fotoPlaceholder.classList.add('hidden');
+                        fotoContainer.style.display = 'flex';
+                        removePhotoInput.value = '0'; // Reset remove photo flag
                     }
                     reader.readAsDataURL(this.files[0]);
                 }
+            });
+
+            // Handle remove photo button
+            removePhotoBtn.addEventListener('click', function() {
+                fotoPreview.src = '#';
+                fotoPreview.classList.add('hidden');
+                fotoPlaceholder.classList.remove('hidden');
+                fotoInput.value = '';
+                removePhotoInput.value = '1'; // Set flag to remove photo
             });
 
             document.getElementById('profileActions').classList.remove('hidden');
@@ -263,6 +309,19 @@
             inputs.forEach(input => {
                 input.disabled = true;
             });
+
+            document.getElementById('foto_preview_container').style.display = 'none';
+
+            // Reset photo removal flag
+            document.getElementById('remove_photo').value = '0';
+
+            // Show profile photo in card again if exists
+            const profilePhoto = document.getElementById('profilePhoto');
+            if (profilePhoto) {
+                if ('{{ Auth::user()->foto_user }}') {
+                    profilePhoto.style.display = 'block';
+                }
+            }
 
             document.getElementById('profileActions').classList.add('hidden');
             showToast('Edit dibatalkan', 'info');

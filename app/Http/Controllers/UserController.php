@@ -35,11 +35,20 @@ class UserController extends Controller
                 'email' => 'required|email|unique:user,email,' . $user->id,
                 'no_telp' => 'required|string|max:20',
                 'foto_user' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'remove_photo' => 'sometimes|boolean', // Tambahkan validasi untuk remove_photo
             ]);
 
+            // Handle photo removal
+            if ($request->input('remove_photo') == '1') {
+                // Hapus foto lama jika ada
+                if ($user->foto_user && Storage::disk('public')->exists($user->foto_user)) {
+                    Storage::disk('public')->delete($user->foto_user);
+                }
+                $validated['foto_user'] = null; // Set ke null untuk menghapus path foto
+            }
             // Handle file upload
-            if ($request->hasFile('foto_user')) {
-                // Delete old photo if exists
+            elseif ($request->hasFile('foto_user')) {
+                // Hapus foto lama jika ada
                 if ($user->foto_user && Storage::disk('public')->exists($user->foto_user)) {
                     Storage::disk('public')->delete($user->foto_user);
                 }

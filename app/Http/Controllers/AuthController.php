@@ -36,14 +36,16 @@ class AuthController extends Controller
             'no_telp' => $validated['no_telp'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
-            'role' => 'wisatawan',// $validated['role'] ?? 'wisatawan',
+            'role' => 'wisatawan', // $validated['role'] ?? 'wisatawan',
             // 'remember_token' => Str::random(60),
         ]);
 
-        return response()->json([
-            'data' => $user
-        ], 201);
-
+        return response()->json(
+            [
+                'data' => $user,
+            ],
+            201,
+        );
     }
 
     //login akun
@@ -71,16 +73,14 @@ class AuthController extends Controller
         logger()->info('User logged in', [
             'user_id' => auth()->id(),
             'session_id' => session()->getId(),
-            'ip' => $request->ip()
+            'ip' => $request->ip(),
         ]);
 
         return response()->json([
             'message' => 'Login berhasil',
             'token' => $token, // Untuk API calls
             'user' => $user,
-            'redirect' => $user->role === 'admin'
-                ? route('admin.dashboard')
-                : route('wisatawan.dashboard')
+            'redirect' => $user->role === 'admin' ? route('admin.dashboard') : route('wisatawan.dashboard'),
         ]);
     }
 
@@ -106,7 +106,7 @@ class AuthController extends Controller
         Log::info('User logged out', ['user' => $userName]);
 
         if ($request->wantsJson()) {
-        return response()->json(['message' => 'Logout berhasil']);
+            return response()->json(['message' => 'Logout berhasil']);
         }
 
         // Untuk request web, redirect ke halaman login
@@ -118,8 +118,6 @@ class AuthController extends Controller
         // $user = $request->user(); // Atau pakai Auth::user()
         // return view('.dashboard', ['user' => $user]);
         return response()->json(['user' => $request->user()]);
-
-
     }
 
     public function updateProfile(Request $request)
@@ -139,10 +137,19 @@ class AuthController extends Controller
             'email' => 'sometimes|email|unique:user,email,' . $user->id,
             'no_telp' => 'sometimes|string|max:20',
             'foto_user' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'remove_photo' => 'sometimes|boolean',
         ]);
 
+        // Handle photo removal
+        if ($request->input('remove_photo') == '1') {
+            // Hapus foto lama jika ada
+            if ($user->foto_user && Storage::disk('public')->exists($user->foto_user)) {
+                Storage::disk('public')->delete($user->foto_user);
+            }
+            $validated['foto_user'] = null; // Set to null to clear the photo path
+        }
         // Handle file upload
-        if ($request->hasFile('foto_user')) {
+        elseif ($request->hasFile('foto_user')) {
             // Hapus foto lama jika ada
             if ($user->foto_user && Storage::disk('public')->exists($user->foto_user)) {
                 Storage::disk('public')->delete($user->foto_user);
@@ -159,7 +166,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Profil berhasil diperbarui',
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -225,16 +232,18 @@ class AuthController extends Controller
 
         if (!Auth::attempt($credentials, $remember)) {
             Log::warning('Login failed', ['email' => $credentials['email']]);
-            return back()->withErrors([
-                'email' => 'Email atau password salah'
-            ])->withInput($request->only('email', 'remember'));
+            return back()
+                ->withErrors([
+                    'email' => 'Email atau password salah',
+                ])
+                ->withInput($request->only('email', 'remember'));
         }
 
         $user = Auth::user();
         Log::info('Login successful', [
             'user_id' => $user->id,
             'role' => $user->role,
-            'nama' => $user->nama
+            'nama' => $user->nama,
         ]);
 
         $request->session()->regenerate();
@@ -284,7 +293,7 @@ class AuthController extends Controller
             Log::info('User registered', [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                'role' => $user->role
+                'role' => $user->role,
             ]);
 
             // MODIFIKASI: Auto login dan cek intended URL
@@ -305,7 +314,6 @@ class AuthController extends Controller
 
             // Default redirect ke dashboard jika tidak ada intended URL
             return redirect()->route('wisatawan.dashboard')->with('success', 'Registrasi berhasil! Silakan login.');
-
         } catch (Exception $e) {
             Log::error('Registration failed', ['error' => $e->getMessage()]);
             return back()->with('error', 'Registrasi gagal. Silakan coba lagi.')->withInput();
@@ -333,7 +341,7 @@ class AuthController extends Controller
             Log::info('Google OAuth Success', [
                 'google_id' => $googleUser->id,
                 'email' => $googleUser->email,
-                'name' => $googleUser->name
+                'name' => $googleUser->name,
             ]);
 
             // Check if user already exists with this Google ID
@@ -344,7 +352,7 @@ class AuthController extends Controller
                 Log::info('Existing Google user logged in', [
                     'user_id' => $user->id,
                     'email' => $user->email,
-                    'role' => $user->role
+                    'role' => $user->role,
                 ]);
 
                 // TAMBAHAN: Cek intended URL untuk Google OAuth juga
@@ -361,7 +369,9 @@ class AuthController extends Controller
                 }
 
                 // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
-                return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
+                return redirect()
+                    ->route('wisatawan.dashboard')
+                    ->with('success', 'Selamat datang, ' . $user->nama . '!');
             }
 
             // Check if user exists with this email (untuk link akun existing)
@@ -378,7 +388,7 @@ class AuthController extends Controller
                 Log::info('Existing user linked with Google', [
                     'user_id' => $existingUser->id,
                     'email' => $existingUser->email,
-                    'role' => $existingUser->role
+                    'role' => $existingUser->role,
                 ]);
 
                 // TAMBAHAN: Cek intended URL untuk existing user juga
@@ -395,7 +405,9 @@ class AuthController extends Controller
                 }
 
                 // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
-                return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $existingUser->nama . '!');
+                return redirect()
+                    ->route('wisatawan.dashboard')
+                    ->with('success', 'Selamat datang, ' . $existingUser->nama . '!');
             }
 
             // CREATE NEW USER - REGISTRASI OTOMATIS SEPERTI GOOGLE UMUMNYA
@@ -413,7 +425,7 @@ class AuthController extends Controller
             Log::info('New Google user created and logged in', [
                 'user_id' => $newUser->id,
                 'email' => $newUser->email,
-                'role' => $newUser->role
+                'role' => $newUser->role,
             ]);
 
             // TAMBAHAN: Cek intended URL untuk new user juga
@@ -430,8 +442,9 @@ class AuthController extends Controller
             }
 
             // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
-            return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
-
+            return redirect()
+                ->route('wisatawan.dashboard')
+                ->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
         } catch (Exception $e) {
             Log::error('Google OAuth Error: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -446,15 +459,19 @@ class AuthController extends Controller
         Log::info('Redirecting user based on role', [
             'user_id' => $user->id,
             'role' => $user->role,
-            'nama' => $user->nama
+            'nama' => $user->nama,
         ]);
 
         if ($user->role === 'admin') {
             Log::info('Redirecting to admin dashboard');
-            return redirect()->route('admin.dashboard')->with('success', 'Selamat datang, Admin ' . $user->nama . '!');
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('success', 'Selamat datang, Admin ' . $user->nama . '!');
         } else {
             Log::info('Redirecting to user dashboard');
-            return redirect()->route('wisatawan.dashboard')->with('success', 'Selamat datang, ' . $user->nama . '!');
+            return redirect()
+                ->route('wisatawan.dashboard')
+                ->with('success', 'Selamat datang, ' . $user->nama . '!');
         }
     }
 }
