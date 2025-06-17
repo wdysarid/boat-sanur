@@ -28,12 +28,14 @@ class FeedbackController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
+                        $userQuery->where('nama', 'like', "%{$search}%")
+                                 ->orWhere('email', 'like', "%{$search}%");
                     })->orWhere('pesan', 'like', "%{$search}%");
                 });
             }
 
-            $feedbacks = $query->orderBy('created_at', 'desc')->paginate(15);
+            // Paginate with 10 items per page
+            $feedbacks = $query->orderBy('created_at', 'desc')->paginate(10);
 
             // Calculate statistics - ensure average_rating is always a number
             $approvedFeedbacks = Feedback::where('status', 'disetujui');
@@ -44,14 +46,20 @@ class FeedbackController extends Controller
                 'pending' => Feedback::where('status', 'pending')->count(),
                 'approved' => $approvedFeedbacks->count(),
                 'rejected' => Feedback::where('status', 'ditolak')->count(),
-                'average_rating' => $averageRating ? (float) $averageRating : 0, // Ensure it's a number
+                'average_rating' => $averageRating ? (float) $averageRating : 0,
                 'rating_distribution' => $this->getRatingDistribution(),
             ];
 
             return response()->json([
                 'success' => true,
                 'data' => $feedbacks->items(),
-                // ... (keep your existing pagination data) ...
+                'current_page' => $feedbacks->currentPage(),
+                'last_page' => $feedbacks->lastPage(),
+                'from' => $feedbacks->firstItem(),
+                'to' => $feedbacks->lastItem(),
+                'total' => $feedbacks->total(),
+                'prev_page_url' => $feedbacks->previousPageUrl(),
+                'next_page_url' => $feedbacks->nextPageUrl(),
                 'stats' => $stats,
             ]);
         } catch (\Exception $e) {

@@ -97,10 +97,26 @@
                 <div class="relative">
                     <button @click="profileDropdownOpen = !profileDropdownOpen"
                             class="flex items-center text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-2">
-                            <span class="text-white font-semibold text-sm">
-                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
-                            </span>
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden border-2 border-gray-200">
+                            @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
+                                <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
+                                     alt="{{ Auth::user()->nama }}"
+                                     class="w-full h-full object-cover"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <!-- Fallback to initials if image fails to load -->
+                                <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center" style="display: none;">
+                                    <span class="text-white font-semibold text-sm">
+                                        {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
+                                    </span>
+                                </div>
+                            @else
+                                <!-- Default initials if no profile photo -->
+                                <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-semibold text-sm">
+                                        {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                         <span class="max-w-32 truncate">{{ Auth::user()->nama ?? 'User' }}</span>
                         <svg class="ml-2 h-4 w-4 transition-transform" :class="profileDropdownOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,9 +134,35 @@
                          x-transition:leave-end="opacity-0 scale-95"
                          class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 border border-gray-100">
 
-                        <div class="px-4 py-3 border-b border-gray-100">
-                            <p class="text-sm font-medium text-gray-900">{{ Auth::user()->nama ?? 'User' }}</p>
-                            <p class="text-sm text-gray-500 truncate">{{ Auth::user()->email ?? 'user@example.com' }}</p>
+                        <div class="px-4 py-5 border-b border-gray-100">
+                            <div class="flex items-center mb-2">
+                                <!-- Profile photo in dropdown header -->
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden border-2 border-gray-200">
+                                    @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
+                                        <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
+                                             alt="{{ Auth::user()->nama }}"
+                                             class="w-full h-full object-cover"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <!-- Fallback to initials if image fails to load -->
+                                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center" style="display: none;">
+                                            <span class="text-white font-semibold text-sm">
+                                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
+                                            </span>
+                                        </div>
+                                    @else
+                                        <!-- Default initials if no profile photo -->
+                                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white font-semibold text-sm">
+                                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-medium text-gray-900">{{ Auth::user()->nama ?? 'User' }}</p>
+                                    <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email ?? 'user@example.com' }}</p>
+                                </div>
+                            </div>
                         </div>
 
                         <a href="{{ route('wisatawan.dashboard') }}"
@@ -228,10 +270,26 @@
 
         <div class="pt-4 pb-3 border-t border-gray-200">
             <div class="flex items-center px-5">
-                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                    <span class="text-white font-semibold">
-                        {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
-                    </span>
+                <div class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200">
+                    @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
+                        <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
+                             alt="{{ Auth::user()->nama }}"
+                             class="w-full h-full object-cover"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <!-- Fallback to initials if image fails to load -->
+                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center" style="display: none;">
+                            <span class="text-white font-semibold">
+                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
+                            </span>
+                        </div>
+                    @else
+                        <!-- Default initials if no profile photo -->
+                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                            <span class="text-white font-semibold">
+                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
+                            </span>
+                        </div>
+                    @endif
                 </div>
                 <div class="ml-3">
                     <div class="text-base font-medium text-gray-800">{{ Auth::user()->nama ?? 'User' }}</div>
