@@ -16,7 +16,7 @@ class JadwalController extends Controller
      */
     public function getJadwal()
     {
-        $jadwal = Jadwal::with(['kapal'])->get();
+        $jadwal = Jadwal::with(['kapal'])->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'success' => true,
