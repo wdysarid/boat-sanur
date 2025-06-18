@@ -394,7 +394,7 @@
                     setTimeout(() => {
                         modernToast.success(
                             'Selamat datang kembali di SanurBoat! Kelola perjalanan Anda dengan mudah.',
-                            'Halo, {{ Auth::user()->name }}! 👋'
+                            'Halo, {{ Auth::user()->nama }}! 👋'
                         );
                     }, 1000);
                     @php session(['toast_shown' => true]); @endphp
