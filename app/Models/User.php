@@ -2,56 +2,132 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'user';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'nama',
-        'no_telp',
         'email',
         'password',
-        'foto_user',
+        'no_telp',
         'role',
-        'remember_token',
-        'google_id',
+        'foto_user',
         'avatar',
-        'reset_token'
+        'google_id',
+        'reset_token',
+        'email_verified_at',
+        'password_changed_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
         'reset_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password_changed_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Check if user has Google account
      */
-    protected function casts(): array
+    public function hasGoogleAccount()
     {
+        return !empty($this->google_id);
+    }
+
+    /**
+     * Check if user is regular (non-Google) user
+     */
+    public function isRegularUser()
+    {
+        return empty($this->google_id);
+    }
+
+    /**
+     * Check if user has password set
+     */
+    public function hasPassword()
+    {
+        return !empty($this->password);
+    }
+
+    /**
+     * Get the formatted last password change date
+     */
+    public function getLastPasswordChangeAttribute()
+    {
+        if (!$this->password_changed_at) {
+            return 'Belum pernah diubah';
+        }
+
+        return $this->password_changed_at->diffForHumans();
+    }
+
+    /**
+     * Get the formatted last password change date with full format
+     */
+    public function getLastPasswordChangeFullAttribute()
+    {
+        if (!$this->password_changed_at) {
+            return 'Belum pernah diubah';
+        }
+
+        return $this->password_changed_at->format('d M Y, H:i');
+    }
+
+    /**
+     * Check if user can change password
+     * Only regular users (non-Google) can change password
+     */
+    public function canChangePassword()
+    {
+        return $this->isRegularUser() && $this->hasPassword();
+    }
+
+    /**
+     * Get user's login method
+     */
+    public function getLoginMethodAttribute()
+    {
+        if ($this->hasGoogleAccount()) {
+            return 'Google';
+        }
+
+        return 'Email';
+    }
+
+    /**
+     * Get user's account type for display
+     */
+    public function getAccountTypeAttribute()
+    {
+        if ($this->hasGoogleAccount()) {
+            return [
+                'type' => 'google',
+                'label' => 'Akun Google',
+                'icon' => 'google',
+                'color' => 'blue'
+            ];
+        }
+
         return [
-            'password' => 'hashed',
+            'type' => 'regular',
+            'label' => 'Akun Reguler',
+            'icon' => 'user',
+            'color' => 'gray'
         ];
     }
 

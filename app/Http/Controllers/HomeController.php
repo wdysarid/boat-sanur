@@ -15,12 +15,12 @@ class HomeController extends Controller
     public function index()
     {
         // Get latest approved testimonials for homepage carousel
-        $testimonials = Feedback::with('user')
-            ->where('status', 'approved')
+        $feedbacks = Feedback::with('user')
+            ->where('status', 'disetujui')
             ->latest()
             ->limit(10)
             ->get();
 
-        return view('landing-updated', compact('testimonials'));
+        return view('landing', compact('feedbacks'));
     }
 }

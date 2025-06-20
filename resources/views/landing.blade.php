@@ -550,40 +550,44 @@
             }
         });
 
-        // Load Approved Testimonials
-        async function loadTestimonials() {
-            try {
-                console.log('Loading testimonials...');
-                const response = await fetch('/api/feedback/', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
+// GANTI FUNGSI loadTestimonials() DENGAN INI:
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+    // UPDATED: Load Approved Testimonials from Controller
+    async function loadTestimonials() {
+        try {
+            console.log('Loading testimonials from controller...');
 
-                const data = await response.json();
-                console.log('Testimonials data:', data);
+            // Get data from PHP controller
+            @if(isset($feedbacks) && $feedbacks->count() > 0)
+                testimonialsData = [
+                    @foreach($feedbacks as $feedback)
+                    {
+                        id: {{ $feedback->id }},
+                        rating: {{ $feedback->rating }},
+                        pesan: {!! json_encode($feedback->pesan) !!},
+                        created_at: "{{ $feedback->created_at->toISOString() }}",
+                        user: {
+                            nama: {!! json_encode($feedback->user->nama ?? 'Anonymous') !!}
+                        }
+                    }@if(!$loop->last),@endif
+                    @endforeach
+                ];
 
-                if (data.success && data.data && data.data.length > 0) {
-                    testimonialsData = data.data;
-                    renderTestimonials();
-                    startInfiniteCarousel();
-                } else {
-                    showEmptyTestimonials();
-                }
-            } catch (error) {
-                console.error('Error loading testimonials:', error);
+                console.log('Testimonials data loaded:', testimonialsData);
+                renderTestimonials();
+                startInfiniteCarousel();
+            @else
+                console.log('No testimonials found');
                 showEmptyTestimonials();
-            } finally {
-                document.getElementById('testimonials-loading').classList.add('hidden');
-            }
+            @endif
+
+        } catch (error) {
+            console.error('Error loading testimonials:', error);
+            showEmptyTestimonials();
+        } finally {
+            document.getElementById('testimonials-loading').classList.add('hidden');
         }
+    }
 
         // UPDATED: Render Testimonials for Infinite Loop
         function renderTestimonials() {

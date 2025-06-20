@@ -46,6 +46,9 @@
                                 @if (Auth::user()->foto_user)
                                     <img src="{{ asset('storage/' . Auth::user()->foto_user) }}" alt="Foto Profil"
                                         class="w-full h-full object-cover">
+                                @elseif (Auth::user()->avatar)
+                                    <img src="{{ Auth::user()->avatar }}" alt="Foto Profil"
+                                        class="w-full h-full object-cover">
                                 @else
                                     <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -56,11 +59,35 @@
                             </div>
                             <h3 class="text-lg font-semibold text-gray-900">{{ Auth::user()->nama ?? 'John Doe' }}</h3>
                             <p class="text-sm text-gray-600">{{ Auth::user()->email ?? 'john.doe@email.com' }}</p>
+
+                            <!-- DYNAMIC EMAIL VERIFICATION STATUS -->
                             <div class="mt-4 flex items-center justify-center">
-                                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                                    Akun Terverifikasi
-                                </span>
+                                @if (Auth::user()->email_verified_at)
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Akun Terverifikasi
+                                    </span>
+                                @else
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Belum Terverifikasi
+                                    </span>
+                                @endif
                             </div>
+
+                            <!-- SHOW VERIFICATION NOTICE IF NOT VERIFIED -->
+                            @if (!Auth::user()->email_verified_at)
+                                <div class="mt-3">
+                                    <a href="{{ route('verification.notice') }}"
+                                       class="text-xs text-blue-600 hover:text-blue-700 underline">
+                                        Verifikasi Email Sekarang
+                                    </a>
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Quick Stats -->
@@ -125,17 +152,37 @@
                             </button>
                         </div>
 
+                        <!-- VALIDATION ERROR DISPLAY -->
+                        <div id="validationErrors" class="hidden mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <div class="flex">
+                                <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <h4 class="text-sm font-medium text-red-800">Terdapat kesalahan pada form:</h4>
+                                    <ul id="errorList" class="mt-1 text-sm text-red-700 list-disc list-inside">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
                         <form id="profileForm" action="{{ route('wisatawan.profile.update') }}" method="POST"
-                            enctype="multipart/form-data" class="space-y-4">
+                            enctype="multipart/form-data" class="space-y-4" novalidate>
                             @csrf
                             @method('PATCH')
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- FOTO PROFIL (OPTIONAL) -->
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Foto Profil</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Foto Profil
+                                        <span class="text-gray-500 text-xs">(Opsional)</span>
+                                    </label>
                                     <input type="file" name="foto_user" id="foto_user"
+                                        accept="image/jpeg,image/png,image/jpg,image/gif"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         disabled>
+                                    <p class="mt-1 text-xs text-gray-500">Format yang didukung: JPG, PNG, GIF. Maksimal 2MB.</p>
 
                                     <div class="mt-2 flex items-center space-x-4" id="foto_preview_container"
                                         style="display: none;">
@@ -160,25 +207,52 @@
                                         <input type="hidden" name="remove_photo" id="remove_photo" value="0">
                                     </div>
                                 </div>
+
+                                <!-- NAMA LENGKAP (REQUIRED) -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
-                                    <input type="text" name="nama" value="{{ Auth::user()->nama }}"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Nama Lengkap
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="nama" id="nama" value="{{ Auth::user()->nama }}"
+                                        required
+                                        minlength="2"
+                                        maxlength="255"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent invalid:border-red-500 invalid:ring-red-500"
                                         disabled>
+                                    <div class="mt-1 text-sm text-red-600 hidden" id="nama-error"></div>
                                 </div>
+
+                                <!-- EMAIL (REQUIRED) -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                    <input type="email" name="email" value="{{ Auth::user()->email }}"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Email
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="email" name="email" id="email" value="{{ Auth::user()->email }}"
+                                        required
+                                        maxlength="255"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent invalid:border-red-500 invalid:ring-red-500"
                                         disabled>
+                                    <div class="mt-1 text-sm text-red-600 hidden" id="email-error"></div>
                                 </div>
+
+                                <!-- NOMOR TELEPON (OPTIONAL) -->
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>
-                                    <input type="text" name="no_telp" value="{{ Auth::user()->no_telp }}"
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Nomor Telepon
+                                        <span class="text-gray-500 text-xs">(Opsional)</span>
+                                    </label>
+                                    <input type="tel" name="no_telp" id="no_telp" value="{{ Auth::user()->no_telp }}"
+                                        maxlength="20"
+                                        pattern="[0-9+\-\s]+"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         disabled>
+                                    <p class="mt-1 text-xs text-gray-500">Contoh: 08123456789 atau +62812345678</p>
+                                    <div class="mt-1 text-sm text-red-600 hidden" id="no_telp-error"></div>
                                 </div>
                             </div>
+
 
                             <div class="hidden" id="profileActions">
                                 <div class="flex justify-end space-x-3 pt-4">
@@ -186,8 +260,8 @@
                                         class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                                         Batal
                                     </button>
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                                    <button type="submit" id="submitBtn"
+                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                         Simpan Perubahan
                                     </button>
                                 </div>
@@ -203,38 +277,39 @@
                             <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-900">Password</h4>
-                                    <p class="text-sm text-gray-600">Terakhir diubah 3 bulan yang lalu</p>
+                                    <p class="text-sm text-gray-600">Ubah password anda untuk keamanan akun</p>
                                 </div>
-                                <button onclick="changePassword()"
+                                <a href="{{ route('wisatawan.profile.change-password') }}"
                                     class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-medium transition-colors">
                                     Ubah Password
-                                </button>
+                                </a>
                             </div>
 
+                            <!-- DYNAMIC EMAIL VERIFICATION STATUS IN SECURITY SECTION -->
                             <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-900">Verifikasi Email</h4>
-                                    <p class="text-sm text-green-600">Email sudah terverifikasi</p>
+                                    @if (Auth::user()->email_verified_at)
+                                        <p class="text-sm text-green-600">
+                                            Email sudah terverifikasi pada {{ Auth::user()->email_verified_at->format('d M Y, H:i') }}
+                                        </p>
+                                    @else
+                                        <p class="text-sm text-red-600">Email belum diverifikasi</p>
+                                    @endif
                                 </div>
-                                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                                    Aktif
-                                </span>
-                            </div>
-
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-900">Verifikasi Nomor HP</h4>
-                                    <p class="text-sm text-yellow-600">Nomor HP belum diverifikasi</p>
-                                </div>
-                                <button onclick="verifyPhone()"
-                                    class="px-4 py-2 text-yellow-600 hover:bg-yellow-50 rounded-lg text-sm font-medium transition-colors">
-                                    Verifikasi
-                                </button>
+                                @if (Auth::user()->email_verified_at)
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                                        Aktif
+                                    </span>
+                                @else
+                                    <a href="{{ route('verification.notice') }}"
+                                       class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">
+                                        Verifikasi Sekarang
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -246,6 +321,127 @@
 
 @push('scripts')
     <script>
+        // VALIDATION FUNCTIONS
+        function validateForm() {
+            const errors = [];
+            let isValid = true;
+
+            // Clear previous errors
+            clearValidationErrors();
+
+            // Validate Nama (Required)
+            const nama = document.getElementById('nama');
+            if (!nama.value.trim()) {
+                errors.push('Nama lengkap wajib diisi');
+                showFieldError('nama', 'Nama lengkap wajib diisi');
+                isValid = false;
+            } else if (nama.value.trim().length < 2) {
+                errors.push('Nama lengkap minimal 2 karakter');
+                showFieldError('nama', 'Nama lengkap minimal 2 karakter');
+                isValid = false;
+            }
+
+            // Validate Email (Required)
+            const email = document.getElementById('email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email.value.trim()) {
+                errors.push('Email wajib diisi');
+                showFieldError('email', 'Email wajib diisi');
+                isValid = false;
+            } else if (!emailRegex.test(email.value.trim())) {
+                errors.push('Format email tidak valid');
+                showFieldError('email', 'Format email tidak valid');
+                isValid = false;
+            }
+
+            // Validate Phone (Optional, but if filled must be valid)
+            const noTelp = document.getElementById('no_telp');
+            if (noTelp.value.trim()) {
+                const phoneRegex = /^[0-9+\-\s]+$/;
+                if (!phoneRegex.test(noTelp.value.trim())) {
+                    errors.push('Format nomor telepon tidak valid');
+                    showFieldError('no_telp', 'Format nomor telepon tidak valid (hanya angka, +, -, dan spasi)');
+                    isValid = false;
+                }
+            }
+
+            // Validate Photo (Optional, but if uploaded must be valid)
+            const fotoUser = document.getElementById('foto_user');
+            if (fotoUser.files && fotoUser.files[0]) {
+                const file = fotoUser.files[0];
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                const maxSize = 2 * 1024 * 1024; // 2MB
+
+                if (!allowedTypes.includes(file.type)) {
+                    errors.push('Format foto tidak didukung (hanya JPG, PNG, GIF)');
+                    isValid = false;
+                }
+
+                if (file.size > maxSize) {
+                    errors.push('Ukuran foto maksimal 2MB');
+                    isValid = false;
+                }
+            }
+
+            // Show validation errors
+            if (errors.length > 0) {
+                showValidationErrors(errors);
+            }
+
+            return isValid;
+        }
+
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + '-error');
+
+            field.classList.add('border-red-500', 'ring-red-500');
+            field.classList.remove('border-gray-300');
+
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function clearValidationErrors() {
+            // Clear field errors
+            const fields = ['nama', 'email', 'no_telp'];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                const errorDiv = document.getElementById(fieldId + '-error');
+
+                field.classList.remove('border-red-500', 'ring-red-500');
+                field.classList.add('border-gray-300');
+
+                if (errorDiv) {
+                    errorDiv.classList.add('hidden');
+                    errorDiv.textContent = '';
+                }
+            });
+
+            // Hide validation errors container
+            document.getElementById('validationErrors').classList.add('hidden');
+        }
+
+        function showValidationErrors(errors) {
+            const errorContainer = document.getElementById('validationErrors');
+            const errorList = document.getElementById('errorList');
+
+            errorList.innerHTML = '';
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+
+            errorContainer.classList.remove('hidden');
+
+            // Scroll to error container
+            errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // PROFILE EDITING FUNCTIONS
         function editProfile() {
             const form = document.getElementById('profileForm');
             const inputs = form.querySelectorAll('input, select, textarea');
@@ -253,9 +449,8 @@
                 input.disabled = false;
             });
 
-            // Hide profile photo in card
-            const profilePhoto = document.getElementById('profilePhoto');
-            if (profilePhoto) profilePhoto.style.display = 'none';
+            // Clear any previous validation errors
+            clearValidationErrors();
 
             // Setup file preview elements
             const fotoInput = document.getElementById('foto_user');
@@ -266,8 +461,11 @@
             const removePhotoInput = document.getElementById('remove_photo');
 
             // Show current photo if exists
-            if ('{{ Auth::user()->foto_user }}') {
-                fotoPreview.src = '{{ asset('storage/' . Auth::user()->foto_user) }}';
+            if ('{{ Auth::user()->foto_user }}' || '{{ Auth::user()->avatar }}') {
+                const photoSrc = '{{ Auth::user()->foto_user }}' ?
+                    '{{ asset('storage/' . Auth::user()->foto_user) }}' :
+                    '{{ Auth::user()->avatar }}';
+                fotoPreview.src = photoSrc;
                 fotoPreview.classList.remove('hidden');
                 fotoPlaceholder.classList.add('hidden');
                 fotoContainer.style.display = 'flex';
@@ -276,8 +474,28 @@
                 fotoContainer.style.display = 'flex';
             }
 
+            // File input change handler
             fotoInput.addEventListener('change', function(e) {
                 if (this.files && this.files[0]) {
+                    const file = this.files[0];
+
+                    // Validate file
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+
+                    if (!allowedTypes.includes(file.type)) {
+                        showToast('Format foto tidak didukung. Gunakan JPG, PNG, atau GIF.', 'error');
+                        this.value = '';
+                        return;
+                    }
+
+                    if (file.size > maxSize) {
+                        showToast('Ukuran foto terlalu besar. Maksimal 2MB.', 'error');
+                        this.value = '';
+                        return;
+                    }
+
+                    // Show preview
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         fotoPreview.src = e.target.result;
@@ -286,7 +504,7 @@
                         fotoContainer.style.display = 'flex';
                         removePhotoInput.value = '0'; // Reset remove photo flag
                     }
-                    reader.readAsDataURL(this.files[0]);
+                    reader.readAsDataURL(file);
                 }
             });
 
@@ -310,18 +528,13 @@
                 input.disabled = true;
             });
 
+            // Clear validation errors
+            clearValidationErrors();
+
             document.getElementById('foto_preview_container').style.display = 'none';
 
             // Reset photo removal flag
             document.getElementById('remove_photo').value = '0';
-
-            // Show profile photo in card again if exists
-            const profilePhoto = document.getElementById('profilePhoto');
-            if (profilePhoto) {
-                if ('{{ Auth::user()->foto_user }}') {
-                    profilePhoto.style.display = 'block';
-                }
-            }
 
             document.getElementById('profileActions').classList.add('hidden');
             showToast('Edit dibatalkan', 'info');
@@ -331,10 +544,6 @@
             showToast('Fitur ubah password akan segera tersedia', 'info');
         }
 
-        function verifyPhone() {
-            showToast('Kode verifikasi akan dikirim ke nomor HP Anda', 'success');
-        }
-
         function downloadHistory() {
             showToast('Mengunduh riwayat perjalanan...', 'success');
         }
@@ -342,6 +551,16 @@
         // Handle profile form submission
         document.getElementById('profileForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Validate form before submission
+            if (!validateForm()) {
+                showToast('Mohon perbaiki kesalahan pada form', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan...';
 
             showToast('Menyimpan perubahan...', 'info');
 
@@ -362,12 +581,71 @@
                         setTimeout(() => location.reload(), 1500);
                     } else {
                         showToast(data.message || 'Gagal memperbarui profil', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Simpan Perubahan';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     showToast('Terjadi kesalahan saat memperbarui profil', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Simpan Perubahan';
                 });
+        });
+
+        // Real-time validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const namaField = document.getElementById('nama');
+            const emailField = document.getElementById('email');
+            const noTelpField = document.getElementById('no_telp');
+
+            // Real-time validation for nama
+            namaField.addEventListener('blur', function() {
+                if (!this.disabled) {
+                    const errorDiv = document.getElementById('nama-error');
+                    if (!this.value.trim()) {
+                        showFieldError('nama', 'Nama lengkap wajib diisi');
+                    } else if (this.value.trim().length < 2) {
+                        showFieldError('nama', 'Nama lengkap minimal 2 karakter');
+                    } else {
+                        this.classList.remove('border-red-500', 'ring-red-500');
+                        this.classList.add('border-gray-300');
+                        errorDiv.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Real-time validation for email
+            emailField.addEventListener('blur', function() {
+                if (!this.disabled) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    const errorDiv = document.getElementById('email-error');
+                    if (!this.value.trim()) {
+                        showFieldError('email', 'Email wajib diisi');
+                    } else if (!emailRegex.test(this.value.trim())) {
+                        showFieldError('email', 'Format email tidak valid');
+                    } else {
+                        this.classList.remove('border-red-500', 'ring-red-500');
+                        this.classList.add('border-gray-300');
+                        errorDiv.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Real-time validation for phone (optional)
+            noTelpField.addEventListener('blur', function() {
+                if (!this.disabled && this.value.trim()) {
+                    const phoneRegex = /^[0-9+\-\s]+$/;
+                    const errorDiv = document.getElementById('no_telp-error');
+                    if (!phoneRegex.test(this.value.trim())) {
+                        showFieldError('no_telp', 'Format nomor telepon tidak valid');
+                    } else {
+                        this.classList.remove('border-red-500', 'ring-red-500');
+                        this.classList.add('border-gray-300');
+                        errorDiv.classList.add('hidden');
+                    }
+                }
+            });
         });
 
         // Improved Toast Function

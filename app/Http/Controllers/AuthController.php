@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -36,16 +37,17 @@ class AuthController extends Controller
             'no_telp' => $validated['no_telp'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
-            'role' => 'wisatawan', // $validated['role'] ?? 'wisatawan',
-            // 'remember_token' => Str::random(60),
+            'role' => 'wisatawan',
+            'password_changed_at' => now(),
         ]);
 
-        return response()->json(
-            [
-                'data' => $user,
-            ],
-            201,
-        );
+        // Trigger email verification untuk API register juga
+        event(new Registered($user));
+
+        return response()->json([
+            'data' => $user,
+            'message' => 'Registrasi berhasil! Silakan cek email untuk verifikasi.'
+        ], 201);
     }
 
     //login akun
@@ -58,14 +60,20 @@ class AuthController extends Controller
 
         $remember = $request->has('remember');
 
-        // $user = User::where('email', $credentials['email'])->first();
-
         if (!Auth::attempt($credentials, $remember)) {
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
-        // Auth::login($user, $request->has('remember'));
         $user = Auth::user();
+
+        // Check email verification untuk API login juga
+        if (is_null($user->email_verified_at)) {
+            Auth::logout();
+            return response()->json([
+                'message' => 'Email belum diverifikasi. Silakan cek email Anda.',
+                'email_verified' => false
+            ], 403);
+        }
 
         $token = $user->createToken('api-token')->plainTextToken;
         session(['token' => $token]);
@@ -78,7 +86,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login berhasil',
-            'token' => $token, // Untuk API calls
+            'token' => $token,
             'user' => $user,
             'redirect' => $user->role === 'admin' ? route('admin.dashboard') : route('wisatawan.dashboard'),
         ]);
@@ -115,8 +123,6 @@ class AuthController extends Controller
 
     public function profile(Request $request)
     {
-        // $user = $request->user(); // Atau pakai Auth::user()
-        // return view('.dashboard', ['user' => $user]);
         return response()->json(['user' => $request->user()]);
     }
 
@@ -211,9 +217,55 @@ class AuthController extends Controller
         return response()->json(['message' => 'Password berhasil direset']);
     }
 
-    // ========== TAMBAHAN GOOGLE OAUTH METHODS ==========
+    // ========== WEB AUTHENTICATION METHODS ==========
 
-    // Web Login - untuk form login (tambahan untuk web)
+    // Web Register - untuk form register
+    public function webRegister(Request $request)
+    {
+        // TAMBAHAN: Store intended URL jika ada
+        if ($request->has('intended')) {
+            session(['url.intended' => $request->get('intended')]);
+        }
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'no_telp' => 'required|string|max:20',
+            'email' => 'required|email|unique:user,email|max:255',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        try {
+            $user = User::create([
+                'nama' => $validated['nama'],
+                'no_telp' => $validated['no_telp'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'wisatawan',
+                'password_changed_at' => now(), // Selalu wisatawan untuk registrasi
+            ]);
+
+            Log::info('User registered', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]);
+
+            // Trigger email verification
+            event(new Registered($user));
+
+            // Auto login setelah registrasi
+            Auth::login($user);
+
+            return redirect()->route('verification.notice')
+                ->with('success', 'Registrasi berhasil! Silakan cek email Anda untuk verifikasi akun.');
+
+        } catch (Exception $e) {
+            Log::error('Registration failed', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Registrasi gagal. Silakan coba lagi.')->withInput();
+        }
+    }
+
+    // Web Login - untuk form login
     public function webLogin(Request $request)
     {
         // TAMBAHAN: Store intended URL jika ada
@@ -240,6 +292,13 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        // Check if email is verified
+        if (is_null($user->email_verified_at)) {
+            return redirect()->route('verification.notice')
+                ->with('warning', 'Silakan verifikasi email Anda terlebih dahulu sebelum mengakses dashboard.');
+        }
+
         Log::info('Login successful', [
             'user_id' => $user->id,
             'role' => $user->role,
@@ -266,59 +325,7 @@ class AuthController extends Controller
         return $this->redirectBasedOnRole($user);
     }
 
-    // Web Register Google - untuk form register (tambahan untuk web)
-    public function webRegister(Request $request)
-    {
-        // TAMBAHAN: Store intended URL jika ada
-        if ($request->has('intended')) {
-            session(['url.intended' => $request->get('intended')]);
-        }
-
-        $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'no_telp' => 'required|string|max:20',
-            'email' => 'required|email|unique:user,email|max:255',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        try {
-            $user = User::create([
-                'nama' => $validated['nama'],
-                'no_telp' => $validated['no_telp'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'role' => 'wisatawan', // Selalu wisatawan untuk registrasi
-            ]);
-
-            Log::info('User registered', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'role' => $user->role,
-            ]);
-
-            // MODIFIKASI: Auto login dan cek intended URL
-            Auth::login($user);
-
-            $intendedUrl = session('url.intended');
-
-            if ($intendedUrl) {
-                session()->forget('url.intended');
-
-                // Add success message for feedback context
-                if (str_contains($intendedUrl, '#feedback')) {
-                    return redirect($intendedUrl)->with('success', 'Registrasi berhasil! Sekarang Anda dapat memberikan feedback.');
-                }
-
-                return redirect($intendedUrl)->with('success', 'Registrasi berhasil! Selamat datang di SanurBoat.');
-            }
-
-            // Default redirect ke dashboard jika tidak ada intended URL
-            return redirect()->route('wisatawan.dashboard')->with('success', 'Registrasi berhasil! Silakan login.');
-        } catch (Exception $e) {
-            Log::error('Registration failed', ['error' => $e->getMessage()]);
-            return back()->with('error', 'Registrasi gagal. Silakan coba lagi.')->withInput();
-        }
-    }
+    // ========== GOOGLE OAUTH METHODS ==========
 
     // Google OAuth - Redirect to Google
     public function redirectToGoogle()
@@ -332,7 +339,7 @@ class AuthController extends Controller
         }
     }
 
-    // Google OAuth - Handle callback (REGISTRASI + LOGIN SEPERTI GOOGLE UMUMNYA)
+    // Google OAuth - Handle callback (FIXED dengan auto email verification)
     public function handleGoogleCallback()
     {
         try {
@@ -348,6 +355,11 @@ class AuthController extends Controller
             $user = User::where('google_id', $googleUser->id)->first();
 
             if ($user) {
+                // PERBAIKAN: Pastikan Google user sudah verified
+                if (is_null($user->email_verified_at)) {
+                    $user->update(['email_verified_at' => now()]);
+                }
+
                 Auth::login($user);
                 Log::info('Existing Google user logged in', [
                     'user_id' => $user->id,
@@ -382,6 +394,7 @@ class AuthController extends Controller
                 $existingUser->update([
                     'google_id' => $googleUser->id,
                     'avatar' => $googleUser->avatar,
+                    'email_verified_at' => now(), // AUTO VERIFY untuk Google OAuth
                 ]);
 
                 Auth::login($existingUser);
@@ -419,6 +432,7 @@ class AuthController extends Controller
                 'password' => Hash::make(Str::random(24)), // Random password karena login pakai Google
                 'role' => 'wisatawan', // Selalu wisatawan untuk Google OAuth
                 'no_telp' => '', // Kosong, bisa diisi nanti di profile
+                'email_verified_at' => now(), // AUTO VERIFY untuk Google OAuth
             ]);
 
             Auth::login($newUser);

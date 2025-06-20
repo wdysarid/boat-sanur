@@ -328,4 +328,77 @@ class FeedbackController extends Controller
             'message' => 'Feedback berhasil dihapus',
         ]);
     }
+
+
+    /**
+     * Get feedback for landing page (public endpoint)
+     */
+    public function getFeedback()
+    {
+        try {
+            $feedbacks = Feedback::with('user')
+                ->where('status', 'disetujui')
+                ->latest()
+                ->limit(10)
+                ->get();
+
+            $data = $feedbacks->map(function ($feedback) {
+                return [
+                    'id' => $feedback->id,
+                    'rating' => $feedback->rating,
+                    'pesan' => $feedback->pesan,
+                    'created_at' => $feedback->created_at->toISOString(),
+                    'user' => [
+                        'nama' => $feedback->user->nama ?? 'Anonymous'
+                    ]
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading feedback',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Store feedback from landing page (web form submission)
+     */
+    public function storeFeedbackFromLanding(Request $request)
+    {
+        // Cek authentication dengan web guard
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk memberikan feedback.');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'pesan' => 'required|string|max:500',
+            'rating' => 'required|integer|between:1,5',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            Feedback::create([
+                'user_id' => Auth::id(),
+                'pesan' => $request->pesan,
+                'rating' => $request->rating,
+                'status' => 'pending',
+            ]);
+
+            return redirect()->back()->with('success', 'Terima kasih! Review Anda telah dikirim dan akan ditampilkan setelah disetujui admin.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim review. Silakan coba lagi.');
+        }
+    }
 }
