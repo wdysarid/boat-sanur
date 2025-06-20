@@ -34,4 +34,14 @@ class Tiket extends Model
     {
         return $this->hasOne(Pembayaran::class);
     }
+
+    public function penumpang()
+    {
+        return $this->hasMany(Penumpang::class);
+    }
+
+    public function pemesan()
+    {
+        return $this->hasOne(Penumpang::class)->where('is_pemesan', true);
+    }
 }

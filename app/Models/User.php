@@ -145,4 +145,21 @@ use HasApiTokens, HasFactory, Notifiable;
     {
         return $this->hasMany(Feedback::class);
     }
+
+    public function sebagaiPenumpang()
+    {
+        return $this->hasMany(Penumpang::class);
+    }
+
+    public function tiketSebagaiPemesan()
+    {
+        return $this->hasManyThrough(
+            Tiket::class,
+            Penumpang::class,
+            'user_id', // Foreign key pada Penumpang
+            'id', // Foreign key pada Tiket
+            'id', // Local key pada User
+            'tiket_id' // Local key pada Penumpang
+        )->where('penumpang.is_pemesan', true);
+    }
 }

@@ -7,12 +7,13 @@ use App\Models\Kapal;
 use App\Models\Tiket;
 use App\Models\Jadwal;
 use App\Models\Feedback;
-use App\Models\Pembayaran;
+use App\Models\Penumpang;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Pembayaran;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Collection;
 
 class DatabaseSeeder extends Seeder
 {
@@ -41,7 +42,7 @@ class DatabaseSeeder extends Seeder
             // 'remember_token' => Str::random(100),
         ]);
 
-                // Akun user
+        // Akun user
         User::create([
             'nama' => 'Widyasari Damayanti',
             'email' => 'widyasaridamayanti@gmail.com',
@@ -119,6 +120,28 @@ class DatabaseSeeder extends Seeder
             $tiket->update([
                 'status' => $statuses[array_rand($statuses)],
             ]);
+        }
+
+        // Buat data penumpang untuk setiap tiket
+        foreach ($tikets as $tiket) {
+            // Dapatkan user pemesan
+            $userPemesan = User::find($tiket->user_id);
+
+            // Buat penumpang utama (pemesan) menggunakan factory
+            Penumpang::factory()
+                ->pemesan($userPemesan)
+                ->create([
+                    'tiket_id' => $tiket->id,
+                ]);
+
+            // Buat penumpang tambahan jika jumlah penumpang > 1
+            if ($tiket->jumlah_penumpang > 1) {
+                Penumpang::factory()
+                    ->count($tiket->jumlah_penumpang - 1)
+                    ->create([
+                        'tiket_id' => $tiket->id,
+                    ]);
+            }
         }
 
         // Buat pembayaran
