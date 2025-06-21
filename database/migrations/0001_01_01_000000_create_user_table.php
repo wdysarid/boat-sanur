@@ -19,7 +19,10 @@ return new class extends Migration
             $table->string('password');
             $table->string('foto_user')->nullable();
             $table->string('role')->default('wisatawan');
-            // $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('password_changed_at')->nullable();
+            $table->string('google_id')->nullable();
+            $table->string('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

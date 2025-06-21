@@ -20,6 +20,10 @@ class Tiket extends Model
         'status',
     ];
 
+    protected $casts = [
+    'status' => 'string', 
+];
+
     public function user()
     {
         return $this->belongsTo(User::class);

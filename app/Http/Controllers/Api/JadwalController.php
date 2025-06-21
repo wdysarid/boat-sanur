@@ -258,6 +258,17 @@ class JadwalController extends Controller
 
     public function search(Request $request)
     {
+        if (!$request->hasAny(['from', 'to', 'departure_date'])) {
+            return view('search-tickets', [
+                'tickets' => [],
+                'searchParams' => [
+                    'from' => 'Sanur',
+                    'to' => 'Nusa Penida',
+                    'departure_date' => date('Y-m-d'),
+                ]
+            ]);
+        }
+
         $request->validate([
             'from' => 'required|string',
             'to' => 'required|string|different:from',

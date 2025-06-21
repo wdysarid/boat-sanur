@@ -7,9 +7,10 @@ use App\Http\Controllers\Api\KapalController;
 use App\Http\Controllers\Api\TiketController;
 use App\Http\Controllers\api\JadwalController;
 use App\Http\Controllers\Api\FeedbackController;
-use App\Http\Controllers\Api\PembayaranController;
+use App\Http\Controllers\Api\PenumpangController;
 
 // TAMBAHAN: Import controller untuk web feedback
+use App\Http\Controllers\Api\PembayaranController;
 use App\Http\Controllers\FeedbackController as WebFeedbackController;
 
 Route::get('user', [AuthController::class, 'getUser']); // buat test aja ini
@@ -60,6 +61,10 @@ Route::prefix('tiket')->group(function () {
     Route::get('/', [TiketController::class, 'getTiketSaya']);
     Route::get('/{id}', [TiketController::class, 'getTiketDetail']);
     Route::post('/{id}/batal', [TiketController::class, 'batalkanTiket']);
+
+    Route::prefix('/{tiket}/penumpang')->group(function () {
+        Route::post('/', [PenumpangController::class, 'store']);
+    });
 });
 
 // Pembayaran (Payment) Routes
