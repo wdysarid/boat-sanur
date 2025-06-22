@@ -536,77 +536,102 @@
             const submitBtn = form.querySelector('button[type="submit"]');
 
             // Form submission handler
-// Ganti event listener submit dengan ini:
-form.addEventListener('submit', async function(e) {
-    e.preventDefault();
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...';
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML =
+                    '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...';
 
-    try {
-        const formData = new FormData(form);
+                try {
+                    // Collect all form data
+                    const formData = {
+                        jadwal_id: form.querySelector('[name="jadwal_id"]').value,
+                        departure_date: form.querySelector('[name="departure_date"]').value,
+                        from: form.querySelector('[name="from"]').value,
+                        to: form.querySelector('[name="to"]').value,
+                        passenger_count: form.querySelector('[name="passenger_count"]').value,
+                        nama_lengkap: form.querySelector('[name="nama_lengkap"]').value,
+                        no_identitas: form.querySelector('[name="no_identitas"]').value,
+                        usia: form.querySelector('[name="usia"]').value,
+                        jenis_kelamin: form.querySelector('[name="jenis_kelamin"]').value,
+                        email: form.querySelector('[name="email"]').value,
+                        no_telpon: form.querySelector('[name="no_telpon"]').value,
+                        terms: form.querySelector('[name="terms"]').checked ? '1' : '0',
+                        passengers: []
+                    };
 
-        // Tambahkan penumpang tambahan ke formData
-        const passengerCount = parseInt(document.getElementById('passenger_count').value);
-        if (passengerCount > 1) {
-            const passengers = [];
-            for (let i = 2; i <= passengerCount; i++) {
-                passengers.push({
-                    nama_lengkap: document.getElementById(`passenger_${i}_nama`).value,
-                    no_identitas: document.getElementById(`passenger_${i}_identitas`).value,
-                    usia: document.getElementById(`passenger_${i}_usia`).value,
-                    jenis_kelamin: document.getElementById(`passenger_${i}_gender`).value
-                });
+                    // Collect additional passengers
+                    const passengerCount = parseInt(document.getElementById('passenger_count').value);
+                    if (passengerCount > 1) {
+                        for (let i = 2; i <= passengerCount; i++) {
+                            formData.passengers.push({
+                                nama_lengkap: document.getElementById(`passenger_${i}_nama`).value,
+                                no_identitas: document.getElementById(`passenger_${i}_identitas`).value,
+                                usia: document.getElementById(`passenger_${i}_usia`).value,
+                                jenis_kelamin: document.getElementById(`passenger_${i}_gender`).value
+                            });
+                        }
+                    }
+
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .content
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        // Display validation errors if any
+                        if (data.errors) {
+                            let errorMessages = [];
+                            for (const [field, errors] of Object.entries(data.errors)) {
+                                errorMessages.push(...errors);
+                            }
+                            showToast(errorMessages.join('<br>'), 'error');
+                        } else {
+                            throw new Error(data.message || 'Terjadi kesalahan server');
+                        }
+                    } else if (data.success && data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        throw new Error(data.message || 'Pemesanan gagal');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast(error.message, 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Lanjutkan ke Pembayaran';
+                }
+            });
+
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toast-container') || document.body;
+
+                // Remove existing toasts
+                document.querySelectorAll('.custom-toast').forEach(toast => toast.remove());
+
+                const toast = document.createElement('div');
+                toast.className = `custom-toast fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+                    type === 'success' ? 'bg-green-500' :
+                    type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                }`;
+                toast.innerHTML = message; // Allows HTML content
+
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 5000);
             }
-            formData.append('passengers', JSON.stringify(passengers));
-        }
-
-        const response = await fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Terjadi kesalahan server');
-        }
-
-        if (data.success && data.redirect) {
-            window.location.href = data.redirect;
-        } else {
-            throw new Error(data.message || 'Pemesanan gagal');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showToast(error.message, 'error');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Lanjutkan ke Pembayaran';
-    }
-});
-
-// Fungsi showToast sama seperti di profile.blade.php
-function showToast(message, type = 'info') {
-    const container = document.getElementById('toast-container') || document.body;
-
-    const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
-        type === 'success' ? 'bg-green-500' :
-        type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-    }`;
-    toast.textContent = message;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 5000);
-}
 
             function calculateTotalPrice() {
                 const passengerCount = parseInt(document.getElementById('passenger_count').value);

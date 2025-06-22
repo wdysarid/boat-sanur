@@ -20,9 +20,9 @@ class Tiket extends Model
         'status',
     ];
 
-    protected $casts = [
-    'status' => 'string', 
-];
+    public const STATUS_MENUNGGU = 'menunggu';
+    public const STATUS_DIBATALKAN = 'dibatalkan';
+    public const STATUS_SUKSES = 'sukses';
 
     public function user()
     {

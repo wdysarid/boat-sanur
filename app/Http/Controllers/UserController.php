@@ -399,25 +399,34 @@ class UserController extends Controller
     {
         DB::beginTransaction();
         try {
-            $validator = Validator::make($request->all(), [
-                'jadwal_id' => 'required|exists:jadwal,id',
-                'departure_date' => 'required|date',
-                'from' => 'required|string',
-                'to' => 'required|string',
-                'passenger_count' => 'required|integer|min:1|max:10',
-                'nama_lengkap' => 'required|string|max:255',
-                'no_identitas' => 'required|string|max:50',
-                'usia' => 'required|integer|min:1|max:120',
-                'jenis_kelamin' => ['required', Rule::in(['laki-laki', 'perempuan'])],
-                'email' => 'required|email',
-                'no_telpon' => 'required|string',
-                'terms' => 'required|accepted',
-                'passengers' => 'sometimes|array',
-                'passengers.*.nama_lengkap' => 'required_with:passengers|string|max:255',
-                'passengers.*.no_identitas' => 'required_with:passengers|string|max:50',
-                'passengers.*.usia' => 'required_with:passengers|integer|min:1|max:120',
-                'passengers.*.jenis_kelamin' => ['required_with:passengers', Rule::in(['laki-laki', 'perempuan'])],
-            ]);
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'jadwal_id' => 'required|exists:jadwal,id',
+                    'departure_date' => 'required|date',
+                    'from' => 'required|string',
+                    'to' => 'required|string',
+                    'passenger_count' => 'required|integer|min:1|max:10',
+                    'nama_lengkap' => 'required|string|max:255',
+                    'no_identitas' => 'required|string|max:50',
+                    'usia' => 'required|integer|min:1|max:120',
+                    'jenis_kelamin' => ['required', Rule::in(['laki-laki', 'perempuan'])],
+                    'email' => 'required|email',
+                    'no_telpon' => 'required|string',
+                    'terms' => 'required|accepted',
+                    'passengers' => 'nullable|array',
+                    'passengers.*.nama_lengkap' => 'required_with:passengers|string|max:255',
+                    'passengers.*.no_identitas' => 'required_with:passengers|string|max:50',
+                    'passengers.*.usia' => 'required_with:passengers|integer|min:1|max:120',
+                    'passengers.*.jenis_kelamin' => ['required_with:passengers', Rule::in(['laki-laki', 'perempuan'])],
+                ],
+                [
+                    'passengers.*.nama_lengkap.required_with' => 'Nama lengkap penumpang tambahan wajib diisi',
+                    'passengers.*.no_identitas.required_with' => 'Nomor identitas penumpang tambahan wajib diisi',
+                    'passengers.*.usia.required_with' => 'Usia penumpang tambahan wajib diisi',
+                    'passengers.*.jenis_kelamin.required_with' => 'Jenis kelamin penumpang tambahan wajib dipilih',
+                ],
+            );
 
             if ($validator->fails()) {
                 return response()->json(
@@ -430,24 +439,20 @@ class UserController extends Controller
                 );
             }
 
-            // Proses pemesanan
             $jadwal = Jadwal::findOrFail($request->jadwal_id);
-            $totalHarga = $jadwal->harga_tiket * $request->passenger_count + 5000;
+            $totalHarga = $jadwal->harga_tiket * $request->passenger_count + 5000; // + biaya admin
 
             // Buat tiket
             $tiket = Tiket::create([
                 'user_id' => auth()->id(),
                 'jadwal_id' => $request->jadwal_id,
-                'kode_tiket' => 'TKT-' . strtoupper(uniqid()),
-                'tanggal_berangkat' => $request->departure_date,
-                'rute_awal' => $request->from,
-                'rute_tujuan' => $request->to,
+                'kode_pemesanan' => 'TKT-' . strtoupper(uniqid()),
                 'jumlah_penumpang' => $request->passenger_count,
                 'total_harga' => $totalHarga,
-                'status' => 'pending_payment', // Pastikan ini string dengan tanda kutip
+                'status' => Tiket::STATUS_MENUNGGU,
             ]);
 
-            // Simpan data penumpang
+            // Simpan data penumpang utama (pemesan)
             $penumpangData = [
                 [
                     'tiket_id' => $tiket->id,
@@ -457,22 +462,29 @@ class UserController extends Controller
                     'usia' => $request->usia,
                     'jenis_kelamin' => $request->jenis_kelamin,
                     'is_pemesan' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
             ];
 
+            // Tambahkan penumpang tambahan jika ada
             if ($request->has('passengers')) {
                 foreach ($request->passengers as $passenger) {
                     $penumpangData[] = [
                         'tiket_id' => $tiket->id,
+                        'user_id' => null, // Penumpang tambahan tidak punya user_id
                         'nama_lengkap' => $passenger['nama_lengkap'],
                         'no_identitas' => $passenger['no_identitas'],
                         'usia' => $passenger['usia'],
                         'jenis_kelamin' => $passenger['jenis_kelamin'],
                         'is_pemesan' => false,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
                 }
             }
 
+            // Insert semua penumpang sekaligus
             Penumpang::insert($penumpangData);
 
             DB::commit();
