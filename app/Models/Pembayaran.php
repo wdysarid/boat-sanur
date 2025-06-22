@@ -19,6 +19,10 @@ class Pembayaran extends Model
         'status',
     ];
 
+    public const STATUS_MENUNGGU = 'menunggu';
+    public const STATUS_TERVERIFIKASI = 'terverifikasi';
+    public const STATUS_DITOLAK = 'ditolak';
+
     public function tiket()
     {
         return $this->belongsTo(Tiket::class);
@@ -45,4 +49,6 @@ class Pembayaran extends Model
     }
 
     protected $appends = ['bukti_transfer_url'];
+
+    
 }

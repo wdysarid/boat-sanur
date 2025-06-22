@@ -507,6 +507,80 @@ class UserController extends Controller
         }
     }
 
+    public function pembayaran(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $tiketId = $request->query('tiket_id');
+
+            // Jika datang dari pemesanan dengan tiket_id
+            if ($tiketId) {
+                $tiket = Tiket::with(['jadwal.kapal', 'pembayaran'])
+                            ->where('id', $tiketId)
+                            ->where('user_id', $user->id)
+                            ->firstOrFail();
+
+                if ($tiket->status !== 'menunggu') {
+                    return redirect()->route('wisatawan.tiket')->with('error', 'Tiket sudah diproses');
+                }
+
+                $pembayaran = $tiket->pembayaran ?? null;
+
+                return view('wisatawan.pembayaran', [
+                    'booking' => $this->formatBookingData($tiket),
+                    'pembayaran' => $pembayaran
+                ]);
+            }
+
+            // Jika datang dari dashboard, cari tiket terbaru yang menunggu pembayaran
+            $tiket = Tiket::with(['jadwal.kapal', 'pembayaran'])
+                        ->where('user_id', $user->id)
+                        ->where('status', 'menunggu')
+                        ->latest()
+                        ->first();
+
+            if (!$tiket) {
+                // Tampilkan empty state
+                return view('wisatawan.pembayaran', [
+                    'booking' => null,
+                    'pembayaran' => null
+                ]);
+            }
+
+            return view('wisatawan.pembayaran', [
+                'booking' => $this->formatBookingData($tiket),
+                'pembayaran' => $tiket->pembayaran
+            ]);
+
+        } catch (\Exception $e) {
+            return redirect()->route('wisatawan.dashboard')
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+        }
+    }
+
+    private function formatBookingData($tiket)
+    {
+        $jadwal = $tiket->jadwal;
+
+        return [
+            'id' => $tiket->id,
+            'kode_pemesanan' => $tiket->kode_pemesanan,
+            'from' => $jadwal->rute_asal,
+            'to' => $jadwal->rute_tujuan,
+            'departure_date' => $jadwal->tanggal,
+            'passenger_count' => $tiket->jumlah_penumpang,
+            'ticket_price' => $jadwal->harga_tiket,
+            'admin_fee' => 5000, // Biaya tetap
+            'total_amount' => $tiket->total_harga,
+            'status' => $tiket->status,
+            'jadwal' => [
+                'waktu_berangkat' => $jadwal->waktu_berangkat,
+                'waktu_tiba' => $jadwal->waktu_tiba,
+                'kapal' => $jadwal->kapal->nama_kapal
+            ]
+        ];
+    }
+
     /**
      * API request helper
      */

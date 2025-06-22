@@ -75,4 +75,16 @@ class Jadwal extends Model
     {
         return $query->where('tanggal', $tanggal);
     }
+
+    public function pembayaran()
+    {
+        return $this->hasManyThrough(
+            Pembayaran::class,  // Model target
+            Tiket::class,       // Model perantara
+            'jadwal_id',        // FK di model perantara (Tiket)
+            'tiket_id',         // FK di model target (Pembayaran)
+            'id',               // PK di model saat ini (Jadwal)
+            'id'                // PK di model perantara (Tiket)
+        );
+    }
 }
