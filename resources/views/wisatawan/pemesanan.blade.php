@@ -3,6 +3,34 @@
 @section('title', 'Pemesanan Tiket')
 
 @section('content')
+    @if (!isset($ticket) || !$ticket)
+        <!-- Modal Pilih Jadwal -->
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-10 flex items-center justify-center z-50 px-4">
+            <div class="bg-white rounded-xl p-6 max-w-md w-full">
+                <div class="flex justify-center mb-4">
+                    <svg class="h-12 w-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 text-center mb-2">Belum Memilih Jadwal</h3>
+                <p class="text-sm text-gray-500 text-center mb-6">
+                    Silakan pilih jadwal perjalanan terlebih dahulu untuk melanjutkan pemesanan.
+                </p>
+                <div class="flex flex-col space-y-3">
+                    <a href="{{ route('search.tickets') }}"
+                        class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-center">
+                        Cari Jadwal Sekarang
+                    </a>
+                    <a href="{{ route('wisatawan.dashboard') }}"
+                        class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-center">
+                        Kembali ke Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="min-h-screen bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Header -->
@@ -105,7 +133,8 @@
                                             readonly>
                                         <button type="button" id="increasePassengers"
                                             class="px-3 py-2 bg-gray-200 text-gray-700 rounded-r-lg hover:bg-gray-300 transition-colors">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 4v16m8-8H4" />
                                             </svg>
@@ -415,6 +444,15 @@
             // Initialize passenger forms
             updatePassengerForms();
 
+            const modal = document.querySelector('.fixed.inset-0');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.remove();
+                    }
+                });
+            }
+
             // Event listeners for passenger count buttons
             decreaseBtn.addEventListener('click', function() {
                 if (parseInt(passengerCountInput.value) > 1) {
@@ -567,10 +605,13 @@
                     if (passengerCount > 1) {
                         for (let i = 2; i <= passengerCount; i++) {
                             formData.passengers.push({
-                                nama_lengkap: document.getElementById(`passenger_${i}_nama`).value,
-                                no_identitas: document.getElementById(`passenger_${i}_identitas`).value,
+                                nama_lengkap: document.getElementById(`passenger_${i}_nama`)
+                                    .value,
+                                no_identitas: document.getElementById(
+                                    `passenger_${i}_identitas`).value,
                                 usia: document.getElementById(`passenger_${i}_usia`).value,
-                                jenis_kelamin: document.getElementById(`passenger_${i}_gender`).value
+                                jenis_kelamin: document.getElementById(`passenger_${i}_gender`)
+                                    .value
                             });
                         }
                     }

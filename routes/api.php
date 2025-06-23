@@ -74,6 +74,7 @@ Route::prefix('pembayaran')->group(function () {
     Route::post('/', [PembayaranController::class, 'uploadBuktiBayar']);
     Route::get('/', [PembayaranController::class, 'getRiwayatPembayaran']);
     Route::get('/{id}', [PembayaranController::class, 'getDetailPembayaran']);
+    Route::post('/batal', [PembayaranController::class, 'cancelPayment']);
 
     // Admin routes
     Route::middleware('can:admin')->group(function () {

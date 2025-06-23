@@ -186,8 +186,58 @@
                                     </div>
                                 </div>
 
-                                <!-- E-Wallet Options -->
+                                <!-- QRIS Payment -->
                                 <div class="border border-gray-200 rounded-lg">
+                                    <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 rounded-lg">
+                                        <input type="radio" name="payment_method" value="qris"
+                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center">
+                                                <svg class="w-6 h-6 text-green-600 mr-3" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                </svg>
+                                                <span class="font-medium text-gray-900">QRIS</span>
+                                            </div>
+                                            <p class="text-sm text-gray-500 mt-1">Bayar dengan QR Code (Gopay, OVO, DANA,
+                                                dll)</p>
+                                        </div>
+                                    </label>
+
+                                    <!-- QRIS Details -->
+                                    <div id="qris_details" class="px-4 pb-4 border-t border-gray-100 hidden">
+                                        <div class="mt-4 text-center">
+                                            <div
+                                                class="mx-auto bg-white p-4 rounded-lg border border-gray-200 inline-block mb-4">
+                                                <img src="{{ asset('images/qris.png') }}" alt="QRIS Payment"
+                                                    class="w-48 h-48">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <!-- Transfer Instructions -->
+                                            <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                                                <h4 class="font-medium text-blue-900 mb-3">Instruksi Pembayaran
+                                                    QRIS:</h4>
+                                                <ol class="text-sm text-blue-800 space-y-1">
+                                                    <li>1. Buka aplikasi dompet digital atau mobile banking Anda</li>
+                                                    <li>2. Pilih fitur scan QRIS dan arahkan kamera ke QR code di atas
+                                                    </li>
+                                                    <li>3. Pastikan nominal sesuai dengan total pembayaran dan
+                                                        selesaikan pembayaran</li>
+                                                    <li>4. Upload bukti transfer di bawah ini</li>
+                                                    <li>5. Kami akan verifikasi pembayaran dalam 1-2 jam</li>
+                                                    <li>6. E-tiket akan dikirim via email setelah verifikasi</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                <!-- E-Wallet Options -->
+                                {{-- <div class="border border-gray-200 rounded-lg">
                                     <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 rounded-lg">
                                         <input type="radio" name="payment_method" value="ewallet"
                                             class="h-4 w-4 text-blue-600 focus:ring-blue-500">
@@ -250,10 +300,10 @@
                                             </label>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <!-- Credit Card -->
-                                <div class="border border-gray-200 rounded-lg">
+                                {{-- <div class="border border-gray-200 rounded-lg">
                                     <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 rounded-lg">
                                         <input type="radio" name="payment_method" value="credit_card"
                                             class="h-4 w-4 text-blue-600 focus:ring-blue-500">
@@ -301,7 +351,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 
@@ -355,7 +405,8 @@
                                     class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                                 <label for="payment_terms" class="text-sm text-gray-700">
                                     Saya menyetujui <a href="#"
-                                        class="text-blue-600 hover:underline font-medium">syarat dan ketentuan
+                                        class="text-blue-600 hover:underline font-medium">syarat dan
+                                        ketentuan
                                         pembayaran</a>
                                     dan memahami bahwa pemesanan akan dikonfirmasi setelah verifikasi pembayaran.
                                     <span class="text-red-500">*</span>
@@ -514,73 +565,149 @@
             // Payment method toggle
             const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
             const bankTransferDetails = document.getElementById('bank_transfer_details');
-            const ewalletDetails = document.getElementById('ewallet_details');
-            const creditCardDetails = document.getElementById('credit_card_details');
+            const qrisDetails = document.getElementById('qris_details');
+            // const ewalletDetails = document.getElementById('ewallet_details');
+            // const creditCardDetails = document.getElementById('credit_card_details');
             const uploadSection = document.getElementById('upload_section');
+
+            document.querySelector('input[name="payment_method"][value="bank_transfer"]').checked = true;
+            bankTransferDetails.style.display = 'block';
+            uploadSection.style.display = 'block';
+            qrisDetails.classList.add('hidden');
 
             paymentMethods.forEach(method => {
                 method.addEventListener('change', function() {
                     // Hide all details
                     bankTransferDetails.style.display = 'none';
-                    ewalletDetails.classList.add('hidden');
-                    creditCardDetails.classList.add('hidden');
+                    qrisDetails.classList.add('hidden');
+                    // ewalletDetails.classList.add('hidden');
+                    // creditCardDetails.classList.add('hidden');
                     uploadSection.style.display = 'none';
 
                     // Show relevant details
                     if (this.value === 'bank_transfer') {
                         bankTransferDetails.style.display = 'block';
                         uploadSection.style.display = 'block';
-                    } else if (this.value === 'ewallet') {
-                        ewalletDetails.classList.remove('hidden');
-                    } else if (this.value === 'credit_card') {
-                        creditCardDetails.classList.remove('hidden');
-                    }
+                    } else if (this.value === 'qris') {
+                        qrisDetails.classList.remove('hidden');
+                        uploadSection.style.display = 'block';
+                    } // else if (this.value === 'ewallet') {
+                    //     ewalletDetails.classList.remove('hidden');
+                    // } else if (this.value === 'credit_card') {
+                    //     creditCardDetails.classList.remove('hidden');
+                    // }
                 });
             });
 
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showToast('Nomor rekening berhasil disalin!', 'success');
+                }).catch(function(err) {
+                    console.error('Could not copy text: ', err);
+                    showToast('Gagal menyalin nomor rekening', 'error');
+                });
+            }
             // Initialize with bank transfer selected
             bankTransferDetails.style.display = 'block';
             uploadSection.style.display = 'block';
 
             // Payment countdown timer
-            let timeLeft = 15 * 60; // 15 minutes in seconds
-            const countdownElement = document.getElementById('countdown');
+            // Payment countdown timer
+            function startCountdown() {
+                let timeLeft = 15 * 60; // 15 minutes in seconds
+                const countdownElement = document.getElementById('countdown');
+                const bookingId = document.querySelector('input[name="booking_id"]').value;
 
-            function updateCountdown() {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                countdownElement.textContent =
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                async function cancelPayment() {
+                    try {
+                        const response = await fetch('/api/pembayaran/batal', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content
+                            },
+                            body: JSON.stringify({
+                                booking_id: bookingId,
+                                reason: 'Waktu pembayaran habis'
+                            })
+                        });
 
-                if (timeLeft <= 0) {
-                    alert('Waktu pembayaran telah habis. Silakan lakukan pemesanan ulang.');
-                    window.location.href = '{{ route('wisatawan.dashboard') }}';
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            console.error('Gagal membatalkan pemesanan:', data.message);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
                 }
 
-                timeLeft--;
+                function updateCountdown() {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    countdownElement.textContent =
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        countdownElement.textContent = '00:00';
+                        countdownElement.classList.add('text-red-600', 'font-bold');
+
+                        // Tampilkan modal/alert bahwa waktu habis
+                        showToast('Waktu pembayaran telah habis. Pemesanan dibatalkan.', 'error');
+
+                        // Kirim request untuk membatalkan pembayaran
+                        cancelPayment();
+
+                        // Redirect setelah 5 detik
+                        setTimeout(() => {
+                            window.location.href = '{{ route('wisatawan.pemesanan') }}?timeout=true';
+                        }, 5000);
+                        return;
+                    }
+
+                    // Ubah warna jadi merah ketika sisa waktu 5 menit
+                    if (timeLeft <= 300) { // 5 menit = 300 detik
+                        countdownElement.classList.add('text-red-600');
+                    }
+
+                    timeLeft--;
+                }
+
+                updateCountdown(); // Initial call
+                const timer = setInterval(updateCountdown, 1000);
+
+                return timer;
             }
 
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
+            // Start the countdown
+            const countdownTimer = startCountdown();
 
             // Form submission
             const paymentForm = document.getElementById('paymentForm');
             const paymentBtn = document.getElementById('paymentBtn');
 
-            paymentForm.addEventListener('submit', function(e) {
+            paymentForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                const submitBtn = document.getElementById('paymentBtn');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML =
-                    '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses Pembayaran...';
+                // Disable submit button
+                paymentBtn.disabled = true;
+                paymentBtn.innerHTML =
+                    '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
+                    '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
+                    '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>' +
+                    '</svg> Memproses Pembayaran...';
 
                 try {
                     const formData = new FormData();
-                    formData.append('tiket_id', document.querySelector('input[name="booking_id"]').value);
+                    formData.append('tiket_id', document.querySelector('input[name="booking_id"]')
+                        .value);
                     formData.append('metode_bayar', document.querySelector(
                         'input[name="payment_method"]:checked').value);
-                    formData.append('jumlah_bayar', document.querySelector('input[name="total_amount"]')
+                    formData.append('jumlah_bayar', document.querySelector(
+                            'input[name="total_amount"]')
                         .value);
 
                     // Jika transfer bank, tambahkan bukti transfer
@@ -589,6 +716,8 @@
                         const fileInput = document.getElementById('payment_proof');
                         if (fileInput.files[0]) {
                             formData.append('bukti_transfer', fileInput.files[0]);
+                        } else {
+                            throw new Error('Harap upload bukti transfer');
                         }
                     }
 
@@ -596,7 +725,8 @@
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]')
                                 .content
                         },
                         body: formData
@@ -610,27 +740,17 @@
 
                     // Redirect ke halaman konfirmasi dengan ID pembayaran
                     window.location.href =
-                    `{{ route('wisatawan.konfirmasi') }}?payment_id=${data.data.id}`;
+                        `{{ route('wisatawan.konfirmasi') }}?payment_id=${data.data.id}`;
 
                 } catch (error) {
                     showToast(error.message, 'error');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Proses Pembayaran';
+                    paymentBtn.disabled = false;
+                    paymentBtn.innerHTML =
+                        '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />' +
+                        '</svg>' +
+                        'Proses Pembayaran';
                 }
-
-                // Disable submit button
-                paymentBtn.disabled = true;
-                paymentBtn.innerHTML =
-                    '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Memproses Pembayaran...';
-
-                // Simulate processing
-                setTimeout(() => {
-                    alert(
-                        'Pembayaran berhasil diproses! Anda akan diarahkan ke halaman konfirmasi.'
-                        );
-                    window.location.href = '{{ route('wisatawan.konfirmasi') }}';
-                }, 2000);
             });
         });
 
@@ -677,6 +797,32 @@
             setTimeout(() => {
                 toast.remove();
             }, 3000);
+        }
+
+        // Fungsi untuk menampilkan modal timeout
+        function showTimeoutModal() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 max-w-md w-full">
+            <div class="flex justify-center mb-4">
+                <svg class="h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 text-center mb-2">Waktu Pembayaran Habis</h3>
+            <p class="text-sm text-gray-500 text-center mb-4">
+                Maaf, waktu pembayaran Anda telah habis. Silakan lakukan pemesanan ulang.
+            </p>
+            <div class="flex justify-center">
+                <button onclick="this.parentElement.parentElement.remove(); window.location.href='{{ route('wisatawan.pemesanan') }}'"
+                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    Kembali ke Pemesanan
+                </button>
+            </div>
+        </div>
+    `;
+            document.body.appendChild(modal);
         }
     </script>
 @endpush

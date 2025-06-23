@@ -22,48 +22,57 @@ class PembayaranController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(
+                [
+                    'success' => false,
+                    'errors' => $validator->errors(),
+                ],
+                422,
+            );
         }
 
         $user = $request->user();
-        $tiket = Tiket::where('id', $request->tiket_id)
-                    ->where('user_id', $user->id)
-                    ->first();
+        $tiket = Tiket::where('id', $request->tiket_id)->where('user_id', $user->id)->first();
 
         if (!$tiket || $tiket->status !== 'menunggu') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tiket tidak valid untuk pembayaran'
-            ], 400);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Tiket tidak valid untuk pembayaran',
+                ],
+                400,
+            );
         }
 
         try {
             $file = $request->file('bukti_transfer');
-            $fileName = 'payment_'.time().'_'.$user->id.'.'.$file->getClientOriginalExtension();
+            $fileName = 'payment_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('public/bukti_pembayaran', $fileName);
 
             $pembayaran = Pembayaran::create([
                 'tiket_id' => $tiket->id,
                 'metode_bayar' => $request->metode_bayar,
                 'jumlah_bayar' => $request->jumlah_bayar,
-                'bukti_transfer' => 'bukti_pembayaran/'.$fileName,
+                'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
                 'status' => 'menunggu',
             ]);
 
-            return response()->json([
-                'success' => true,
-                'data' => $pembayaran,
-                'message' => 'Bukti pembayaran berhasil diunggah'
-            ], 201);
-
+            return response()->json(
+                [
+                    'success' => true,
+                    'data' => $pembayaran,
+                    'message' => 'Bukti pembayaran berhasil diunggah',
+                ],
+                201,
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengunggah bukti pembayaran'
-            ], 500);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Gagal mengunggah bukti pembayaran',
+                ],
+                500,
+            );
         }
     }
 
@@ -76,7 +85,7 @@ class PembayaranController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $pembayarans
+            'data' => $pembayarans,
         ]);
     }
 
@@ -88,45 +97,57 @@ class PembayaranController extends Controller
             ->find($id);
 
         if (!$pembayaran) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pembayaran tidak ditemukan'
-            ], 404);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Pembayaran tidak ditemukan',
+                ],
+                404,
+            );
         }
 
         return response()->json([
             'success' => true,
-            'data' => $pembayaran
+            'data' => $pembayaran,
         ]);
     }
 
     public function verifikasiPembayaran(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'status' => 'required|in:terverifikasi,ditolak'
+            'status' => 'required|in:terverifikasi,ditolak',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(
+                [
+                    'success' => false,
+                    'errors' => $validator->errors(),
+                ],
+                422,
+            );
         }
 
         $pembayaran = Pembayaran::with('tiket')->find($id);
 
         if (!$pembayaran) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pembayaran tidak ditemukan'
-            ], 404);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Pembayaran tidak ditemukan',
+                ],
+                404,
+            );
         }
 
         if ($pembayaran->status !== 'menunggu') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pembayaran sudah diproses sebelumnya'
-            ], 400);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Pembayaran sudah diproses sebelumnya',
+                ],
+                400,
+            );
         }
 
         DB::transaction(function () use ($pembayaran, $request) {
@@ -139,7 +160,41 @@ class PembayaranController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Status pembayaran diperbarui'
+            'message' => 'Status pembayaran diperbarui',
         ]);
+    }
+
+    public function cancelPayment(Request $request)
+    {
+        $request->validate([
+            'tiket_id' => 'required|exists:tiket,id',
+            // 'reason' => 'required|string',
+        ]);
+
+        try {
+            $booking = Tiket::findOrFail($request->tiket_id);
+
+            // Update status pemesanan
+            $booking->update([
+                'status' => 'dibatalkan',
+                // 'alasan_batal' => $request->reason,
+            ]);
+
+            // Kirim notifikasi ke user
+            // ... kode untuk mengirim email/notifikasi
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pemesanan berhasil dibatalkan',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Gagal membatalkan pemesanan: ' . $e->getMessage(),
+                ],
+                500,
+            );
+        }
     }
 }
