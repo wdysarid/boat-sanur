@@ -11,18 +11,19 @@ class Pembayaran extends Model
 
     protected $table = 'pembayaran';
 
-    protected $fillable = [
-        'tiket_id',
-        'metode_bayar',
-        'jumlah_bayar',
-        'bukti_transfer',
-        'status',
-    ];
+    protected $fillable = ['tiket_id', 'metode_bayar', 'jumlah_bayar', 'bukti_transfer', 'status'];
 
     public const STATUS_MENUNGGU = 'menunggu';
     public const STATUS_TERVERIFIKASI = 'terverifikasi';
     public const STATUS_DITOLAK = 'ditolak';
 
+    public function getMetodeBayarTextAttribute()
+    {
+        return [
+            'transfer' => 'Transfer Bank',
+            'qris' => 'QRIS',
+        ][$this->metode_bayar] ?? $this->metode_bayar;
+    }
     public function tiket()
     {
         return $this->belongsTo(Tiket::class);
@@ -37,7 +38,8 @@ class Pembayaran extends Model
             'id', // Foreign key di Tiket (referensi dari tiket_id di Pembayaran)
             'id', // Foreign key di User (referensi dari user_id di Tiket)
             'tiket_id', // Local key di Pembayaran
-            'user_id'); // Local key di Tiket
+            'user_id',
+        ); // Local key di Tiket
     }
 
     public function getBuktiTransferUrlAttribute()
@@ -49,6 +51,4 @@ class Pembayaran extends Model
     }
 
     protected $appends = ['bukti_transfer_url'];
-
-    
 }

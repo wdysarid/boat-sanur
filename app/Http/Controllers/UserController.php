@@ -7,10 +7,12 @@ use App\Models\Tiket;
 use App\Models\Jadwal;
 use App\Models\Feedback;
 use App\Models\Penumpang;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -509,76 +511,106 @@ class UserController extends Controller
 
     public function pembayaran(Request $request)
     {
-        try {
-            $user = $request->user();
-            $tiketId = $request->query('tiket_id');
+        $tiket = Tiket::with(['jadwal.kapal'])
+            ->where('id', $request->query('tiket_id'))
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
 
-            // Jika datang dari pemesanan dengan tiket_id
-            if ($tiketId) {
-                $tiket = Tiket::with(['jadwal.kapal', 'pembayaran'])
-                            ->where('id', $tiketId)
-                            ->where('user_id', $user->id)
-                            ->firstOrFail();
+        // Hitung ulang untuk memastikan
+        $biaya_admin = 5000;
+        $total_harga = $tiket->jadwal->harga_tiket * $tiket->jumlah_penumpang + $biaya_admin;
 
-                if ($tiket->status !== 'menunggu') {
-                    return redirect()->route('wisatawan.tiket')->with('error', 'Tiket sudah diproses');
-                }
-
-                $pembayaran = $tiket->pembayaran ?? null;
-
-                return view('wisatawan.pembayaran', [
-                    'booking' => $this->formatBookingData($tiket),
-                    'pembayaran' => $pembayaran
-                ]);
-            }
-
-            // Jika datang dari dashboard, cari tiket terbaru yang menunggu pembayaran
-            $tiket = Tiket::with(['jadwal.kapal', 'pembayaran'])
-                        ->where('user_id', $user->id)
-                        ->where('status', 'menunggu')
-                        ->latest()
-                        ->first();
-
-            if (!$tiket) {
-                // Tampilkan empty state
-                return view('wisatawan.pembayaran', [
-                    'booking' => null,
-                    'pembayaran' => null
-                ]);
-            }
-
-            return view('wisatawan.pembayaran', [
-                'booking' => $this->formatBookingData($tiket),
-                'pembayaran' => $tiket->pembayaran
-            ]);
-
-        } catch (\Exception $e) {
-            return redirect()->route('wisatawan.dashboard')
-                ->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+        // Update jika ada perbedaan
+        if ($tiket->total_harga != $total_harga) {
+            $tiket->update(['total_harga' => $total_harga]);
         }
+
+        return view('wisatawan.pembayaran', [
+            'tiket' => [
+                'id' => $tiket->id,
+                'kode_pemesanan' => $tiket->kode_pemesanan,
+                'rute_asal' => $tiket->jadwal->rute_asal,
+                'rute_tujuan' => $tiket->jadwal->rute_tujuan,
+                'tanggal' => $tiket->jadwal->tanggal,
+                'jumlah_penumpang' => $tiket->jumlah_penumpang,
+                'harga_tiket' => $tiket->jadwal->harga_tiket,
+                'biaya_admin' => $biaya_admin,
+                'total_harga' => $tiket->$total_harga, // Gunakan yang dihitung ulang
+                'status' => $tiket->status,
+                'jadwal' => [
+                    'waktu_berangkat' => $tiket->jadwal->waktu_berangkat,
+                    'waktu_tiba' => $tiket->jadwal->waktu_tiba,
+                    'kapal' => $tiket->jadwal->kapal->nama_kapal,
+                ],
+            ],
+        ]);
     }
 
-    private function formatBookingData($tiket)
+    public function prosesPembayaran(Request $request)
     {
-        $jadwal = $tiket->jadwal;
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'tiket_id' => 'required|exists:tiket,id',
+                'metode_bayar' => 'required|in:transfer,qris',
+                'bukti_transfer' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
 
-        return [
-            'id' => $tiket->id,
-            'kode_pemesanan' => $tiket->kode_pemesanan,
-            'from' => $jadwal->rute_asal,
-            'to' => $jadwal->rute_tujuan,
-            'departure_date' => $jadwal->tanggal,
-            'passenger_count' => $tiket->jumlah_penumpang,
-            'ticket_price' => $jadwal->harga_tiket,
-            'admin_fee' => 5000, // Biaya tetap
-            'total_amount' => $tiket->total_harga,
-            'status' => $tiket->status,
-            'jadwal' => [
-                'waktu_berangkat' => $jadwal->waktu_berangkat,
-                'waktu_tiba' => $jadwal->waktu_tiba,
-                'kapal' => $jadwal->kapal->nama_kapal
-            ]
-        ];
+            if ($validator->fails()) {
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Validasi gagal',
+                        'errors' => $validator->errors(),
+                    ],
+                    422,
+                );
+            }
+
+            $user = $request->user();
+            $tiket = Tiket::where('id', $request->tiket_id)->where('user_id', $user->id)->firstOrFail();
+
+            if ($tiket->status !== 'menunggu') {
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Tiket tidak valid untuk pembayaran',
+                    ],
+                    400,
+                );
+            }
+
+            // Upload bukti pembayaran
+            $file = $request->file('bukti_transfer');
+            $fileName = 'payment_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/bukti_pembayaran', $fileName);
+
+            // Buat pembayaran
+            $pembayaran = Pembayaran::create([
+                'tiket_id' => $tiket->id,
+                'metode_bayar' => $request->metode_bayar,
+                'jumlah_bayar' => $tiket->total_harga, // Ambil langsung dari tiket
+                'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
+                'status' => 'menunggu',
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran berhasil diproses',
+                'redirect' => route('wisatawan.konfirmasi', ['payment_id' => $pembayaran->id]),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                ],
+                500,
+            );
+        }
     }
 
     /**

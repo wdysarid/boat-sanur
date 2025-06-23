@@ -80,12 +80,14 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Payment Methods Section -->
                 <div class="lg:col-span-2">
-                    <form id="paymentForm" method="POST" action="#" enctype="multipart/form-data" class="space-y-6">
+                    <form id="paymentForm" method="POST" action="{{ route('wisatawan.pembayaran.proses') }}"
+                        enctype="multipart/form-data" class="space-y-6">
                         @csrf
 
                         <!-- Hidden booking data -->
-                        <input type="hidden" name="booking_id" value="{{ $booking['id'] ?? '' }}">
-                        <input type="hidden" name="total_amount" value="{{ $booking['total_amount'] ?? 0 }}">
+                        <input type="hidden" name="tiket_id" value="{{ $tiket['id'] ?? '' }}">
+                        <input type="hidden" name="jumlah_bayar" value="{{ $tiket['total_harga'] ?? 0 }}">
+                        <input type="hidden" name="metode_bayar" id="selected_payment_method" value="">
 
                         <!-- Payment Timer -->
                         <div class="bg-red-50 border border-red-200 rounded-xl p-6">
@@ -110,7 +112,7 @@
                             <div class="space-y-4">
                                 <div class="border border-gray-200 rounded-lg">
                                     <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 rounded-lg">
-                                        <input type="radio" name="payment_method" value="bank_transfer"
+                                        <input type="radio" name="payment_method" value="transfer"
                                             class="h-4 w-4 text-blue-600 focus:ring-blue-500" checked>
                                         <div class="ml-4 flex-1">
                                             <div class="flex items-center justify-between">
@@ -360,9 +362,9 @@
                             <h3 class="text-xl font-semibold text-gray-900 mb-4">Upload Bukti Pembayaran</h3>
                             <div
                                 class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-                                <input type="file" name="payment_proof" id="payment_proof" accept="image/*"
+                                <input type="file" name="bukti_transfer" id="bukti_transfer" accept="image/*"
                                     class="hidden" onchange="handleFileUpload(this)">
-                                <label for="payment_proof" class="cursor-pointer">
+                                <label for="bukti_transfer" class="cursor-pointer">
                                     <svg class="mx-auto h-16 w-16 text-gray-400" stroke="currentColor" fill="none"
                                         viewBox="0 0 48 48">
                                         <path
@@ -375,7 +377,7 @@
                                                 upload</span>
                                             atau drag and drop
                                         </p>
-                                        <p class="text-sm text-gray-500 mt-1">PNG, JPG, JPEG maksimal 5MB</p>
+                                        <p class="text-sm text-gray-500 mt-1">PNG, JPG, JPEG maksimal 2MB</p>
                                     </div>
                                 </label>
                             </div>
@@ -437,29 +439,29 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6">
                         <h2 class="text-xl font-semibold text-gray-900 mb-6">Ringkasan Pembayaran</h2>
 
-                        @if ($booking)
+                        @if ($tiket)
                             <!-- Booking Details -->
                             <div class="space-y-3 mb-6">
                                 <div class="flex justify-between text-sm">
                                     <span class="text-gray-600">ID Pemesanan</span>
-                                    <span class="font-medium">{{ $booking['kode_pemesanan'] }}</span>
+                                    <span class="font-medium">{{ $tiket['kode_pemesanan'] }}</span>
                                 </div>
                                 <div class="flex justify-between text-sm">
                                     <span class="text-gray-600">Rute</span>
                                     <span class="font-medium">
-                                        {{ ucfirst($booking['from']) }} →
-                                        {{ ucfirst($booking['to']) }}
+                                        {{ ucfirst($tiket['rute_asal']) }} →
+                                        {{ ucfirst($tiket['rute_tujuan']) }}
                                     </span>
                                 </div>
                                 <div class="flex justify-between text-sm">
                                     <span class="text-gray-600">Tanggal</span>
                                     <span class="font-medium">
-                                        {{ \Carbon\Carbon::parse($booking['departure_date'])->format('d M Y') }}
+                                        {{ \Carbon\Carbon::parse($tiket['tanggal'])->format('d M Y') }}
                                     </span>
                                 </div>
                                 <div class="flex justify-between text-sm">
                                     <span class="text-gray-600">Penumpang</span>
-                                    <span class="font-medium">{{ $booking['passenger_count'] }} orang</span>
+                                    <span class="font-medium">{{ $tiket['jumlah_penumpang'] }} orang</span>
                                 </div>
                             </div>
 
@@ -468,21 +470,21 @@
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="text-sm text-gray-600">Harga Tiket</span>
                                     <span class="text-sm">Rp
-                                        {{ number_format($booking['ticket_price'], 0, ',', '.') }}</span>
+                                        {{ number_format($tiket['harga_tiket'], 0, ',', '.') }}</span>
                                 </div>
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="text-sm text-gray-600">Jumlah</span>
-                                    <span class="text-sm">{{ $booking['passenger_count'] }}x</span>
+                                    <span class="text-sm">{{ $tiket['jumlah_penumpang'] }}x</span>
                                 </div>
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="text-sm text-gray-600">Biaya Admin</span>
                                     <span class="text-sm">Rp
-                                        {{ number_format($booking['admin_fee'], 0, ',', '.') }}</span>
+                                        {{ number_format($tiket['biaya_admin'], 0, ',', '.') }}</span>
                                 </div>
                                 <div class="flex justify-between items-center font-semibold text-lg border-t pt-2">
                                     <span>Total Pembayaran</span>
                                     <span class="text-blue-600">
-                                        Rp {{ number_format($booking['total_amount'], 0, ',', '.') }}
+                                        Rp {{ number_format($tiket['total_harga'], 0, ',', '.') }}
                                     </span>
                                 </div>
                             </div>
@@ -570,7 +572,7 @@
             // const creditCardDetails = document.getElementById('credit_card_details');
             const uploadSection = document.getElementById('upload_section');
 
-            document.querySelector('input[name="payment_method"][value="bank_transfer"]').checked = true;
+            document.querySelector('input[name="payment_method"][value="transfer"]').checked = true;
             bankTransferDetails.style.display = 'block';
             uploadSection.style.display = 'block';
             qrisDetails.classList.add('hidden');
@@ -585,7 +587,7 @@
                     uploadSection.style.display = 'none';
 
                     // Show relevant details
-                    if (this.value === 'bank_transfer') {
+                    if (this.value === 'transfer') {
                         bankTransferDetails.style.display = 'block';
                         uploadSection.style.display = 'block';
                     } else if (this.value === 'qris') {
@@ -616,7 +618,7 @@
             function startCountdown() {
                 let timeLeft = 15 * 60; // 15 minutes in seconds
                 const countdownElement = document.getElementById('countdown');
-                const bookingId = document.querySelector('input[name="booking_id"]').value;
+                const tiketId = document.querySelector('input[name="tiket_id"]').value;
 
                 async function cancelPayment() {
                     try {
@@ -629,7 +631,7 @@
                                     .content
                             },
                             body: JSON.stringify({
-                                booking_id: bookingId,
+                                tiket_id: tiketId,
                                 reason: 'Waktu pembayaran habis'
                             })
                         });
@@ -685,9 +687,22 @@
             // Start the countdown
             const countdownTimer = startCountdown();
 
+            document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('selected_payment_method').value = this.value;
+                });
+            });
+
             // Form submission
             const paymentForm = document.getElementById('paymentForm');
             const paymentBtn = document.getElementById('paymentBtn');
+
+            document.getElementById('selected_payment_method').value = 'transfer';
+            document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('selected_payment_method').value = this.value;
+                });
+            });
 
             paymentForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -701,32 +716,13 @@
                     '</svg> Memproses Pembayaran...';
 
                 try {
-                    const formData = new FormData();
-                    formData.append('tiket_id', document.querySelector('input[name="booking_id"]')
-                        .value);
-                    formData.append('metode_bayar', document.querySelector(
-                        'input[name="payment_method"]:checked').value);
-                    formData.append('jumlah_bayar', document.querySelector(
-                            'input[name="total_amount"]')
-                        .value);
+                    const formData = new FormData(paymentForm);
 
-                    // Jika transfer bank, tambahkan bukti transfer
-                    if (document.querySelector('input[name="payment_method"]:checked').value ===
-                        'bank_transfer') {
-                        const fileInput = document.getElementById('payment_proof');
-                        if (fileInput.files[0]) {
-                            formData.append('bukti_transfer', fileInput.files[0]);
-                        } else {
-                            throw new Error('Harap upload bukti transfer');
-                        }
-                    }
-
-                    const response = await fetch('/api/pembayaran', {
+                    const response = await fetch(paymentForm.action, {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
                                 .content
                         },
                         body: formData
@@ -735,15 +731,24 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        throw new Error(data.message || 'Gagal memproses pembayaran');
+                        if (data.errors) {
+                            // Handle Laravel validation errors
+                            let errorMessages = [];
+                            for (const field in data.errors) {
+                                errorMessages.push(...data.errors[field]);
+                            }
+                            showToast(errorMessages.join('<br>'), 'error', 5000);
+                        } else {
+                            showToast(data.message || 'Terjadi kesalahan', 'error');
+                        }
+                        return;
                     }
 
-                    // Redirect ke halaman konfirmasi dengan ID pembayaran
-                    window.location.href =
-                        `{{ route('wisatawan.konfirmasi') }}?payment_id=${data.data.id}`;
+                    window.location.href = data.redirect;
 
                 } catch (error) {
                     showToast(error.message, 'error');
+                } finally {
                     paymentBtn.disabled = false;
                     paymentBtn.innerHTML =
                         '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
@@ -776,7 +781,7 @@
 
         // Remove file function
         function removeFile() {
-            const fileInput = document.getElementById('payment_proof');
+            const fileInput = document.getElementById('bukti_transfer');
             const filePreview = document.getElementById('file_preview');
 
             fileInput.value = '';
@@ -784,21 +789,38 @@
         }
 
         // Toast notification function
-        function showToast(message, type = 'info') {
+        //     function showToast(message, type = 'info') {
+        //         const toast = document.createElement('div');
+        //         toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+    //     type === 'success' ? 'bg-green-500' :
+    //     type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    // }`;
+        //         toast.textContent = message;
+
+        //         document.body.appendChild(toast);
+
+        //         setTimeout(() => {
+        //             toast.remove();
+        //         }, 3000);
+        //     }
+
+        function showToast(message, type = 'info', duration = 3000) {
+            // Hapus toast yang ada
+            document.querySelectorAll('.custom-toast').forEach(toast => toast.remove());
+
             const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+            toast.className = `custom-toast fixed top-4 right-4 px-4 py-3 rounded-lg text-white z-50 ${
         type === 'success' ? 'bg-green-500' :
         type === 'error' ? 'bg-red-500' : 'bg-blue-500'
     }`;
-            toast.textContent = message;
+            toast.innerHTML = message; // Gunakan innerHTML untuk menerima tag <br>
 
             document.body.appendChild(toast);
 
             setTimeout(() => {
                 toast.remove();
-            }, 3000);
+            }, duration);
         }
-
         // Fungsi untuk menampilkan modal timeout
         function showTimeoutModal() {
             const modal = document.createElement('div');

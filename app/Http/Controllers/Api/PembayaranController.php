@@ -16,7 +16,7 @@ class PembayaranController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'tiket_id' => 'required|exists:tiket,id',
-            'metode_bayar' => 'required|string|in:transfer,bank,cash',
+            'metode_bayar' => 'required|string|in:transfer,qris',
             'jumlah_bayar' => 'required|numeric|min:1',
             'bukti_transfer' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
