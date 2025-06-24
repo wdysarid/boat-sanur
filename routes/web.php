@@ -90,6 +90,14 @@ Route::middleware(['auth.role:admin'])
             return view('admin.payments');
         })->name('payments');
 
+        Route::get('/passengers', function () {
+            return view('admin.passengers');
+        })->name('passengers');
+
+        Route::get('/show', function () {
+            return view('admin.show');
+        })->name('show');
+
         Route::get('/feedback', [AdminController::class, 'indexFeedback'])->name('feedback');
         Route::get('/feedback/data', [AdminController::class, 'getFeedbackData'])->name('feedback.data');
     });

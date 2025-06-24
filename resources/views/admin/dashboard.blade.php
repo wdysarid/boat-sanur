@@ -2,224 +2,248 @@
 
 @section('title', 'Dashboard')
 
-@section('header', 'Dashboard')
-
 @section('content')
-<div class="space-y-6">
-    <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            <span class="text-sm text-gray-500">
-                {{ now()->format('d F Y') }}
-            </span>
-        </div>
+<div class="p-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <h class="text-2xl font-bold text-gray-900">Dashboard</h>
+        <p class="text-gray-600">{{ now()->format('d F Y') }}</p>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-primary-light">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 3v18h18"></path>
-                            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Total Penjualan</p>
-                        <h3 class="text-2xl font-semibold text-gray-800" id="total-sales-amount">Rp 12,345,678</h3>
-                        <p class="text-xs text-muted-foreground flex items-center">
-                            <span id="total-sales-trend">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <span id="total-sales-percentage" class="text-green-500">11.01%</span> dari bulan lalu
-                        </p>
-                    </div>
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500">Pendapatan Bulan Ini</p>
+                    <p class="text-2xl font-bold text-gray-900">Rp 12.5M</p>
                 </div>
             </div>
         </div>
 
-        <!-- Other summary cards with similar styling -->
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-primary-light">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Total Pelanggan</p>
-                        <h3 class="text-2xl font-semibold text-gray-800">1,234</h3>
-                        <p class="text-xs text-muted-foreground flex items-center">
-                            <span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <span class="text-green-500">8.5%</span> dari bulan lalu
-                        </p>
-                    </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500">Total Penumpang</p>
+                    <p class="text-2xl font-bold text-gray-900">1,234</p>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-primary-light">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 10c0 0-3-3-9-3s-9 3-9 3"></path>
-                            <path d="M3 10v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M12 7v6"></path>
-                            <path d="M12 13l-3-3"></path>
-                            <path d="M12 13l3-3"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Total Kapal</p>
-                        <h3 class="text-2xl font-semibold text-gray-800">12</h3>
-                        <p class="text-xs text-muted-foreground flex items-center">
-                            <span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <span class="text-green-500">2 kapal</span> baru bulan ini
-                        </p>
-                    </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-purple-100 rounded-lg">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500">Jadwal Hari Ini</p>
+                    <p class="text-2xl font-bold text-gray-900">8</p>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-primary-light">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Destinasi</p>
-                        <h3 class="text-2xl font-semibold text-gray-800">8</h3>
-                        <p class="text-xs text-muted-foreground flex items-center">
-                            <span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <span class="text-green-500">1 destinasi</span> baru bulan ini
-                        </p>
-                    </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-orange-100 rounded-lg">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10c0 0-3-3-9-3s-9 3-9 3"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500">Kapal Aktif</p>
+                    <p class="text-2xl font-bold text-gray-900">6/12</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div class="col-span-4 card">
-            <div class="card-header">
-                <h3 class="card-title">Penjualan Bulanan</h3>
-                <div class="flex items-center space-x-2">
-                    <button class="text-xs text-gray-500 hover:text-primary">Lihat Detail</button>
-                </div>
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Aktivitas Hari Ini -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Aktivitas Hari Ini</h3>
             </div>
-            <div class="card-body">
-                <div class="h-[300px] sales-chart-container">
-                    <div class="flex h-full items-end gap-2">
-                        @foreach(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as $index => $month)
-                            @php
-                                $heights = [40, 90, 50, 70, 45, 50, 70, 30, 50, 80, 60, 30];
-                                $height = $heights[$index];
-                            @endphp
-                            <div class="chart-bar bg-primary rounded-md w-full" style="height: {{ $height }}%"></div>
-                        @endforeach
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-600">45</div>
+                        <p class="text-sm text-gray-500">Penumpang Hari Ini</p>
                     </div>
-                    <div class="flex justify-between mt-2 text-xs text-gray-500">
-                        @foreach(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as $month)
-                            <div class="chart-label">{{ $month }}</div>
-                        @endforeach
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600">23</div>
+                        <p class="text-sm text-gray-500">Booking Baru</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-purple-600">Rp 850K</div>
+                        <p class="text-sm text-gray-500">Pendapatan Hari Ini</p>
+                    </div>
+                </div>
+
+                <!-- Status Penumpang -->
+                <div class="mt-8">
+                    <h4 class="text-md font-medium text-gray-900 mb-4">Status Penumpang</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-600">Completed</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">28</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-600">Boarded</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">12</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-600">Checked In</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">5</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-span-3 card">
-            <div class="card-header">
-                <h3 class="card-title">Target Bulanan</h3>
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs text-gray-500">Mei 2025</span>
-                </div>
+        <!-- Menu Cepat -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Menu Cepat</h3>
             </div>
-            <div class="card-body">
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="text-sm font-medium">Penjualan Tiket</div>
-                            <div class="text-sm font-medium">75%</div>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-primary h-2 rounded-full" style="width: 75%"></div>
-                        </div>
+            <div class="p-6 space-y-3">
+                <a href="{{ route('admin.passengers') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="bg-blue-100 rounded-lg p-2 mr-3">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
                     </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="text-sm font-medium">Pendapatan</div>
-                            <div class="text-sm font-medium">68%</div>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-primary h-2 rounded-full" style="width: 68%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="text-sm font-medium">Pelanggan Baru</div>
-                            <div class="text-sm font-medium">82%</div>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-primary h-2 rounded-full" style="width: 82%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="text-sm font-medium">Rating</div>
-                            <div class="text-sm font-medium">92%</div>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-primary h-2 rounded-full" style="width: 92%"></div>
-                        </div>
-                    </div>
-                </div>
+                    <span class="font-medium text-gray-900">Kelola Penumpang</span>
+                </a>
 
-                <div class="mt-6 grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <div class="text-sm font-medium text-gray-500 mb-1">Target Pendapatan</div>
-                        <div class="text-xl font-semibold text-gray-800">Rp 50,000,000</div>
+                <a href="{{ route('admin.schedule') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="bg-green-100 rounded-lg p-2 mr-3">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <div class="text-sm font-medium text-gray-500 mb-1">Pendapatan Saat Ini</div>
-                        <div class="text-xl font-semibold text-primary">Rp 34,250,000</div>
+                    <span class="font-medium text-gray-900">Jadwal & Tiket</span>
+                </a>
+
+                <a href="{{ route('admin.boats') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="bg-purple-100 rounded-lg p-2 mr-3">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10c0 0-3-3-9-3s-9 3-9 3"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        </svg>
                     </div>
-                </div>
+                    <span class="font-medium text-gray-900">Kelola Kapal</span>
+                </a>
+
+                <a href="{{ route('admin.payments') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="bg-orange-100 rounded-lg p-2 mr-3">
+                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    </div>
+                    <span class="font-medium text-gray-900">Verifikasi Pembayaran</span>
+                </a>
+
+                <a href="{{ route('admin.feedback') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="bg-gray-100 rounded-lg p-2 mr-3">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <span class="font-medium text-gray-900">Feedback</span>
+                </a>
             </div>
         </div>
     </div>
 
+    <!-- Jadwal Hari Ini -->
+    <div class="mt-6 bg-white rounded-lg shadow">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Jadwal Hari Ini</h3>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-medium text-gray-500">Waktu</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-500">Rute</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-500">Kapal</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-500">Penumpang</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-500">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="py-3 px-4 text-sm text-gray-900">08:00</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">Sanur - Nusa Penida</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">Fast Boat 1</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">45/50</td>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    Berangkat
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 text-sm text-gray-900">09:30</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">Sanur - Nusa Lembongan</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">Ocean Star</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">32/40</td>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    Boarding
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 text-sm text-gray-900">11:00</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">Nusa Penida - Sanur</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">Island Express</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">28/50</td>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Menunggu
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 text-sm text-gray-900">14:00</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">Sanur - Gili Trawangan</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">Gili Express</td>
+                            <td class="py-3 px-4 text-sm text-gray-900">15/35</td>
+                            <td class="py-3 px-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    Terjadwal
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
-
-@push('scripts')
-    @vite('resources/js/dashboard.js')
-@endpush
