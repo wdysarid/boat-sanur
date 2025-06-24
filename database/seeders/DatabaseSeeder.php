@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             'no_telp' => '081234567890',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
+            'email_verified_at' => '2025-06-24 00:00:00', // Set tanggal verifikasi email
             // 'remember_token' => Str::random(100),
         ]);
 
@@ -49,6 +50,7 @@ class DatabaseSeeder extends Seeder
             'no_telp' => '081238267420',
             'password' => Hash::make('wdy123'),
             'role' => 'wisatawan',
+            'email_verified_at' => '2025-06-24 00:00:00', // Set tanggal verifikasi email
             // 'remember_token' => Str::random(100),
         ]);
 

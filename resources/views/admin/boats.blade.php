@@ -6,7 +6,7 @@
 @section('content')
 
 <!-- Statistics Section -->
-<div class="bg-white rounded-lg shadow">
+<div class="bg-white rounded-lg shadow mb-6">
     <div class="px-6 py-4 border-b border-gray-200">
         <h3 class="text-lg font-medium text-gray-800">Statistik Kapal</h3>
     </div>

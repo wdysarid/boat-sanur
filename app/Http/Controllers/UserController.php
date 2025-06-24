@@ -193,9 +193,9 @@ class UserController extends Controller
                 return response()->json(
                     [
                         'success' => false,
-                        'message' => 'Password saat ini tidak benar',
+                        'message' => 'Password saat ini tidak benar dan mungkin merupakan akun Google',
                         'errors' => [
-                            'current_password' => ['Password saat ini tidak benar'],
+                            'current_password' => ['Password saat ini tidak benar dan mungkin merupakan akun Google'],
                         ],
                     ],
                     422,

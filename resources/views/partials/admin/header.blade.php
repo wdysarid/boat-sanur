@@ -80,17 +80,6 @@
                             </div>
                         </div>
 
-                        <!-- Menu items -->
-                        <div class="py-2">
-                            <a href="#"
-                               class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
-                                <svg class="mr-3 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                Edit Profile
-                            </a>
-                        </div>
-
                         <!-- Logout section -->
                         <div class="border-t border-gray-100">
                             <button type="button" id="logoutButton"
