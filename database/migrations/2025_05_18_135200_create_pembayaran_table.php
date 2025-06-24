@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('jumlah_bayar');
             $table->string('bukti_transfer')->nullable(); // nama file / path
             $table->enum('status', ['menunggu', 'terverifikasi', 'ditolak'])->default('menunggu');
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });
     }

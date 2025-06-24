@@ -55,6 +55,7 @@ class PembayaranController extends Controller
                 'jumlah_bayar' => $request->jumlah_bayar,
                 'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
                 'status' => 'menunggu',
+                'expires_at' => now()->addMinutes(15), // Tambahkan waktu kadaluarsa
             ]);
 
             return response()->json(
@@ -89,7 +90,6 @@ class PembayaranController extends Controller
         ]);
     }
 
-    // Get payment details (unchanged)
     public function getDetailPembayaran(Request $request, $id)
     {
         $pembayaran = Pembayaran::with(['tiket.jadwal.kapal'])
@@ -166,35 +166,98 @@ class PembayaranController extends Controller
 
     public function cancelPayment(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'tiket_id' => 'required|exists:tiket,id',
-            // 'reason' => 'required|string',
+            'reason' => 'nullable|string',
         ]);
 
-        try {
-            $booking = Tiket::findOrFail($request->tiket_id);
-
-            // Update status pemesanan
-            $booking->update([
-                'status' => 'dibatalkan',
-                // 'alasan_batal' => $request->reason,
-            ]);
-
-            // Kirim notifikasi ke user
-            // ... kode untuk mengirim email/notifikasi
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Pemesanan berhasil dibatalkan',
-            ]);
-        } catch (\Exception $e) {
+        if ($validator->fails()) {
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Gagal membatalkan pemesanan: ' . $e->getMessage(),
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors(),
+                ],
+                422,
+            );
+        }
+
+        DB::beginTransaction();
+        try {
+            $tiket = Tiket::find($request->tiket_id);
+
+            // Verifikasi kepemilikan tiket
+            if ($tiket->user_id !== auth()->id()) {
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Anda tidak memiliki akses ke tiket ini',
+                    ],
+                    403,
+                );
+            }
+
+            // Update status tiket dan pembayaran
+            $tiket->update(['status' => 'dibatalkan']);
+
+            $pembayaran = $tiket->pembayaran()->where('status', 'menunggu')->first();
+            if ($pembayaran) {
+                $pembayaran->update([
+                    'status' => 'dibatalkan',
+                    'expires_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran berhasil dibatalkan',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
                 ],
                 500,
             );
         }
+    }
+
+    public function checkPaymentStatus(Request $request)
+    {
+        $user = $request->user();
+
+        // Cari pembayaran aktif
+        $activePembayaran = Pembayaran::with(['tiket.jadwal'])
+            ->whereHas('tiket', function ($query) use ($user) {
+                $query->where('user_id', $user->id)->where('status', 'menunggu');
+            })
+            ->where('status', 'menunggu')
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->first();
+
+        if (!$activePembayaran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada pembayaran aktif',
+                'hasActivePayment' => false,
+            ]);
+        }
+
+        $remainingSeconds = max(0, now()->diffInSeconds($activePembayaran->expires_at, false));
+
+        return response()->json([
+            'success' => true,
+            'hasActivePayment' => true,
+            'data' => [
+                'tiket_id' => $activePembayaran->tiket_id,
+                'remaining_seconds' => $remainingSeconds,
+                'expires_at' => $activePembayaran->expires_at,
+            ],
+        ]);
     }
 }

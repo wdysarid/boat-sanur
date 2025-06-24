@@ -103,13 +103,11 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
             return view('wisatawan.dashboard');
         })->name('dashboard');
 
-        Route::get('/pemesanan', function () {
-            return view('wisatawan.pemesanan');
-        })->name('pemesanan');
+        Route::get('/pemesanan', [UserController::class, 'pemesanan'])->name('pemesanan');
+        Route::post('/pemesanan/proses', [UserController::class, 'prosesPemesanan'])->name('pemesanan.proses');
 
-        Route::get('/pembayaran', function () {
-            return view('wisatawan.pembayaran');
-        })->name('pembayaran');
+        Route::get('/pembayaran', [UserController::class, 'pembayaran'])->name('pembayaran');
+        Route::post('/pembayaran/proses', [UserController::class, 'prosesPembayaran'])->name('pembayaran.proses');
 
         Route::get('/konfirmasi', function () {
             return view('wisatawan.konfirmasi');
@@ -141,11 +139,5 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
         })->name('feedback');
 
         Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])->name('feedback.tambah');
-
-        Route::get('/pemesanan', [UserController::class, 'pemesanan'])->name('pemesanan');
-        Route::post('/pemesanan/proses', [UserController::class, 'prosesPemesanan'])->name('pemesanan.proses');
-
-        Route::get('/pembayaran', [UserController::class, 'pembayaran'])->name('pembayaran');
-        Route::post('/pembayaran/proses', [UserController::class, 'prosesPembayaran'])->name('pembayaran.proses');
 
     });

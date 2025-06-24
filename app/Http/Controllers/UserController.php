@@ -39,20 +39,18 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         try {
-            $user = auth()->user(); // Get authenticated user
+            $user = auth()->user();
 
-            // PERBAIKAN: Validasi sesuai dengan frontend (hanya nama dan email required)
             $validator = Validator::make(
                 $request->all(),
                 [
                     'nama' => 'required|string|min:2|max:255',
                     'email' => ['required', 'email', 'max:255', 'unique:user,email,' . $user->id . ',id'],
-                    'no_telp' => 'nullable|string|max:20|regex:/^[0-9+\-\s]+$/', // OPTIONAL dan dengan regex pattern
+                    'no_telp' => 'nullable|string|max:20|regex:/^[0-9+\-\s]+$/',
                     'foto_user' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                     'remove_photo' => 'sometimes|boolean',
                 ],
                 [
-                    // Custom error messages dalam bahasa Indonesia
                     'nama.required' => 'Nama lengkap wajib diisi',
                     'nama.min' => 'Nama lengkap minimal 2 karakter',
                     'nama.max' => 'Nama lengkap maksimal 255 karakter',
@@ -68,7 +66,6 @@ class UserController extends Controller
                 ],
             );
 
-            // PERBAIKAN: Return validation errors dalam format yang sesuai dengan frontend
             if ($validator->fails()) {
                 return response()->json(
                     [
@@ -82,17 +79,12 @@ class UserController extends Controller
 
             $validated = $validator->validated();
 
-            // Handle photo removal
             if ($request->input('remove_photo') == '1') {
-                // Hapus foto lama jika ada (tapi jangan hapus Google avatar)
                 if ($user->foto_user && Storage::disk('public')->exists($user->foto_user)) {
                     Storage::disk('public')->delete($user->foto_user);
                 }
-                $validated['foto_user'] = null; // Set ke null untuk menghapus path foto
-            }
-            // Handle file upload
-            elseif ($request->hasFile('foto_user')) {
-                // Hapus foto lama jika ada (tapi jangan hapus Google avatar)
+                $validated['foto_user'] = null;
+            } elseif ($request->hasFile('foto_user')) {
                 if ($user->foto_user && Storage::disk('public')->exists($user->foto_user)) {
                     Storage::disk('public')->delete($user->foto_user);
                 }
@@ -103,7 +95,6 @@ class UserController extends Controller
                 $validated['foto_user'] = $path;
             }
 
-            // PERBAIKAN: Hanya update field yang ada dalam validated data
             $updateData = [];
 
             if (isset($validated['nama'])) {
@@ -114,7 +105,6 @@ class UserController extends Controller
                 $updateData['email'] = $validated['email'];
             }
 
-            // PERBAIKAN: Handle no_telp yang bisa kosong
             if (array_key_exists('no_telp', $validated)) {
                 $updateData['no_telp'] = $validated['no_telp'] ?? '';
             }
@@ -124,8 +114,6 @@ class UserController extends Controller
             }
 
             $user->update($updateData);
-
-            // PERBAIKAN: Refresh user data untuk response
             $user->refresh();
 
             return response()->json([
@@ -143,7 +131,6 @@ class UserController extends Controller
                 422,
             );
         } catch (\Exception $e) {
-            // Log error untuk debugging
             logger()->error('Profile update error', [
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage(),
@@ -160,15 +147,11 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * BARU: Handle change password
-     */
     public function changePassword(Request $request)
     {
         try {
             $user = auth()->user();
 
-            // Cek apakah user login dengan Google (tidak punya password)
             if ($user->google_id && !$user->password) {
                 return response()->json(
                     [
@@ -206,7 +189,6 @@ class UserController extends Controller
                 );
             }
 
-            // Cek password saat ini
             if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json(
                     [
@@ -220,7 +202,6 @@ class UserController extends Controller
                 );
             }
 
-            // Cek apakah password baru sama dengan password lama
             if (Hash::check($request->new_password, $user->password)) {
                 return response()->json(
                     [
@@ -234,12 +215,10 @@ class UserController extends Controller
                 );
             }
 
-            // Update password
             $user->update([
                 'password' => Hash::make($request->new_password),
             ]);
 
-            // Log activity
             logger()->info('Password changed successfully', [
                 'user_id' => $user->id,
                 'email' => $user->email,
@@ -277,9 +256,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Show feedback form view
-     */
     public function feedbackForm()
     {
         return view('wisatawan.feedback-form')->with([
@@ -287,19 +263,14 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Handle feedback submission
-     */
     public function tambahFeedback(Request $request)
     {
-        // Cek apakah user sudah pernah memberikan feedback
         $existingFeedback = Feedback::where('user_id', auth()->id())->first();
 
         if ($existingFeedback) {
             return back()->with('error', 'Anda sudah memberikan feedback sebelumnya.');
         }
 
-        // Validasi input
         $validator = Validator::make(
             $request->all(),
             [
@@ -320,7 +291,6 @@ class UserController extends Controller
         }
 
         try {
-            // Create feedback
             $feedback = Feedback::create([
                 'user_id' => auth()->id(),
                 'pesan' => $request->pesan,
@@ -350,9 +320,6 @@ class UserController extends Controller
         try {
             $jadwalId = $request->query('jadwal_id');
 
-            // if (!$jadwalId) {
-            //     return redirect()->route('wisatawan.dashboard')->with('error', 'Jadwal tidak valid');
-            // }
             if (!$jadwalId) {
                 return view('wisatawan.pemesanan', [
                     'ticket' => null,
@@ -360,7 +327,6 @@ class UserController extends Controller
                 ]);
             }
 
-            // Dapatkan data jadwal dari API
             $response = $this->apiRequest('GET', '/jadwal/' . $jadwalId);
 
             if (!$response['success']) {
@@ -442,9 +408,8 @@ class UserController extends Controller
             }
 
             $jadwal = Jadwal::findOrFail($request->jadwal_id);
-            $totalHarga = $jadwal->harga_tiket * $request->passenger_count + 5000; // + biaya admin
+            $totalHarga = $jadwal->harga_tiket * $request->passenger_count + 5000;
 
-            // Buat tiket
             $tiket = Tiket::create([
                 'user_id' => auth()->id(),
                 'jadwal_id' => $request->jadwal_id,
@@ -454,7 +419,6 @@ class UserController extends Controller
                 'status' => Tiket::STATUS_MENUNGGU,
             ]);
 
-            // Simpan data penumpang utama (pemesan)
             $penumpangData = [
                 [
                     'tiket_id' => $tiket->id,
@@ -469,12 +433,11 @@ class UserController extends Controller
                 ],
             ];
 
-            // Tambahkan penumpang tambahan jika ada
             if ($request->has('passengers')) {
                 foreach ($request->passengers as $passenger) {
                     $penumpangData[] = [
                         'tiket_id' => $tiket->id,
-                        'user_id' => null, // Penumpang tambahan tidak punya user_id
+                        'user_id' => null,
                         'nama_lengkap' => $passenger['nama_lengkap'],
                         'no_identitas' => $passenger['no_identitas'],
                         'usia' => $passenger['usia'],
@@ -486,7 +449,6 @@ class UserController extends Controller
                 }
             }
 
-            // Insert semua penumpang sekaligus
             Penumpang::insert($penumpangData);
 
             DB::commit();
@@ -511,41 +473,94 @@ class UserController extends Controller
 
     public function pembayaran(Request $request)
     {
-        $tiket = Tiket::with(['jadwal.kapal'])
-            ->where('id', $request->query('tiket_id'))
-            ->where('user_id', $request->user()->id)
-            ->firstOrFail();
+        try {
+            $user = $request->user();
 
-        // Hitung ulang untuk memastikan
+            // Cari tiket aktif yang menunggu pembayaran
+            $tiket = Tiket::with(['jadwal.kapal', 'pembayaran'])
+                ->where('user_id', $user->id)
+                ->where('status', 'menunggu')
+                ->where(function ($query) {
+                    $query->whereDoesntHave('pembayaran')->orWhereHas('pembayaran', function ($q) {
+                        $q->where('status', 'menunggu')->where(function ($q2) {
+                            $q2->whereNull('expires_at')->orWhere('expires_at', '>', now());
+                        });
+                    });
+                })
+                ->latest()
+                ->first();
+
+            if (!$tiket) {
+                return view('wisatawan.pembayaran', [
+                    'tiket' => null,
+                    'hasActivePayment' => false,
+                ]);
+            }
+
+            // Cek atau buat pembayaran
+            $pembayaran = $tiket->pembayaran()->where('status', 'menunggu')->first();
+
+            if (!$pembayaran) {
+                $pembayaran = Pembayaran::create([
+                    'tiket_id' => $tiket->id,
+                    'metode_bayar' => 'transfer',
+                    'jumlah_bayar' => $tiket->total_harga,
+                    'status' => 'menunggu',
+                    'expires_at' => now()->addMinutes(15),
+                ]);
+            }
+            // Jika sudah ada pembayaran tapi belum ada expires_at
+            elseif (!$pembayaran->expires_at) {
+                $pembayaran->update(['expires_at' => now()->addMinutes(15)]);
+            }
+
+            // Hitung sisa waktu dalam detik
+            $remainingSeconds = $pembayaran->expires_at ? max(0, now()->diffInSeconds($pembayaran->expires_at, false)) : 900;
+
+            return view('wisatawan.pembayaran', [
+                'tiket' => $this->formatTiketData($tiket),
+                'pembayaran' => $pembayaran,
+                'remainingSeconds' => $remainingSeconds,
+                'hasActivePayment' => true,
+            ]);
+        } catch (\Exception $e) {
+            logger()->error('Payment page error', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return view('wisatawan.pembayaran', [
+                'tiket' => null,
+                'hasActivePayment' => false,
+                'error' => 'Terjadi kesalahan saat memuat halaman pembayaran.',
+            ]);
+        }
+    }
+
+    private function formatTiketData($tiket)
+    {
         $biaya_admin = 5000;
         $total_harga = $tiket->jadwal->harga_tiket * $tiket->jumlah_penumpang + $biaya_admin;
 
-        // Update jika ada perbedaan
-        if ($tiket->total_harga != $total_harga) {
-            $tiket->update(['total_harga' => $total_harga]);
-        }
-
-        return view('wisatawan.pembayaran', [
-            'tiket' => [
-                'id' => $tiket->id,
-                'kode_pemesanan' => $tiket->kode_pemesanan,
-                'rute_asal' => $tiket->jadwal->rute_asal,
-                'rute_tujuan' => $tiket->jadwal->rute_tujuan,
-                'tanggal' => $tiket->jadwal->tanggal,
-                'jumlah_penumpang' => $tiket->jumlah_penumpang,
-                'harga_tiket' => $tiket->jadwal->harga_tiket,
-                'biaya_admin' => $biaya_admin,
-                'total_harga' => $tiket->$total_harga, // Gunakan yang dihitung ulang
-                'status' => $tiket->status,
-                'jadwal' => [
-                    'waktu_berangkat' => $tiket->jadwal->waktu_berangkat,
-                    'waktu_tiba' => $tiket->jadwal->waktu_tiba,
-                    'kapal' => $tiket->jadwal->kapal->nama_kapal,
-                ],
+        return [
+            'id' => $tiket->id,
+            'kode_pemesanan' => $tiket->kode_pemesanan,
+            'rute_asal' => $tiket->jadwal->rute_asal,
+            'rute_tujuan' => $tiket->jadwal->rute_tujuan,
+            'tanggal' => $tiket->jadwal->tanggal,
+            'jumlah_penumpang' => $tiket->jumlah_penumpang,
+            'harga_tiket' => $tiket->jadwal->harga_tiket,
+            'biaya_admin' => $biaya_admin,
+            'total_harga' => $total_harga,
+            'status' => $tiket->status,
+            'jadwal' => [
+                'waktu_berangkat' => $tiket->jadwal->waktu_berangkat,
+                'waktu_tiba' => $tiket->jadwal->waktu_tiba,
+                'kapal' => $tiket->jadwal->kapal->nama_kapal,
             ],
-        ]);
+        ];
     }
-
     public function prosesPembayaran(Request $request)
     {
         DB::beginTransaction();
@@ -585,14 +600,24 @@ class UserController extends Controller
             $fileName = 'payment_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('public/bukti_pembayaran', $fileName);
 
-            // Buat pembayaran
-            $pembayaran = Pembayaran::create([
-                'tiket_id' => $tiket->id,
-                'metode_bayar' => $request->metode_bayar,
-                'jumlah_bayar' => $tiket->total_harga, // Ambil langsung dari tiket
-                'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
-                'status' => 'menunggu',
-            ]);
+            // Update atau buat pembayaran
+            $pembayaran = $tiket->pembayaran()->where('status', 'menunggu')->first();
+
+            if ($pembayaran) {
+                $pembayaran->update([
+                    'metode_bayar' => $request->metode_bayar,
+                    'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
+                ]);
+            } else {
+                $pembayaran = Pembayaran::create([
+                    'tiket_id' => $tiket->id,
+                    'metode_bayar' => $request->metode_bayar,
+                    'jumlah_bayar' => $tiket->total_harga,
+                    'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
+                    'status' => 'menunggu',
+                    'expires_at' => now()->addMinutes(15),
+                ]);
+            }
 
             DB::commit();
 
@@ -613,9 +638,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * API request helper
-     */
     public function apiRequest($method, $url, $data = [])
     {
         try {
