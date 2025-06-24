@@ -337,11 +337,11 @@
                         @enderror
                         <div id="password-error" class="error-message"></div>
                     </div>
-
+{{--
                     <div class="flex items-center space-x-2 mb-6">
                         <input type="checkbox" id="remember" name="remember" class="text-blue-600 focus:ring-blue-500" {{ old('remember') ? 'checked' : '' }}>
                         <label for="remember" class="text-sm text-gray-700">Remember me</label>
-                    </div>
+                    </div> --}}
 
                     <div class="mb-4">
                         <button type="submit" id="login-btn"
@@ -371,12 +371,12 @@
 
                 <!-- Links -->
                 <div class="mt-6 text-center">
-                    <p class="text-gray-600">
+                    <p class="text-gray-600 ">
                         Don't have an account?
-                        <a href="{{ route('register') }}" class="text-blue-600 hover:underline nav-link">Register</a>
+                        <a href="{{ route('register') }}" class="text-blue-600 hover:underline nav-link text-m">Register</a>
                     </p>
                     <p class="mt-2">
-                        <a href="{{ route('password.request') }}" class="text-blue-600 hover:underline text-sm nav-link">Forgot password?</a>
+                        <a href="{{ route('password.request') }}" class="text-blue-600 hover:underline text-m nav-link">Forgot password?</a>
                     </p>
                 </div>
             </div>

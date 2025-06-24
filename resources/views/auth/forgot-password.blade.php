@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password</title>
-        <!-- logo -->
     <link rel="icon" type="image/png" href="/images/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -13,7 +12,6 @@
             font-family: 'Roboto', sans-serif;
         }
 
-        /* Animasi slide background dari atas ke bawah (forgot password) */
         .bg-slide-down {
             animation: slideBackgroundDown 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
@@ -27,13 +25,28 @@
             }
         }
 
-        /* Hover effect untuk navigasi */
         .nav-link {
             transition: all 0.3s ease;
         }
 
         .nav-link:hover {
             transform: translateX(-2px);
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            transition: all 0.3s ease;
+            transform: scale(0.9) translateY(-20px);
+            opacity: 0;
+        }
+
+        .modal-show .modal-content {
+            transform: scale(1) translateY(0);
+            opacity: 1;
         }
     </style>
 </head>
@@ -60,12 +73,24 @@
                     <p class="mt-2 text-gray-600 text-center">Enter your email address and we'll send you a link to reset your password.</p>
                 </div>
 
+                <!-- Error Messages -->
+                @if ($errors->any())
+                    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                        <ul class="text-red-600 text-sm">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <!-- Form -->
-                <form action="" method="POST" class="space-y-6">
+                <form action="{{ route('password.email') }}" method="POST" class="space-y-6">
                     @csrf
 
                     <div>
                         <input type="email" name="email" id="email" placeholder="Email" required
+                            value="{{ old('email') }}"
                             class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
@@ -111,5 +136,71 @@
             </div>
         </div>
     </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden modal-overlay">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4 modal-content">
+            <div class="text-center">
+                <!-- Success Icon -->
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+
+                <!-- Title -->
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Email Terkirim!</h3>
+
+                <!-- Message -->
+                <p class="text-sm text-gray-600 mb-4">
+                    Link reset password telah dikirim ke email Anda. Silakan cek inbox atau folder spam.
+                </p>
+
+                <!-- Button -->
+                <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show modal if success message exists
+        @if(session('success'))
+            document.addEventListener('DOMContentLoaded', function() {
+                showModal();
+            });
+        @endif
+
+        function showModal() {
+            const modal = document.getElementById('successModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('modal-show');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('successModal');
+            modal.classList.remove('modal-show');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
 </body>
 </html>
