@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'user';
 
@@ -24,7 +24,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'google_id',
         'reset_token',
-        'reset_token_expires_at', // Tambahkan ini
         'email_verified_at',
         'password_changed_at',
     ];
@@ -38,72 +37,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password_changed_at' => 'datetime',
-        'reset_token_expires_at' => 'datetime', // Tambahkan ini
         'password' => 'hashed',
     ];
-
-    /**
-     * Check if reset token is valid
-     */
-    public function isResetTokenValid($token)
-    {
-        return $this->reset_token === $token &&
-               $this->reset_token_expires_at &&
-               $this->reset_token_expires_at->isFuture();
-    }
-
-    /**
-     * Clear reset token
-     */
-    public function clearResetToken()
-    {
-        $this->update([
-            'reset_token' => null,
-            'reset_token_expires_at' => null,
-        ]);
-    }
-
-    /**
-     * Check if user can request password reset
-     * Only regular users (non-Google) can reset password
-     */
-    public function canResetPassword()
-    {
-        return $this->isRegularUser() && $this->hasPassword();
-    }
-
-    /**
-     * Get reset token expiry status
-     */
-    public function getResetTokenStatusAttribute()
-    {
-        if (!$this->reset_token) {
-            return [
-                'status' => 'none',
-                'message' => 'Tidak ada token reset aktif'
-            ];
-        }
-
-        if (!$this->reset_token_expires_at) {
-            return [
-                'status' => 'invalid',
-                'message' => 'Token tidak valid'
-            ];
-        }
-
-        if ($this->reset_token_expires_at->isPast()) {
-            return [
-                'status' => 'expired',
-                'message' => 'Token sudah kadaluarsa'
-            ];
-        }
-
-        return [
-            'status' => 'valid',
-            'message' => 'Token masih berlaku',
-            'expires_in' => $this->reset_token_expires_at->diffForHumans()
-        ];
-    }
 
     /**
      * Check if user has Google account
@@ -196,7 +131,6 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    // Relationships
     public function tiket()
     {
         return $this->hasMany(Tiket::class);
