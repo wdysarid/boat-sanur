@@ -20,7 +20,7 @@
                                 </svg>
                                 From
                             </label>
-                            <select name="from"
+                            <select name="from" id="from-select"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="Sanur" {{ request('from') == 'Sanur' ? 'selected' : '' }}>Sanur</option>
                                 <option value="Nusa Penida" {{ request('from') == 'Nusa Penida' ? 'selected' : '' }}>Nusa
@@ -39,11 +39,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 616 0z" />
                                 </svg>
                                 To
                             </label>
-                            <select name="to"
+                            <select name="to" id="to-select"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="Nusa Penida" {{ request('to') == 'Nusa Penida' ? 'selected' : '' }}>Nusa
                                     Penida</option>
@@ -70,10 +70,21 @@
                         </div>
                     </div>
 
-                    <!-- Search Button -->
-                    <div class="flex justify-end">
+                    <!-- Search Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 justify-end">
+                        <!-- Show All Button -->
+                        <a href="{{ route('search.tickets') }}?show_all=1&departure_date={{ request('departure_date', date('Y-m-d')) }}"
+                            class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-md transition duration-200 uppercase tracking-wide shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            <span>Show All</span>
+                        </a>
+
+                        <!-- Search Button -->
                         <button type="submit"
-                            class="bg-blue-700 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md transition duration-200 uppercase tracking-wide shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 flex items-center justify-center space-x-2">
+                            class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-md transition duration-200 uppercase tracking-wide shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 flex items-center justify-center space-x-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -85,44 +96,82 @@
             </div>
         </div>
 
-        @if(request()->has('from') || request()->has('to') || request()->has('departure_date'))
+        @if(request()->hasAny(['from', 'to', 'departure_date', 'show_all']))
             <!-- Search Results Section -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <!-- Results Header -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-200">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Available Boat Schedules</h2>
-                            <div class="flex items-center text-gray-600">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span
-                                    class="font-medium">{{ \Carbon\Carbon::parse(request('departure_date', date('Y-m-d')))->format('l, d F Y') }}</span>
-                            </div>
+                            @if(isset($showAll) && $showAll)
+                                <h2 class="text-2xl font-bold text-gray-800 mb-2">All Available Tickets</h2>
+                                <div class="flex items-center text-gray-600">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="font-medium">{{ \Carbon\Carbon::parse(request('departure_date', date('Y-m-d')))->format('l, d F Y') }}</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Showing all available routes</p>
+                            @else
+                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Available Boat Schedules</h2>
+                                <div class="flex items-center text-gray-600">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="font-medium">{{ \Carbon\Carbon::parse(request('departure_date', date('Y-m-d')))->format('l, d F Y') }}</span>
+                                </div>
+                            @endif
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <div class="bg-blue-50 rounded-lg px-4 py-2 inline-block">
-                                <span class="text-blue-800 font-medium">
-                                    {{ request('from', 'Sanur') }}
-                                    <svg class="w-4 h-4 mx-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
-                                    {{ request('to', 'Nusa Penida') }}
-                                </span>
-                            </div>
+                            @if(isset($showAll) && $showAll)
+                                <div class="bg-green-50 rounded-lg px-4 py-2 inline-block">
+                                    <span class="text-green-800 font-medium">All Routes</span>
+                                </div>
+                            @else
+                                <div class="bg-blue-50 rounded-lg px-4 py-2 inline-block">
+                                    <span class="text-blue-800 font-medium">
+                                        {{ request('from', 'Sanur') }}
+                                        <svg class="w-4 h-4 mx-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
+                                        {{ request('to', 'Nusa Penida') }}
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
 
-                @if (count($tickets) > 0)
+                @php
+                    $displayTickets = $tickets;
+                    if (isset($noResultsFound) && $noResultsFound && isset($allTickets) && $allTickets->isNotEmpty()) {
+                        $displayTickets = $allTickets;
+                    }
+                @endphp
+
+                @if (count($displayTickets) > 0)
+                    @if(isset($noResultsFound) && $noResultsFound && isset($allTickets) && $allTickets->isNotEmpty())
+                        <!-- No specific results, showing all -->
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <h3 class="text-yellow-800 font-medium">No direct routes found</h3>
+                                    <p class="text-yellow-700 text-sm">We couldn't find direct routes for {{ request('from') }} to {{ request('to') }}, but here are all available tickets for {{ \Carbon\Carbon::parse(request('departure_date'))->format('d F Y') }}:</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Ticket Results -->
                     <div class="space-y-6">
-                        @foreach ($tickets as $ticket)
-                            <div
-                                class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300">
+                        @foreach ($displayTickets as $ticket)
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300">
                                 <div class="p-6">
                                     <div class="flex flex-col md:flex-row md:items-center justify-between">
                                         <!-- Boat Info -->
@@ -132,57 +181,59 @@
                                                     <img src="{{ $ticket['boat_image'] }}" alt="{{ $ticket['boat_name'] }}"
                                                         class="w-20 h-20 rounded-lg object-cover mr-4 border border-gray-200">
                                                 @else
-                                                    <div
-                                                        class="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center mr-4 border border-gray-200">
-                                                        <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                                            stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
+                                                    <div class="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center mr-4 border border-gray-200">
+                                                        <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                         </svg>
                                                     </div>
                                                 @endif
                                                 @if ($ticket['available_seats'] < 1)
-                                                    <div
-                                                        class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                                    <div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                                                         Full
                                                     </div>
                                                 @elseif ($ticket['available_seats'] < 10)
-                                                    <div
-                                                        class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                                    <div class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                                                         Few left
                                                     </div>
                                                 @endif
                                             </div>
                                             <div>
                                                 <h3 class="text-xl font-bold text-gray-800">{{ $ticket['boat_name'] }}</h3>
+
+                                                <!-- Route Info -->
                                                 <div class="flex items-center mt-1 text-gray-600">
-                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    </svg>
+                                                    <span class="text-sm font-medium">
+                                                        {{ $ticket['departure_port'] }}
+                                                        <svg class="w-3 h-3 mx-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                        </svg>
+                                                        {{ $ticket['arrival_port'] }}
+                                                    </span>
+                                                </div>
+
+                                                <!-- Time Info -->
+                                                <div class="flex items-center mt-1 text-gray-600">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
                                                     @php
-                                                        $date = \Carbon\Carbon::parse(
-                                                            request('departure_date', date('Y-m-d')),
-                                                        );
-                                                        $departureTime = \Carbon\Carbon::parse(
-                                                            $ticket['departure_time'],
-                                                        )->format('H:i');
-                                                        $arrivalTime = \Carbon\Carbon::parse(
-                                                            $ticket['arrival_time'],
-                                                        )->format('H:i');
+                                                        $date = \Carbon\Carbon::parse(request('departure_date', date('Y-m-d')));
+                                                        $departureTime = \Carbon\Carbon::parse($ticket['departure_time'])->format('H:i');
+                                                        $arrivalTime = \Carbon\Carbon::parse($ticket['arrival_time'])->format('H:i');
                                                     @endphp
-
                                                     <span class="text-sm">
-                                                        {{ $date->translatedFormat('l, d F Y') }} {{ $departureTime }} -
-                                                        {{ $arrivalTime }} ({{ $ticket['duration'] }})
+                                                        {{ $departureTime }} - {{ $arrivalTime }} ({{ $ticket['duration'] }})
                                                     </span>
-
                                                 </div>
+
                                                 <div class="mt-2">
-                                                    <span
-                                                        class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                                                    <span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
                                                         {{ $ticket['available_seats'] }} seats available
                                                     </span>
                                                 </div>
@@ -193,16 +244,15 @@
                                         <div class="flex flex-col items-end">
                                             <div class="text-right mb-2">
                                                 <p class="text-sm text-gray-500">Price</p>
-                                                <p class="text-2xl font-bold text-blue-600">Rp
-                                                    {{ number_format($ticket['price'], 0, ',', '.') }}</p>
+                                                <p class="text-2xl font-bold text-blue-600">Rp {{ number_format($ticket['price'], 0, ',', '.') }}</p>
                                             </div>
                                             <a href="{{ route('wisatawan.pemesanan', [
                                                 'jadwal_id' => $ticket['id'],
-                                                'from' => request('from'),
-                                                'to' => request('to'),
+                                                'from' => $ticket['departure_port'],
+                                                'to' => $ticket['arrival_port'],
                                                 'departure_date' => request('departure_date'),
-                                                'passenger_count' => 1, // default
-                                                'passenger_type' => 'domestic', // default
+                                                'passenger_count' => 1,
+                                                'passenger_type' => 'domestic',
                                             ]) }}"
                                                 class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition duration-150 ease-in-out shadow-sm">
                                                 Select
@@ -224,20 +274,41 @@
                                 </svg>
                             </div>
 
-                            <h3 class="text-xl font-medium text-gray-900 mb-2">No schedules available</h3>
-                            <p class="text-gray-500 mb-6">
-                                We couldn't find any boat schedules matching your search criteria.
-                                Please try adjusting your search parameters.
-                            </p>
+                            @if(isset($showAll) && $showAll)
+                                <h3 class="text-xl font-medium text-gray-900 mb-2">No tickets available</h3>
+                                <p class="text-gray-500 mb-6">
+                                    There are no boat schedules available for the selected date.
+                                    Please try selecting a different date.
+                                </p>
+                            @else
+                                <h3 class="text-xl font-medium text-gray-900 mb-2">No schedules available</h3>
+                                <p class="text-gray-500 mb-6">
+                                    We couldn't find any boat schedules matching your search criteria.
+                                    Please try adjusting your search parameters or view all available tickets.
+                                </p>
+                            @endif
 
-                            <a href="{{ route('search.tickets') }}?from={{ request('from') }}&to={{ request('to') }}&departure_date={{ request('departure_date') }}"
-                                class="inline-flex items-center px-5 py-3 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition duration-150 ease-in-out">
-                                <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                Try Again
-                            </a>
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                @if(!isset($showAll) || !$showAll)
+                                    <a href="{{ route('search.tickets') }}?show_all=1&departure_date={{ request('departure_date', date('Y-m-d')) }}"
+                                        class="inline-flex items-center px-5 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
+                                        <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                        View All Available Tickets
+                                    </a>
+                                @endif
+
+                                <a href="{{ route('search.tickets') }}"
+                                    class="inline-flex items-center px-5 py-3 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition duration-150 ease-in-out">
+                                    <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Try Different Search
+                                </a>
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -257,5 +328,12 @@
                 });
             }
         });
+
+        // Show all tickets function
+        function showAllTickets() {
+            const departureDate = document.getElementById('departure-date').value || '{{ date('Y-m-d') }}';
+            const url = '{{ route('search.tickets') }}?show_all=1&departure_date=' + encodeURIComponent(departureDate);
+            window.location.href = url;
+        }
     </script>
 @endpush
