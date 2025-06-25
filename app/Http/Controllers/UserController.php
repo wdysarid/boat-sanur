@@ -601,6 +601,7 @@ class UserController extends Controller
                 'tiket_id' => 'required|exists:tiket,id',
                 'metode_bayar' => 'required|in:transfer,qris',
                 'bukti_transfer' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+                'payment_terms' => 'required|accepted',
             ]);
 
             if ($validator->fails()) {
@@ -617,11 +618,12 @@ class UserController extends Controller
             $user = $request->user();
             $tiket = Tiket::where('id', $request->tiket_id)->where('user_id', $user->id)->firstOrFail();
 
-            if ($tiket->status !== 'menunggu') {
+            // Validasi status tiket
+            if (!in_array($tiket->status, [Tiket::STATUS_MENUNGGU, Tiket::STATUS_DIPROSES])) {
                 return response()->json(
                     [
                         'success' => false,
-                        'message' => 'Tiket tidak valid untuk pembayaran',
+                        'message' => 'Tiket tidak valid untuk pembayaran. Status tiket: ' . $tiket->status,
                     ],
                     400,
                 );
@@ -633,12 +635,17 @@ class UserController extends Controller
             $path = $file->storeAs('public/bukti_pembayaran', $fileName);
 
             // Update atau buat pembayaran
-            $pembayaran = $tiket->pembayaran()->where('status', 'menunggu')->first();
+            $pembayaran = $tiket
+                ->pembayaran()
+                ->whereIn('status', [Pembayaran::STATUS_MENUNGGU, Pembayaran::STATUS_DITOLAK])
+                ->first();
 
             if ($pembayaran) {
                 $pembayaran->update([
                     'metode_bayar' => $request->metode_bayar,
                     'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
+                    'status' => Pembayaran::STATUS_MENUNGGU, // Reset status jika sebelumnya ditolak
+                    'expires_at' => now()->addMinutes(15), // Reset waktu kadaluarsa
                 ]);
             } else {
                 $pembayaran = Pembayaran::create([
@@ -646,20 +653,29 @@ class UserController extends Controller
                     'metode_bayar' => $request->metode_bayar,
                     'jumlah_bayar' => $tiket->total_harga,
                     'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
-                    'status' => 'menunggu',
+                    'status' => Pembayaran::STATUS_MENUNGGU,
                     'expires_at' => now()->addMinutes(15),
                 ]);
             }
+
+            // Update status tiket
+            $tiket->update(['status' => Tiket::STATUS_DIPROSES]);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pembayaran berhasil diproses',
-                'redirect' => route('wisatawan.konfirmasi', ['payment_id' => $pembayaran->id]),
+                'message' => 'Pembayaran berhasil diproses. Menunggu verifikasi admin.',
+                'redirect' => route('wisatawan.konfirmasi', ['tiket_id' => $tiket->id]),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            logger()->error('Payment processing error', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json(
                 [
                     'success' => false,
@@ -678,7 +694,7 @@ class UserController extends Controller
             // Cari tiket terbaru yang sudah sukses atau masih menunggu pembayaran
             $tiket = Tiket::with(['jadwal', 'pembayaran'])
                 ->where('user_id', $user->id)
-                ->whereIn('status', ['sukses', 'menunggu'])
+                ->whereIn('status', ['sukses', 'diproses'])
                 ->latest()
                 ->first();
 

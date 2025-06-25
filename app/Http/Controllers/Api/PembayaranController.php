@@ -154,7 +154,9 @@ class PembayaranController extends Controller
             $pembayaran->update(['status' => $request->status]);
 
             if ($request->status === 'terverifikasi') {
-                $pembayaran->tiket()->update(['status' => 'sukses']);
+                $pembayaran->tiket()->update(['status' => Tiket::STATUS_SUKSES]);
+            } elseif ($request->status === 'ditolak') {
+                $pembayaran->tiket()->update(['status' => Tiket::STATUS_DIBATALKAN]);
             }
         });
 
@@ -230,13 +232,17 @@ class PembayaranController extends Controller
     {
         $user = $request->user();
 
-        // Cari pembayaran aktif
+        // Cari pembayaran aktif yang belum selesai
         $activePembayaran = Pembayaran::with(['tiket.jadwal'])
-            ->whereHas('tiket', function ($query) use ($user) {
-                $query->where('user_id', $user->id)->where('status', 'menunggu');
+            ->whereHas('tiket', function($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->whereIn('status', [Tiket::STATUS_MENUNGGU, Tiket::STATUS_DIPROSES]);
             })
-            ->where('status', 'menunggu')
-            ->where('expires_at', '>', now())
+            ->whereIn('status', [Pembayaran::STATUS_MENUNGGU])
+            ->where(function($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
             ->latest()
             ->first();
 
@@ -255,6 +261,8 @@ class PembayaranController extends Controller
             'hasActivePayment' => true,
             'data' => [
                 'tiket_id' => $activePembayaran->tiket_id,
+                'tiket_status' => $activePembayaran->tiket->status,
+                'payment_status' => $activePembayaran->status,
                 'remaining_seconds' => $remainingSeconds,
                 'expires_at' => $activePembayaran->expires_at,
             ],

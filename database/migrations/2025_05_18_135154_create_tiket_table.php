@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->string('kode_pemesanan')->unique();
             $table->integer('jumlah_penumpang');
             $table->integer('total_harga'); // opsional
-            $table->enum('status', ['menunggu', 'dibatalkan', 'sukses'])->default('menunggu');
+            $table->enum('status', ['menunggu', 'diproses', 'dibatalkan', 'sukses'])->default('menunggu');
             $table->timestamps();
         });
     }
