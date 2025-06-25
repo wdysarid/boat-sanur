@@ -167,13 +167,12 @@
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                                                 <div class="bg-gray-50 p-4 rounded-lg">
                                                     <div class="flex items-center mb-3">
-                                                        <div
-                                                            class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
-                                                            <span class="text-white font-bold text-sm">BCA</span>
+                                                        <div class="w-8 h-8 rounded mr-3 flex items-center justify-center bg-white">
+                                                            <img src="{{ asset('images/bank-bca.png') }}" alt="Logo BCA" class="max-w-full max-h-full object-contain">
                                                         </div>
-                                                        <span class="font-medium">Bank BCA</span>
+                                                        <span class="font-medium">BCA</span>
                                                     </div>
-                                                    <p class="text-sm text-gray-600 mb-1">Nomor Rekening:</p>
+                                                    <p class="text-sm text-gray-600 mb-1">Nomor Rekening :</p>
                                                     <div
                                                         class="flex items-center justify-between bg-white p-3 rounded border">
                                                         <span class="font-mono font-medium">1234567890</span>
@@ -182,19 +181,18 @@
                                                             Salin
                                                         </button>
                                                     </div>
-                                                    <p class="text-sm text-gray-600 mt-2">Atas Nama: <span
-                                                            class="font-medium">PT SanurBoat Indonesia</span></p>
+                                                    <p class="text-sm text-gray-600 mt-2">A/N  <span
+                                                            class="font-medium">: PT SanurBoat Indonesia</span></p>
                                                 </div>
 
                                                 <div class="bg-gray-50 p-4 rounded-lg">
                                                     <div class="flex items-center mb-3">
-                                                        <div
-                                                            class="w-8 h-8 bg-yellow-500 rounded flex items-center justify-center mr-3">
-                                                            <span class="text-white font-bold text-xs">MDR</span>
+                                                        <div class="w-8 h-8 rounded mr-3 flex items-center justify-center bg-white">
+                                                            <img src="{{ asset('images/bank-mandiri.png') }}" alt="Logo BCA" class="max-w-full max-h-full object-contain">
                                                         </div>
-                                                        <span class="font-medium">Bank Mandiri</span>
+                                                        <span class="font-medium">Mandiri</span>
                                                     </div>
-                                                    <p class="text-sm text-gray-600 mb-1">Nomor Rekening:</p>
+                                                    <p class="text-sm text-gray-600 mb-1">Nomor Rekening :</p>
                                                     <div
                                                         class="flex items-center justify-between bg-white p-3 rounded border">
                                                         <span class="font-mono font-medium">0987654321</span>
@@ -203,8 +201,8 @@
                                                             Salin
                                                         </button>
                                                     </div>
-                                                    <p class="text-sm text-gray-600 mt-2">Atas Nama: <span
-                                                            class="font-medium">PT SanurBoat Indonesia</span></p>
+                                                    <p class="text-sm text-gray-600 mt-2">A/N <span
+                                                            class="font-medium">: PT SanurBoat Indonesia</span></p>
                                                 </div>
                                             </div>
 
@@ -587,7 +585,7 @@
                     localStorage.removeItem(storageKey);
                 }
             });
-            
+
             // Form submission
             const paymentForm = document.getElementById('paymentForm');
             const paymentBtn = document.getElementById('paymentBtn');
