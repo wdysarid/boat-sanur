@@ -638,6 +638,41 @@ class UserController extends Controller
         }
     }
 
+    public function konfirmasi(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            // Cari tiket terbaru yang sudah sukses atau masih menunggu pembayaran
+            $tiket = Tiket::with(['jadwal', 'pembayaran'])
+                ->where('user_id', $user->id)
+                ->whereIn('status', ['sukses', 'menunggu'])
+                ->latest()
+                ->first();
+
+            if (!$tiket) {
+                return view('wisatawan.konfirmasi', [
+                    'tiket' => null,
+                ]);
+            }
+
+            return view('wisatawan.konfirmasi', [
+                'tiket' => $tiket,
+            ]);
+        } catch (\Exception $e) {
+            logger()->error('Konfirmasi page error', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return view('wisatawan.konfirmasi', [
+                'tiket' => null,
+                'error' => 'Terjadi kesalahan saat memuat halaman konfirmasi.',
+            ]);
+        }
+    }
+
     public function apiRequest($method, $url, $data = [])
     {
         try {

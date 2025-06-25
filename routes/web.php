@@ -117,9 +117,7 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
         Route::get('/pembayaran', [UserController::class, 'pembayaran'])->name('pembayaran');
         Route::post('/pembayaran/proses', [UserController::class, 'prosesPembayaran'])->name('pembayaran.proses');
 
-        Route::get('/konfirmasi', function () {
-            return view('wisatawan.konfirmasi');
-        })->name('konfirmasi');
+        Route::get('/konfirmasi', [UserController::class, 'konfirmasi'])->name('konfirmasi');
 
         Route::get('/profile', function () {
             return view('wisatawan.profile');
