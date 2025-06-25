@@ -258,17 +258,35 @@ class JadwalController extends Controller
 
     public function search(Request $request)
     {
-        if (!$request->hasAny(['from', 'to', 'departure_date'])) {
+        // Jika tidak ada parameter pencarian, tampilkan halaman kosong
+        if (!$request->hasAny(['from', 'to', 'departure_date', 'show_all'])) {
             return view('search-tickets', [
                 'tickets' => [],
-                'searchParams' => [
-                    'from' => 'Sanur',
-                    'to' => 'Nusa Penida',
-                    'departure_date' => date('Y-m-d'),
-                ]
+                'searchParams' => []
             ]);
         }
 
+        $departureDate = $request->get('departure_date', date('Y-m-d'));
+
+        // Jika ada parameter show_all, tampilkan semua tiket
+        if ($request->has('show_all')) {
+            $schedules = Jadwal::with('kapal')
+                ->whereDate('tanggal', $departureDate)
+                ->where('status', 'aktif')
+                ->orderBy('waktu_berangkat')
+                ->get()
+                ->map(function ($schedule) {
+                    return $this->formatScheduleData($schedule);
+                });
+
+            return view('search-tickets', [
+                'tickets' => $schedules,
+                'searchParams' => $request->all(),
+                'showAll' => true
+            ]);
+        }
+
+        // Pencarian normal berdasarkan rute
         $request->validate([
             'from' => 'required|string',
             'to' => 'required|string|different:from',
@@ -278,7 +296,7 @@ class JadwalController extends Controller
         $schedules = Jadwal::with('kapal')
             ->where('rute_asal', $request->from)
             ->where('rute_tujuan', $request->to)
-            ->where('tanggal', $request->departure_date)
+            ->whereDate('tanggal', $request->departure_date)
             ->where('status', 'aktif')
             ->orderBy('waktu_berangkat')
             ->get()
@@ -288,7 +306,8 @@ class JadwalController extends Controller
 
         return view('search-tickets', [
             'tickets' => $schedules,
-            'searchParams' => $request->all()
+            'searchParams' => $request->all(),
+            'showAll' => false
         ]);
     }
 
@@ -304,7 +323,7 @@ class JadwalController extends Controller
 
         return [
             'id' => $schedule->id,
-            'boat_name' => $schedule->kapal->nama_kapal,
+            'boat_name' => $schedule->kapal->nama_kapal ?? 'Unknown Boat',
             'boat_image' => $schedule->kapal->foto_kapal_url ?? '/images/boats/default-boat.jpg',
             'departure_port' => $schedule->rute_asal,
             'arrival_port' => $schedule->rute_tujuan,
@@ -312,8 +331,7 @@ class JadwalController extends Controller
             'arrival_time' => $schedule->waktu_tiba,
             'duration' => $durationText,
             'price' => $schedule->harga_tiket,
-            'available_seats' => $schedule->available_seats,
+            'available_seats' => $schedule->available_seats ?? 50,
         ];
     }
-
 }
