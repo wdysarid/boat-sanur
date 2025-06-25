@@ -73,13 +73,13 @@ Route::prefix('pembayaran')->group(function () {
     // User routes
     Route::post('/', [PembayaranController::class, 'uploadBuktiBayar']);
     Route::get('/', [PembayaranController::class, 'getRiwayatPembayaran']);
-    Route::get('/{id}', [PembayaranController::class, 'getDetailPembayaran']);
+    Route::get('/{id}', [PembayaranController::class, 'getPaymentDetail']);
     Route::post('/batal', [PembayaranController::class, 'cancelPayment'])->name('pembayaran.batal');
 
     // Admin routes
-    Route::middleware('can:admin')->group(function () {
+    // Route::middleware('can:admin')->group(function () {
         Route::post('/{id}/verifikasi', [PembayaranController::class, 'verifikasiPembayaran']);
-    });
+    // });
 });
 
 // Feedback Routes

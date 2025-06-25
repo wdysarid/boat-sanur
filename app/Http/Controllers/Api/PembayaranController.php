@@ -46,14 +46,20 @@ class PembayaranController extends Controller
 
         try {
             $file = $request->file('bukti_transfer');
-            $fileName = 'payment_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/bukti_pembayaran', $fileName);
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+
+            // Simpan file ke storage/public/bukti_pembayaran
+            $path = $file->storeAs('bukti_pembayaran', $filename, 'public');
+
+            if (!$path) {
+                throw new \Exception('Gagal menyimpan bukti transfer');
+            }
 
             $pembayaran = Pembayaran::create([
                 'tiket_id' => $tiket->id,
                 'metode_bayar' => $request->metode_bayar,
                 'jumlah_bayar' => $request->jumlah_bayar,
-                'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
+                'bukti_transfer' => $path,
                 'status' => 'menunggu',
                 'expires_at' => now()->addMinutes(15), // Tambahkan waktu kadaluarsa
             ]);
@@ -90,13 +96,16 @@ class PembayaranController extends Controller
         ]);
     }
 
-    public function getDetailPembayaran(Request $request, $id)
+    public function getPaymentDetail($id)
     {
-        $pembayaran = Pembayaran::with(['tiket.jadwal.kapal'])
-            ->whereHas('tiket', fn($q) => $q->where('user_id', $request->user()->id))
-            ->find($id);
+        try {
+            $payment = Pembayaran::with(['tiket.jadwal.kapal', 'tiket.penumpang', 'user'])->findOrFail($id);
 
-        if (!$pembayaran) {
+            return response()->json([
+                'success' => true,
+                'data' => $payment,
+            ]);
+        } catch (\Exception $e) {
             return response()->json(
                 [
                     'success' => false,
@@ -105,11 +114,6 @@ class PembayaranController extends Controller
                 404,
             );
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $pembayaran,
-        ]);
     }
 
     public function verifikasiPembayaran(Request $request, $id)
@@ -234,14 +238,12 @@ class PembayaranController extends Controller
 
         // Cari pembayaran aktif yang belum selesai
         $activePembayaran = Pembayaran::with(['tiket.jadwal'])
-            ->whereHas('tiket', function($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->whereIn('status', [Tiket::STATUS_MENUNGGU, Tiket::STATUS_DIPROSES]);
+            ->whereHas('tiket', function ($query) use ($user) {
+                $query->where('user_id', $user->id)->whereIn('status', [Tiket::STATUS_MENUNGGU, Tiket::STATUS_DIPROSES]);
             })
             ->whereIn('status', [Pembayaran::STATUS_MENUNGGU])
-            ->where(function($query) {
-                $query->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
+            ->where(function ($query) {
+                $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
             })
             ->latest()
             ->first();

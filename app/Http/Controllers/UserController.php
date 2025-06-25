@@ -631,8 +631,14 @@ class UserController extends Controller
 
             // Upload bukti pembayaran
             $file = $request->file('bukti_transfer');
-            $fileName = 'payment_' . time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/bukti_pembayaran', $fileName);
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+
+            // Simpan file ke storage/public/bukti_pembayaran
+            $path = $file->storeAs('bukti_pembayaran', $filename, 'public');
+
+            if (!$path) {
+                throw new \Exception('Gagal menyimpan bukti transfer');
+            }
 
             // Update atau buat pembayaran
             $pembayaran = $tiket
@@ -643,7 +649,7 @@ class UserController extends Controller
             if ($pembayaran) {
                 $pembayaran->update([
                     'metode_bayar' => $request->metode_bayar,
-                    'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
+                    'bukti_transfer' => $path,
                     'status' => Pembayaran::STATUS_MENUNGGU, // Reset status jika sebelumnya ditolak
                     'expires_at' => now()->addMinutes(15), // Reset waktu kadaluarsa
                 ]);
@@ -652,7 +658,7 @@ class UserController extends Controller
                     'tiket_id' => $tiket->id,
                     'metode_bayar' => $request->metode_bayar,
                     'jumlah_bayar' => $tiket->total_harga,
-                    'bukti_transfer' => 'bukti_pembayaran/' . $fileName,
+                    'bukti_transfer' => $path,
                     'status' => Pembayaran::STATUS_MENUNGGU,
                     'expires_at' => now()->addMinutes(15),
                 ]);
