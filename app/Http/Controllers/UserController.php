@@ -327,30 +327,62 @@ class UserController extends Controller
                 ]);
             }
 
-            $response = $this->apiRequest('GET', '/jadwal/' . $jadwalId);
+            // Coba ambil dari database lokal dulu
+            $jadwal = Jadwal::with(['kapal'])->find($jadwalId);
 
-            if (!$response['success']) {
-                return redirect()->route('wisatawan.dashboard')->with('error', 'Gagal memuat data jadwal');
+            if (!$jadwal) {
+                // Jika tidak ada di database lokal, coba via API
+                $response = $this->apiRequest('GET', '/jadwal/' . $jadwalId);
+
+                if (!$response['success'] || !isset($response['data'])) {
+                    throw new \Exception('Gagal memuat data jadwal');
+                }
+
+                $jadwal = $response['data'];
+
+                // Format data API ke format yang diharapkan view
+                $formattedJadwal = [
+                    'id' => $jadwal['id'],
+                    'kapal' => [
+                        'nama_kapal' => $jadwal['kapal']['nama_kapal'] ?? 'Fast Boat',
+                        'foto_kapal' => $jadwal['kapal']['foto_kapal'] ?? null,
+                    ],
+                    'waktu_berangkat' => $jadwal['waktu_berangkat'],
+                    'waktu_tiba' => $jadwal['waktu_tiba'],
+                    'harga_tiket' => $jadwal['harga_tiket'],
+                    'rute_asal' => $jadwal['rute_asal'],
+                    'rute_tujuan' => $jadwal['rute_tujuan'],
+                    'tanggal' => $jadwal['tanggal'],
+                ];
+
+                $jadwal = (object) $formattedJadwal;
             }
-
-            $jadwal = $response['data'];
 
             return view('wisatawan.pemesanan', [
                 'ticket' => [
-                    'id' => $jadwal['id'],
-                    'boat_name' => $jadwal['kapal']['nama_kapal'] ?? 'Fast Boat',
-                    'image' => $jadwal['kapal']['foto_kapal'] ? '/storage/' . $jadwal['kapal']['foto_kapal'] : '/images/boats/default-boat.jpg',
-                    'departure_time' => $jadwal['waktu_berangkat'],
-                    'arrival_time' => $jadwal['waktu_tiba'],
-                    'price' => $jadwal['harga_tiket'],
-                    'duration' => $this->calculateDuration($jadwal['waktu_berangkat'], $jadwal['waktu_tiba']),
+                    'id' => $jadwal->id,
+                    'boat_name' => $jadwal->kapal->nama_kapal ?? 'Fast Boat',
+                    'image' => $jadwal->kapal->foto_kapal ? '/storage/' . $jadwal->kapal->foto_kapal : '/images/boats/default-boat.jpg',
+                    'departure_time' => $jadwal->waktu_berangkat,
+                    'arrival_time' => $jadwal->waktu_tiba,
+                    'price' => $jadwal->harga_tiket,
+                    'duration' => $this->calculateDuration($jadwal->waktu_berangkat, $jadwal->waktu_tiba),
+                    'rute_asal' => $jadwal->rute_asal,
+                    'rute_tujuan' => $jadwal->rute_tujuan,
+                    'tanggal' => $jadwal->tanggal,
                 ],
                 'searchParams' => $request->only(['from', 'to', 'departure_date', 'passenger_count', 'passenger_type']),
             ]);
         } catch (\Exception $e) {
+            logger()->error('Error loading schedule data', [
+                'error' => $e->getMessage(),
+                'jadwal_id' => $request->query('jadwal_id'),
+                'user_id' => auth()->id(),
+            ]);
+
             return redirect()
-                ->route('wisatawan.dashboard')
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->route('search.tickets', $request->only(['from', 'to', 'departure_date']))
+                ->with('error', 'Gagal memuat data jadwal. Silakan coba lagi atau pilih jadwal lain.');
         }
     }
 
