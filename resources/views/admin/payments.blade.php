@@ -5,6 +5,13 @@
 @section('header', 'Verifikasi Pembayaran')
 
 @section('content')
+    <!-- Success/Error Messages -->
+    <div id="alertContainer" class="mb-4 hidden">
+        <div id="alertMessage" class="p-4 text-sm rounded-lg" role="alert">
+            <span class="font-medium" id="alertText"></span>
+        </div>
+    </div>
+
     <div class="bg-white rounded-lg shadow mb-6">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-800">Daftar Pembayaran</h3>
@@ -159,6 +166,13 @@
 
     <script>
         let currentPaymentId = null;
+
+        const elements = {
+            alertContainer: document.getElementById('alertContainer'),
+            alertMessage: document.getElementById('alertMessage'),
+            alertText: document.getElementById('alertText')
+        };
+
 
         document.addEventListener('DOMContentLoaded', function() {
             // Load initial data
@@ -530,109 +544,136 @@
         function renderPaymentDetail(payment) {
             document.getElementById('paymentDetailTitle').textContent = `Detail Pembayaran #${payment.id}`;
 
+            // Prepare passenger list HTML
+            let passengerList = '';
+            if (payment.tiket?.penumpang?.length > 0) {
+                passengerList = payment.tiket.penumpang.map(passenger => `
+                    <div class="border-b border-gray-200 py-2">
+                        <div class="flex justify-between">
+                            <span class="font-medium">${passenger.nama_lengkap}</span>
+                            <span class="text-sm text-gray-500">${passenger.no_identitas}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span>${passenger.jenis_kelamin === 'laki-laki' ? 'Laki-laki' : 'Perempuan'}, ${passenger.usia} tahun</span>
+                            ${passenger.is_pemesan ? '<span class="text-blue-600">Pemesan</span>' : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                passengerList = '<p class="text-sm text-gray-500">Tidak ada data penumpang</p>';
+            }
+
             const content = document.getElementById('paymentDetailContent');
             content.innerHTML = `
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h4 class="text-sm font-medium text-gray-500 mb-4">Informasi Pelanggan</h4>
-                    <div class="space-y-3">
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Nama</span>
-                            <span class="text-sm text-gray-900">${payment.user?.nama || '-'}</span>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-4">Informasi Pelanggan</h4>
+                            <div class="space-y-3">
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Nama</span>
+                                    <span class="text-sm text-gray-900">${payment.user?.nama || '-'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Email</span>
+                                    <span class="text-sm text-gray-900">${payment.user?.email || '-'}</span>
+                                </div>
+                            </div>
+
+                            <h4 class="text-sm font-medium text-gray-500 mt-6 mb-4">Informasi Tiket</h4>
+                            <div class="space-y-3">
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Rute</span>
+                                    <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.rute_asal || '-'} → ${payment.tiket?.jadwal?.rute_tujuan || '-'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Kapal</span>
+                                    <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.kapal?.nama_kapal || '-'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Tanggal</span>
+                                    <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.tanggal ? new Date(payment.tiket.jadwal.tanggal).toLocaleDateString() : '-'}, ${payment.tiket?.jadwal?.waktu_berangkat || '-'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Jumlah Tiket</span>
+                                    <span class="text-sm text-gray-900">${payment.tiket?.jumlah_penumpang || 0} tiket</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Email</span>
-                            <span class="text-sm text-gray-900">${payment.user?.email || '-'}</span>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-4">Informasi Pembayaran</h4>
+                            <div class="space-y-3">
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">ID Pembayaran</span>
+                                    <span class="text-sm text-gray-900">${payment.id}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Metode</span>
+                                    <span class="text-sm text-gray-900">${getPaymentMethodText(payment.metode_bayar)}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Tanggal</span>
+                                    <span class="text-sm text-gray-900">${new Date(payment.created_at).toLocaleDateString()}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Status</span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(payment.status)}">
+                                        ${getStatusText(payment.status)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <h4 class="text-sm font-medium text-gray-500 mt-6 mb-4">Rincian Biaya</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">Tiket (${payment.tiket?.jumlah_penumpang || 0} x Rp ${formatCurrency(payment.tiket?.jadwal?.harga_tiket || 0)})</span>
+                                    <span class="text-sm text-gray-900">Rp ${formatCurrency(payment.tiket?.total_harga || 0)}</span>
+                                </div>
+                                <div class="pt-2 border-t border-gray-200 flex justify-between">
+                                    <span class="text-sm font-medium text-gray-900">Total</span>
+                                    <span class="text-sm font-medium text-gray-900">Rp ${formatCurrency(payment.jumlah_bayar)}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <h4 class="text-sm font-medium text-gray-500 mt-6 mb-4">Informasi Tiket</h4>
-                    <div class="space-y-3">
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Rute</span>
-                            <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.rute_asal || '-'} → ${payment.tiket?.jadwal?.rute_tujuan || '-'}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Kapal</span>
-                            <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.kapal?.nama_kapal || '-'}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Tanggal</span>
-                            <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.tanggal ? new Date(payment.tiket.jadwal.tanggal).toLocaleDateString() : '-'}, ${payment.tiket?.jadwal?.waktu_berangkat || '-'}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Jumlah Tiket</span>
-                            <span class="text-sm text-gray-900">${payment.tiket?.jumlah_penumpang || 0} tiket</span>
+                    <!-- Passenger List Section -->
+                    <div class="mt-6">
+                        <h4 class="text-sm font-medium text-gray-500 mb-4">Daftar Penumpang</h4>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            ${passengerList}
                         </div>
                     </div>
                 </div>
-                <div>
-                    <h4 class="text-sm font-medium text-gray-500 mb-4">Informasi Pembayaran</h4>
-                    <div class="space-y-3">
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">ID Pembayaran</span>
-                            <span class="text-sm text-gray-900">${payment.id}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Metode</span>
-                            <span class="text-sm text-gray-900">${getPaymentMethodText(payment.metode_bayar)}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Tanggal</span>
-                            <span class="text-sm text-gray-900">${new Date(payment.created_at).toLocaleDateString()}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-sm font-medium text-gray-500 w-32">Status</span>
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(payment.status)}">
-                                ${getStatusText(payment.status)}
-                            </span>
-                        </div>
-                    </div>
 
-                    <h4 class="text-sm font-medium text-gray-500 mt-6 mb-4">Rincian Biaya</h4>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-sm text-gray-500">Tiket (${payment.tiket?.jumlah_penumpang || 0} x Rp ${formatCurrency(payment.tiket?.jadwal?.harga_tiket || 0)})</span>
-                            <span class="text-sm text-gray-900">Rp ${formatCurrency(payment.tiket?.total_harga || 0)}</span>
-                        </div>
-                        <div class="pt-2 border-t border-gray-200 flex justify-between">
-                            <span class="text-sm font-medium text-gray-900">Total</span>
-                            <span class="text-sm font-medium text-gray-900">Rp ${formatCurrency(payment.jumlah_bayar)}</span>
-                        </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-4">Bukti Pembayaran</h4>
+                    <div class="mb-4">
+                        <img src="${payment.bukti_transfer_url || 'https://via.placeholder.com/400x500'}" alt="Bukti Pembayaran" class="w-full h-auto rounded-lg">
                     </div>
+                    ${payment.bukti_transfer_url ? `
+                            <div class="flex justify-center">
+                                <a href="${payment.bukti_transfer_url}" download class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Unduh Bukti Pembayaran
+                                </a>
+                            </div>
+                            ` : ''}
+
+                    <!-- Tambahkan tombol aksi jika status masih menunggu -->
+                    ${payment.status === 'menunggu' ? `
+                            <div class="mt-6 flex flex-col sm:flex-row gap-2">
+                                <button onclick="showApprovalModal('${payment.id}')" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                    Verifikasi
+                                </button>
+                                <button onclick="showRejectionModal('${payment.id}')" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                    Tolak
+                                </button>
+                            </div>
+                        ` : ''}
                 </div>
             </div>
-        </div>
-
-        <div>
-            <h4 class="text-sm font-medium text-gray-500 mb-4">Bukti Pembayaran</h4>
-            <div class="mb-4">
-                <img src="${payment.bukti_transfer_url || 'https://via.placeholder.com/400x500'}" alt="Bukti Pembayaran" class="w-full h-auto rounded-lg">
-            </div>
-            ${payment.bukti_transfer_url ? `
-                    <div class="flex justify-center">
-                        <a href="${payment.bukti_transfer_url}" download class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Unduh Bukti Pembayaran
-                        </a>
-                    </div>
-                    ` : ''}
-
-            <!-- Tambahkan tombol aksi jika status masih menunggu -->
-            ${payment.status === 'menunggu' ? `
-                    <div class="mt-6 flex flex-col sm:flex-row gap-2">
-                        <button onclick="showApprovalModal('${payment.id}')" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
-                            Verifikasi
-                        </button>
-                        <button onclick="showRejectionModal('${payment.id}')" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                            Tolak
-                        </button>
-                    </div>
-                ` : ''}
-        </div>
-    </div>
-    `;
+            `;
         }
 
         function processPaymentStatus(paymentId, action) {
@@ -657,15 +698,46 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        loadPaymentData(); // Refresh data
+                        // Close the modal first
+                        if (action === 'verifikasi') {
+                            closeApprovalModal();
+                        } else {
+                            closeRejectionModal();
+                        }
+                        closeDetailModal();
+
+                        // Show success notification
+                        showAlert(`Pembayaran berhasil ${action === 'verifikasi' ? 'diverifikasi' : 'ditolak'}`, 'success');
+
+                        // Refresh the data
+                        loadPaymentData();
                     } else {
-                        alert(data.message || 'Gagal memperbarui status pembayaran');
+                        showAlert(data.message || 'Gagal memperbarui status pembayaran', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memperbarui status pembayaran: ' + (error.message || error));
+                    showAlert('Terjadi kesalahan saat memperbarui status pembayaran: ' + (error.message || error), 'error');
                 });
+        }
+
+        function showAlert(message, type = 'success') {
+            if (!elements.alertContainer || !elements.alertMessage || !elements.alertText) {
+                console.error('Alert elements not found');
+                return;
+            }
+
+            const alertClasses = type === 'success'
+                ? 'text-green-800 bg-green-50'
+                : 'text-red-800 bg-red-50';
+
+            elements.alertMessage.className = `p-4 text-sm rounded-lg ${alertClasses}`;
+            elements.alertText.textContent = message;
+            elements.alertContainer.classList.remove('hidden');
+
+            setTimeout(() => {
+                elements.alertContainer.classList.add('hidden');
+            }, 5000);
         }
     </script>
 
