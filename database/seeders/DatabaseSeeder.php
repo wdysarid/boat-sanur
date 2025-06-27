@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
             'no_telp' => '081234567891',
             'password' => Hash::make('sunny123'),
             'role' => 'wisatawan',
+            'email_verified_at' => '2025-06-24 00:00:00',
             // 'remember_token' => Str::random(100),
         ]);
 

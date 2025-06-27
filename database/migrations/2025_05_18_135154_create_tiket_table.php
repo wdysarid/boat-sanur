@@ -22,6 +22,8 @@ return new class extends Migration {
             $table->integer('jumlah_penumpang');
             $table->integer('total_harga'); // opsional
             $table->enum('status', ['menunggu', 'diproses', 'dibatalkan', 'sukses'])->default('menunggu');
+            $table->string('qr_code_path')->nullable();
+            $table->timestamp('qr_generated_at')->nullable();
             $table->timestamps();
         });
     }

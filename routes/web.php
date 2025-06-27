@@ -151,6 +151,7 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
 
         Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])->name('feedback.tambah');
 
-        Route::get('/tiket/{tiket}/pdf', [TiketPdfController::class, 'generatePdf'])
-            ->name('tiket.pdf');
+        // PDF Routes
+        Route::get('/tiket/{tiket}/pdf', [TiketPdfController::class, 'generatePdf'])->name('tiket.pdf');
+        Route::get('/tiket/{tiket}/preview', [TiketPdfController::class, 'previewPdf'])->name('tiket.preview');
     });

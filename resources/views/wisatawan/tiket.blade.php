@@ -441,23 +441,23 @@
                             Lihat Detail
                         </button>
                         ${ticket.status === 'menunggu' ? `
-                                                <a href="{{ route('wisatawan.pembayaran') }}?tiket_id=${ticket.id}"
-                                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors">
-                                                    Bayar Sekarang
-                                                </a>
-                                            ` : `
-                                                <button onclick="contactSupport('${ticket.id}')"
-                                                    class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
-                                                    Hubungi Support
-                                                </button>
-                                            `}
+                                                                            <a href="{{ route('wisatawan.pembayaran') }}?tiket_id=${ticket.id}"
+                                                                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors">
+                                                                                Bayar Sekarang
+                                                                            </a>
+                                                                        ` : `
+                                                                            <button onclick="contactSupport('${ticket.id}')"
+                                                                                class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
+                                                                                Hubungi Support
+                                                                            </button>
+                                                                        `}
                     </div>
                     ${ticket.status === 'menunggu' || ticket.status === 'diproses' ? `
-                                            <button onclick="cancelTicket('${ticket.id}')"
-                                                class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">
-                                                Batalkan
-                                            </button>
-                                        ` : ''}
+                                                                        <button onclick="cancelTicket('${ticket.id}')"
+                                                                            class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">
+                                                                            Batalkan
+                                                                        </button>
+                                                                    ` : ''}
                 `;
             } else if (status === 'upcoming') {
                 actions = `
@@ -493,20 +493,20 @@
                             Lihat Detail
                         </button>
                         ${ticket.status === 'dibatalkan' || ticket.pembayaran?.status === 'ditolak' ? `
-                        <button onclick="bookAgain('${ticket.id}')"
-                            class="px-4 py-2 text-green-600 hover:bg-green-50 rounded-lg text-sm font-medium transition-colors">
-                            Pesan Lagi
-                        </button>
-                    ` : `
-                        <button onclick="rateTrip('${ticket.id}')"
-                            class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-medium transition-colors">
-                            Beri Rating
-                        </button>
-                        <button onclick="bookAgain('${ticket.id}')"
-                            class="px-4 py-2 text-green-600 hover:bg-green-50 rounded-lg text-sm font-medium transition-colors">
-                            Pesan Lagi
-                        </button>
-                    `}
+                                                    <button onclick="bookAgain('${ticket.id}')"
+                                                        class="px-4 py-2 text-green-600 hover:bg-green-50 rounded-lg text-sm font-medium transition-colors">
+                                                        Pesan Lagi
+                                                    </button>
+                                                ` : `
+                                                    <button onclick="rateTrip('${ticket.id}')"
+                                                        class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-medium transition-colors">
+                                                        Beri Rating
+                                                    </button>
+                                                    <button onclick="bookAgain('${ticket.id}')"
+                                                        class="px-4 py-2 text-green-600 hover:bg-green-50 rounded-lg text-sm font-medium transition-colors">
+                                                        Pesan Lagi
+                                                    </button>
+                                                `}
                     </div>
                 `;
             }
@@ -542,7 +542,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showTicketDetailModal(data.data);
+                        showTicketDetailModal(data.data, data.qr_code);
                     } else {
                         showToast(data.message || 'Gagal memuat detail tiket', 'error');
                     }
@@ -554,7 +554,7 @@
         }
 
         // PERBAIKAN: Modal detail tiket yang mirip dengan modal pembayaran admin
-        function showTicketDetailModal(ticket) {
+        function showTicketDetailModal(ticket, qrCodeDataUri) {
             const modal = document.getElementById('ticketDetailModal');
             const title = document.getElementById('ticketDetailTitle');
             const content = document.getElementById('ticketDetailContent');
@@ -571,17 +571,17 @@
             let passengerList = '';
             if (ticket.penumpang && ticket.penumpang.length > 0) {
                 passengerList = ticket.penumpang.map(passenger => `
-                    <div class="border-b border-gray-200 py-2">
-                        <div class="flex justify-between">
-                            <span class="font-medium">${passenger.nama_lengkap}</span>
-                            <span class="text-sm text-gray-500">${passenger.no_identitas}</span>
+                        <div class="border-b border-gray-200 py-2">
+                            <div class="flex justify-between">
+                                <span class="font-medium">${passenger.nama_lengkap}</span>
+                                <span class="text-sm text-gray-500">${passenger.no_identitas}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>${passenger.jenis_kelamin === 'laki-laki' ? 'Laki-laki' : 'Perempuan'}, ${passenger.usia} tahun</span>
+                                ${passenger.is_pemesan ? '<span class="text-blue-600">Pemesan</span>' : ''}
+                            </div>
                         </div>
-                        <div class="flex justify-between text-sm">
-                            <span>${passenger.jenis_kelamin === 'laki-laki' ? 'Laki-laki' : 'Perempuan'}, ${passenger.usia} tahun</span>
-                            ${passenger.is_pemesan ? '<span class="text-blue-600">Pemesan</span>' : ''}
-                        </div>
-                    </div>
-                `).join('');
+                    `).join('');
             } else {
                 passengerList = '<p class="text-sm text-gray-500">Tidak ada data penumpang</p>';
             }
@@ -590,157 +590,186 @@
             let paymentStatus = '';
             if (ticket.pembayaran) {
                 paymentStatus = `
-                    <div class="flex">
-                        <span class="text-sm font-medium text-gray-500 w-32">Status Pembayaran</span>
-                        <span class="text-sm text-gray-900">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(ticket.pembayaran.status)}">
-                                ${getStatusText(ticket.pembayaran.status)}
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Status Pembayaran</span>
+                            <span class="text-sm text-gray-900">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(ticket.pembayaran.status)}">
+                                    ${getStatusText(ticket.pembayaran.status)}
+                                </span>
                             </span>
-                        </span>
-                    </div>
-                    <div class="flex">
-                        <span class="text-sm font-medium text-gray-500 w-32">Metode Pembayaran</span>
-                        <span class="text-sm text-gray-900">${getPaymentMethodText(ticket.pembayaran.metode_bayar)}</span>
-                    </div>
-                    <div class="flex">
-                        <span class="text-sm font-medium text-gray-500 w-32">Jumlah Bayar</span>
-                        <span class="text-sm text-gray-900">Rp ${new Intl.NumberFormat('id-ID').format(ticket.pembayaran.jumlah_bayar)}</span>
-                    </div>
-                `;
+                        </div>
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Metode Pembayaran</span>
+                            <span class="text-sm text-gray-900">${getPaymentMethodText(ticket.pembayaran.metode_bayar)}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Jumlah Bayar</span>
+                            <span class="text-sm text-gray-900">Rp ${new Intl.NumberFormat('id-ID').format(ticket.pembayaran.jumlah_bayar)}</span>
+                        </div>
+                    `;
             } else {
                 paymentStatus = '<p class="text-sm text-gray-500">Belum ada data pembayaran</p>';
             }
 
-            // Generate QR Code untuk tiket yang sudah dikonfirmasi
+            // QR Code section - PERBAIKAN: Gunakan QR Code dari server
             let qrCodeSection = '';
-            if (ticket.status === 'sukses' && ticket.pembayaran?.status === 'terverifikasi') {
+            if (qrCodeDataUri && ticket.status === 'sukses' && ticket.pembayaran?.status === 'terverifikasi') {
                 qrCodeSection = `
-                    <div class="mt-6">
-                        <h4 class="text-sm font-medium text-gray-500 mb-4">QR Code Tiket</h4>
-                        <div class="bg-gray-50 rounded-lg p-4 flex flex-col items-center">
-                            <div id="qr-code-container" class="mb-2"></div>
-                            <p class="text-sm text-gray-600">Gunakan QR Code ini saat boarding</p>
-                        </div>
+        <div class="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+            <div class="text-center">
+                <h4 class="text-lg font-semibold text-blue-800 mb-4 flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                    </svg>
+                    QR Code Boarding Pass
+                </h4>
+                <div class="bg-white rounded-xl p-6 shadow-lg inline-block border-4 border-blue-300">
+                    <img src="${qrCodeDataUri}" alt="QR Code Tiket" class="w-64 h-64 mx-auto mb-4" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div style="display:none;" class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
+                        <span class="text-gray-500 text-sm">QR Code tidak tersedia</span>
                     </div>
-                `;
+                    <div class="text-center">
+                        <p class="text-sm font-semibold text-gray-800 mb-1">Tunjukkan QR Code ini saat boarding</p>
+                        <p class="text-xs text-gray-500 mb-4">Kode: ${ticket.kode_pemesanan}</p>
+                        <button onclick="downloadTicket('${ticket.id}')" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-md">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Cetak E-Tiket PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
             }
 
             // Set konten modal
             title.textContent = `Detail Tiket ${ticket.kode_pemesanan}`;
             content.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-500 mb-4">Informasi Perjalanan</h4>
-                                <div class="space-y-3">
-                                    <div class="flex">
-                                        <span class="text-sm font-medium text-gray-500 w-32">Rute</span>
-                                        <span class="text-sm text-gray-900">${ticket.jadwal.rute_asal} → ${ticket.jadwal.rute_tujuan}</span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="text-sm font-medium text-gray-500 w-32">Tanggal</span>
-                                        <span class="text-sm text-gray-900">${formattedDate}</span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="text-sm font-medium text-gray-500 w-32">Waktu</span>
-                                        <span class="text-sm text-gray-900">${ticket.jadwal.waktu_berangkat} - ${ticket.jadwal.waktu_tiba}</span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="text-sm font-medium text-gray-500 w-32">Kapal</span>
-                                        <span class="text-sm text-gray-900">${ticket.jadwal.kapal.nama_kapal}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-500 mb-4">Informasi Tiket</h4>
-                                <div class="space-y-3">
-                                    <div class="flex">
-                                        <span class="text-sm font-medium text-gray-500 w-32">Kode Pemesanan</span>
-                                        <span class="text-sm text-gray-900">${ticket.kode_pemesanan}</span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="text-sm font-medium text-gray-500 w-32">Status Tiket</span>
-                                        <span class="text-sm text-gray-900">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(ticket.status)}">
-                                                ${getStatusText(ticket.status)}
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="text-sm font-medium text-gray-500 w-32">Jumlah Penumpang</span>
-                                        <span class="text-sm text-gray-900">${ticket.jumlah_penumpang} orang</span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="text-sm font-medium text-gray-500 w-32">Total Harga</span>
-                                        <span class="text-sm text-gray-900">Rp ${new Intl.NumberFormat('id-ID').format(ticket.total_harga)}</span>
-                                    </div>
-                                </div>
-
-                                <h4 class="text-sm font-medium text-gray-500 mt-6 mb-4">Informasi Pembayaran</h4>
-                                <div class="space-y-3">
-                                    ${paymentStatus}
-                                </div>
-                            </div>
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div class="lg:col-span-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-4">Informasi Perjalanan</h4>
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Rute</span>
+                            <span class="text-sm text-gray-900">${ticket.jadwal.rute_asal} → ${ticket.jadwal.rute_tujuan}</span>
                         </div>
-
-                        <div class="mt-6">
-                            <h4 class="text-sm font-medium text-gray-500 mb-4">Daftar Penumpang</h4>
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                ${passengerList}
-                            </div>
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Tanggal</span>
+                            <span class="text-sm text-gray-900">${formattedDate}</span>
                         </div>
-                        ${qrCodeSection}
-                    </div>
-
-                    <div>
-                        <h4 class="text-sm font-medium text-gray-500 mb-4">Bukti Pembayaran</h4>
-                        ${ticket.pembayaran?.bukti_transfer_url ? `
-                                                <div class="mb-4">
-                                                    <img src="${ticket.pembayaran.bukti_transfer_url}" alt="Bukti Pembayaran" class="w-full h-auto rounded-lg border">
-                                                </div>
-                                                <div class="flex justify-center">
-                                                    <a href="${ticket.pembayaran.bukti_transfer_url}" download class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                        Unduh Bukti Pembayaran
-                                                    </a>
-                                                </div>
-                                            ` : '<p class="text-sm text-gray-500">Tidak ada bukti pembayaran</p>'}
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Waktu</span>
+                            <span class="text-sm text-gray-900">${ticket.jadwal.waktu_berangkat} - ${ticket.jadwal.waktu_tiba}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Kapal</span>
+                            <span class="text-sm text-gray-900">${ticket.jadwal.kapal.nama_kapal}</span>
+                        </div>
                     </div>
                 </div>
-            `;
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-4">Informasi Tiket</h4>
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Kode Pemesanan</span>
+                            <span class="text-sm text-gray-900">${ticket.kode_pemesanan}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Status Tiket</span>
+                            <span class="text-sm text-gray-900">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(ticket.status)}">
+                                    ${getStatusText(ticket.status)}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Jumlah Penumpang</span>
+                            <span class="text-sm text-gray-900">${ticket.jumlah_penumpang} orang</span>
+                        </div>
+                        <div class="flex">
+                            <span class="text-sm font-medium text-gray-500 w-32">Total Harga</span>
+                            <span class="text-sm text-gray-900">Rp ${new Intl.NumberFormat('id-ID').format(ticket.total_harga)}</span>
+                        </div>
+                    </div>
+
+                    <h4 class="text-sm font-medium text-gray-500 mt-6 mb-4">Informasi Pembayaran</h4>
+                    <div class="space-y-3">
+                        ${paymentStatus}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h4 class="text-sm font-medium text-gray-500 mb-4">Daftar Penumpang</h4>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    ${passengerList}
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="sticky top-4">
+                <h4 class="text-sm font-medium text-gray-500 mb-4 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Bukti Pembayaran
+                </h4>
+                ${ticket.pembayaran?.bukti_transfer_url ? `
+                            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                <div class="p-3 bg-gray-50 border-b border-gray-200">
+                                    <button onclick="togglePaymentProof()" class="flex items-center justify-between w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900">
+                                        <span>Lihat Bukti Transfer</span>
+                                        <svg id="paymentProofIcon" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div id="paymentProofContent" class="hidden p-3">
+                                    <img src="${ticket.pembayaran.bukti_transfer_url}" alt="Bukti Pembayaran" class="w-full h-auto rounded-lg border mb-3">
+                                    <div class="flex justify-center">
+                                        <a href="${ticket.pembayaran.bukti_transfer_url}" download class="px-3 py-2 border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Unduh
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : '<p class="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">Tidak ada bukti pembayaran</p>'}
+            </div>
+        </div>
+    </div>
+    ${qrCodeSection}
+`;
+
+            window.togglePaymentProof = function() {
+                const content = document.getElementById('paymentProofContent');
+                const icon = document.getElementById('paymentProofIcon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    content.classList.add('hidden');
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            };
 
             // Tampilkan modal
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-
-            // Generate QR Code jika ada
-            if (qrCodeSection) {
-                const qrCodeContainer = document.getElementById('qr-code-container');
-                qrCodeContainer.innerHTML = '';
-
-                new QRCode(qrCodeContainer, {
-                    text: JSON.stringify({
-                        ticket_id: ticket.id,
-                        booking_code: ticket.kode_pemesanan,
-                        user_id: ticket.user_id,
-                        schedule_id: ticket.jadwal_id,
-                        date: ticket.jadwal.tanggal
-                    }),
-                    width: 150,
-                    height: 150,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            }
-
-            // Tambahkan event listener untuk tombol close
-            document.getElementById('closeTicketDetailModal').addEventListener('click', closeTicketDetailModal);
         }
 
         // Fungsi untuk menutup modal detail
         function closeTicketDetailModal() {
-            document.getElementById('ticketDetailModal').classList.add('hidden');
+            const modal = document.getElementById('ticketDetailModal');
+            modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
 
@@ -824,7 +853,7 @@
 
         // Fungsi untuk mengunduh tiket
         function downloadTicket(ticketId) {
-            showToast(`Mengunduh e-tiket ${ticketId}...`, 'info');
+            showToast('Memproses unduhan PDF...', 'info');
             window.location.href = `/wisatawan/tiket/${ticketId}/pdf`;
         }
 
@@ -901,6 +930,29 @@
 
         // Memuat tiket saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
+            const closeButton = document.getElementById('closeTicketDetailModal');
+            if (closeButton) {
+                closeButton.addEventListener('click', closeTicketDetailModal);
+            }
+
+            // Close modal ketika klik di luar modal
+            const modal = document.getElementById('ticketDetailModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeTicketDetailModal();
+                    }
+                });
+            }
+
+            // Close modal dengan ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeTicketDetailModal();
+                }
+            });
+
+            // Load tickets saat halaman dimuat
             filterTickets('all');
         });
     </script>

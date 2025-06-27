@@ -19,14 +19,17 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
+use App\Services\QrCodeService;
 
 class UserController extends Controller
 {
     private $apiUrl;
+    protected $qrCodeService;
 
-    public function __construct()
+    public function __construct(QrCodeService $qrCodeService)
     {
         $this->apiUrl = env('APP_API_URL', 'http://localhost:8000/api');
+        $this->qrCodeService = $qrCodeService;
     }
 
     public function showProfile()
@@ -754,13 +757,13 @@ class UserController extends Controller
             $userId = auth()->id();
 
             // PERBAIKAN: Selalu mulai dengan filter user_id untuk keamanan
-            $query = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])
-                ->where('user_id', $userId);
+            $query = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])->where('user_id', $userId);
 
             switch ($status) {
                 case 'upcoming':
                     // Tiket sukses dengan pembayaran terverifikasi dan tanggal >= hari ini
-                    $query->where('status', 'sukses')
+                    $query
+                        ->where('status', 'sukses')
                         ->whereHas('pembayaran', function ($q) {
                             $q->where('status', 'terverifikasi');
                         })
@@ -774,14 +777,13 @@ class UserController extends Controller
                     $query->where(function ($q) {
                         // Tiket dengan status menunggu atau diproses
                         $q->where('status', 'menunggu')
-                          ->orWhere('status', 'diproses')
-                          // ATAU tiket sukses tapi pembayaran masih menunggu
-                          ->orWhere(function ($q2) {
-                              $q2->where('status', 'sukses')
-                                 ->whereHas('pembayaran', function ($q3) {
-                                     $q3->where('status', 'menunggu');
-                                 });
-                          });
+                            ->orWhere('status', 'diproses')
+                            // ATAU tiket sukses tapi pembayaran masih menunggu
+                            ->orWhere(function ($q2) {
+                                $q2->where('status', 'sukses')->whereHas('pembayaran', function ($q3) {
+                                    $q3->where('status', 'menunggu');
+                                });
+                            });
                     });
                     break;
 
@@ -797,15 +799,16 @@ class UserController extends Controller
                                     $q4->where('tanggal', '<', now()->format('Y-m-d'));
                                 });
                         })
-                        // Atau tiket yang dibatalkan/ditolak
-                        ->orWhere('status', 'dibatalkan')
-                        ->orWhereHas('pembayaran', function ($q5) {
-                            $q5->where('status', 'ditolak');
-                        });
+                            // Atau tiket yang dibatalkan/ditolak
+                            ->orWhere('status', 'dibatalkan')
+                            ->orWhereHas('pembayaran', function ($q5) {
+                                $q5->where('status', 'ditolak');
+                            });
                     });
                     break;
 
-                default: // 'all'
+                default:
+                    // 'all'
                     // Tampilkan semua tiket
                     break;
             }
@@ -879,31 +882,93 @@ class UserController extends Controller
     public function getTiketDetail($id)
     {
         try {
+            Log::info('Getting ticket detail', ['ticket_id' => $id, 'user_id' => auth()->id()]);
+
             $ticket = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])
                 ->where('user_id', auth()->id())
-                ->findOrFail($id);
+                ->find($id);
+
+            if (!$ticket) {
+                Log::warning('Ticket not found or access denied', [
+                    'ticket_id' => $id,
+                    'user_id' => auth()->id(),
+                ]);
+
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Tiket tidak ditemukan atau Anda tidak memiliki akses',
+                    ],
+                    404,
+                );
+            }
 
             // Tambahkan URL bukti transfer jika ada
             if ($ticket->pembayaran && $ticket->pembayaran->bukti_transfer) {
                 $ticket->pembayaran->bukti_transfer_url = asset('storage/' . $ticket->pembayaran->bukti_transfer);
             }
 
+            // Generate QR Code jika tiket sudah dikonfirmasi
+            $qrCodeData = null;
+
+            try {
+                if ($ticket->status === 'sukses' && $ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
+                    Log::info('Generating QR Code for confirmed ticket', ['ticket_id' => $id]);
+
+                    // Generate QR Code data
+                    $qrData = json_encode([
+                        'ticket_id' => $ticket->id,
+                        'booking_code' => $ticket->kode_pemesanan,
+                        'user_id' => $ticket->user_id,
+                        'schedule_id' => $ticket->jadwal_id,
+                        'date' => $ticket->jadwal->tanggal,
+                        'departure_time' => $ticket->jadwal->waktu_berangkat,
+                        'route' => $ticket->jadwal->rute_asal . ' - ' . $ticket->jadwal->rute_tujuan,
+                        'passengers' => $ticket->jumlah_penumpang,
+                        'generated_at' => now()->toISOString(),
+                    ]);
+
+                    // Generate QR Code sebagai data URI untuk modal
+                    $qrCodeData = $this->qrCodeService->generateQrCode($qrData, 200);
+
+                    Log::info('QR Code generated successfully for modal', ['ticket_id' => $id]);
+                }
+            } catch (\Exception $qrError) {
+                Log::error('Error generating QR Code for modal', [
+                    'ticket_id' => $id,
+                    'error' => $qrError->getMessage(),
+                    'trace' => $qrError->getTraceAsString(),
+                ]);
+
+                // Jangan gagalkan seluruh request jika QR Code gagal
+                $qrCodeData = null;
+            }
+
+            Log::info('Ticket detail retrieved successfully', ['ticket_id' => $id]);
+
             return response()->json([
                 'success' => true,
                 'data' => $ticket,
+                'qr_code' => $qrCodeData,
             ]);
         } catch (\Exception $e) {
-            Log::error('Error getting ticket detail: ' . $e->getMessage());
+            Log::error('Error getting ticket detail', [
+                'ticket_id' => $id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Tiket tidak ditemukan atau Anda tidak memiliki akses',
+                    'message' => 'Terjadi kesalahan saat memuat detail tiket: ' . $e->getMessage(),
                 ],
-                404,
+                500,
             );
         }
     }
-    
+
     public function showTiket($id)
     {
         try {
