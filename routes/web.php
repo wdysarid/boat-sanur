@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TiketPdfController;
+use App\Http\Controllers\Api\TiketController;
 use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\FeedbackController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -139,9 +140,9 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
 
         Route::post('/profile/ubah-password', [UserController::class, 'changePassword'])->name('profile.change-password.post');
 
-        Route::get('/tiket', function () {
-            return view('wisatawan.tiket');
-        })->name('tiket');
+        Route::get('/tiket', [UserController::class, 'tiketSaya'])->name('tiket');
+        Route::get('/tiket/status/{status}', [UserController::class, 'getTiketByStatus'])->name('tiket.status');
+        Route::get('/tiket/{id}', [UserController::class, 'showTiket'])->name('tiket.show');
 
         Route::get('/feedback', function () {
             return view('wisatawan.feedback');

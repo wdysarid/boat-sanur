@@ -61,7 +61,7 @@ Route::prefix('tiket')->group(function () {
     Route::get('/', [TiketController::class, 'getTiketSaya']);
     Route::get('/{id}', [TiketController::class, 'getTiketDetail']);
     Route::post('/{id}/batal', [TiketController::class, 'batalkanTiket']);
-    Route::get('/tiket/status/{status}', [TiketController::class, 'getTiketByStatus']);
+    Route::get('/status/{status}', [TiketController::class, 'getTiketByStatus']);
 
     Route::prefix('/{tiket}/penumpang')->group(function () {
         Route::post('/', [PenumpangController::class, 'store']);

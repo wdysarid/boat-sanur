@@ -727,6 +727,155 @@ class UserController extends Controller
         }
     }
 
+    public function tiketSaya()
+    {
+        try {
+            $userId = auth()->id();
+
+            $tickets = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])
+                ->where('user_id', $userId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return view('wisatawan.tiket', [
+                'tickets' => $tickets,
+                'stats' => $this->calculateTicketStats($tickets),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching tickets: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memuat data tiket');
+        }
+    }
+
+    // TAMBAHAN: Method untuk filter tiket berdasarkan status
+    public function getTiketByStatus(Request $request, $status)
+    {
+        try {
+            $userId = auth()->id();
+
+            // PERBAIKAN: Selalu mulai dengan filter user_id untuk keamanan
+            $query = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])
+                ->where('user_id', $userId);
+
+            switch ($status) {
+                case 'upcoming':
+                    $query->where('status', 'sukses')
+                        ->whereHas('pembayaran', function ($q) {
+                            $q->where('status', 'terverifikasi');
+                        })
+                        ->whereHas('jadwal', function ($q) {
+                            $q->where('tanggal', '>=', now()->format('Y-m-d'));
+                        });
+                    break;
+
+            case 'pending':
+                $query->where(function ($q) {
+                    $q->where('status', 'diproses')
+                        ->orWhere('status', 'menunggu');
+                });
+                break;
+
+            case 'completed':
+                $query->where(function ($q) {
+                    // Tiket sukses yang sudah lewat tanggalnya
+                    $q->where(function ($q2) {
+                        $q2->where('status', 'sukses')
+                            ->whereHas('pembayaran', function ($q3) {
+                                $q3->where('status', 'terverifikasi');
+                            })
+                            ->whereHas('jadwal', function ($q4) {
+                                $q4->where('tanggal', '<', now()->format('Y-m-d'));
+                            });
+                    })
+                    // Atau tiket yang dibatalkan/ditolak
+                    ->orWhere('status', 'dibatalkan')
+                    ->orWhereHas('pembayaran', function ($q5) {
+                        $q5->where('status', 'ditolak');
+                    });
+                });
+                break;
+
+            default: // 'all'
+                // PERBAIKAN: Tampilkan semua tiket termasuk yang dibatalkan
+                // Tidak perlu filter tambahan karena sudah difilter berdasarkan user_id
+                break;
+        }
+
+        $tickets = $query->orderBy('created_at', 'desc')->get();
+
+        // Hitung statistik
+        $allTickets = Tiket::with(['jadwal.kapal', 'pembayaran'])
+            ->where('user_id', $userId)
+            ->get();
+
+        $stats = $this->calculateTicketStats($allTickets);
+
+        return response()->json([
+            'success' => true,
+            'data' => $tickets,
+            'stats' => $stats,
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error filtering tickets by status: ' . $e->getMessage());
+        return response()->json(
+            [
+                'success' => false,
+                'message' => 'Gagal memuat data tiket: ' . $e->getMessage(),
+            ],
+            500,
+        );
+    }
+}
+
+    // PERBAIKAN: Statistik yang lebih akurat
+    private function calculateTicketStats($tickets)
+    {
+        $total = $tickets->count();
+        $upcoming = 0;
+        $pending = 0;
+        $completed = 0;
+
+        foreach ($tickets as $ticket) {
+            // PERBAIKAN: Logika yang lebih jelas untuk pending
+            if (in_array($ticket->status, ['menunggu', 'diproses'])) {
+                $pending++;
+            } elseif ($ticket->status === 'sukses' && $ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
+                $ticketDate = Carbon::parse($ticket->jadwal->tanggal);
+                if ($ticketDate->gte(now()->startOfDay())) {
+                    $upcoming++;
+                } else {
+                    $completed++;
+                }
+            } elseif ($ticket->status === 'dibatalkan' || ($ticket->pembayaran && $ticket->pembayaran->status === 'ditolak')) {
+                // PERBAIKAN: Hitung tiket dibatalkan dan ditolak sebagai completed
+                $completed++;
+            }
+        }
+
+        return [
+            'total' => $total,
+            'upcoming' => $upcoming,
+            'pending' => $pending,
+            'completed' => $completed,
+        ];
+    }
+
+    public function showTiket($id)
+    {
+        try {
+            $ticket = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])
+                ->where('user_id', auth()->id())
+                ->findOrFail($id);
+
+            return view('wisatawan.tiket-detail', [
+                'ticket' => $ticket,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error showing ticket: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Tiket tidak ditemukan');
+        }
+    }
+
     public function apiRequest($method, $url, $data = [])
     {
         try {
