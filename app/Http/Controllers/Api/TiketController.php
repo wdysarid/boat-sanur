@@ -216,17 +216,19 @@ class TiketController extends Controller
                     break;
 
                 case 'pending':
+                    // PERBAIKAN: Logika pending yang konsisten dengan UserController
                     $query->where(function ($q) {
-                    // PERBAIKAN: Tiket menunggu/diproses ATAU tiket sukses dengan pembayaran menunggu
-                    $q->where('status', 'diproses')
-                        ->orWhere('status', 'menunggu')
-                        ->orWhere(function ($q2) {
-                            $q2->where('status', 'sukses')
-                                ->whereHas('pembayaran', function ($q3) {
-                                    $q3->where('status', 'menunggu');
-                                });
-                        });
-                });
+                        // Tiket dengan status menunggu atau diproses
+                        $q->where('status', 'menunggu')
+                          ->orWhere('status', 'diproses')
+                          // ATAU tiket sukses tapi pembayaran masih menunggu
+                          ->orWhere(function ($q2) {
+                              $q2->where('status', 'sukses')
+                                 ->whereHas('pembayaran', function ($q3) {
+                                     $q3->where('status', 'menunggu');
+                                 });
+                          });
+                    });
                     break;
 
                 case 'completed':
@@ -250,8 +252,7 @@ class TiketController extends Controller
                     break;
 
                 default: // 'all'
-                    // PERBAIKAN: Tampilkan semua tiket termasuk yang dibatalkan
-                    // Tidak perlu filter tambahan karena sudah difilter berdasarkan user_id
+                    // Tampilkan semua tiket
                     break;
             }
 
@@ -289,15 +290,22 @@ class TiketController extends Controller
         $completed = 0;
 
         foreach ($allTickets as $ticket) {
-            // PERBAIKAN: Logika yang lebih jelas untuk pending
-            if (in_array($ticket->status, ['menunggu', 'diproses'])) {
+            // PERBAIKAN: Logika yang konsisten dengan UserController
+            if ($ticket->status === 'menunggu' || $ticket->status === 'diproses') {
                 $pending++;
-            } elseif ($ticket->status === 'sukses' && $ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
-                $ticketDate = \Carbon\Carbon::parse($ticket->jadwal->tanggal);
-                if ($ticketDate->gte(now()->startOfDay())) {
-                    $upcoming++;
+            } elseif ($ticket->status === 'sukses') {
+                if ($ticket->pembayaran && $ticket->pembayaran->status === 'menunggu') {
+                    // PERBAIKAN: Tiket sukses tapi pembayaran menunggu = pending
+                    $pending++;
+                } elseif ($ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
+                    $ticketDate = \Carbon\Carbon::parse($ticket->jadwal->tanggal);
+                    if ($ticketDate->gte(now()->startOfDay())) {
+                        $upcoming++;
+                    } else {
+                        $completed++;
+                    }
                 } else {
-                    $completed++;
+                    $pending++;
                 }
             } elseif ($ticket->status === 'dibatalkan' || ($ticket->pembayaran && $ticket->pembayaran->status === 'ditolak')) {
                 $completed++;

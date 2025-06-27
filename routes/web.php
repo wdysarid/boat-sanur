@@ -143,6 +143,7 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
         Route::get('/tiket', [UserController::class, 'tiketSaya'])->name('tiket');
         Route::get('/tiket/status/{status}', [UserController::class, 'getTiketByStatus'])->name('tiket.status');
         Route::get('/tiket/{id}', [UserController::class, 'showTiket'])->name('tiket.show');
+        Route::get('/tiket/{id}/detail', [UserController::class, 'getTiketDetail'])->name('tiket.detail');
 
         Route::get('/feedback', function () {
             return view('wisatawan.feedback');
