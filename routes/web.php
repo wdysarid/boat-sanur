@@ -1,11 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TiketPdfController;
 use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\FeedbackController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -148,4 +149,6 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
 
         Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])->name('feedback.tambah');
 
+        Route::get('/tiket/{tiket}/pdf', [TiketPdfController::class, 'generatePdf'])
+            ->name('tiket.pdf');
     });
