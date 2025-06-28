@@ -56,11 +56,11 @@ Route::prefix('jadwal')->group(function () {
 
 // Tiket (Ticket) Routes
 // Route::prefix('tiket')->middleware('auth:sanctum')->group(function () {
-Route::prefix('tiket')->group(function () {
+Route::prefix('tiket')->middleware(['web'])->group(function () {
     Route::post('/', [TiketController::class, 'pesanTiket']);
     Route::get('/', [TiketController::class, 'getTiketSaya']);
     Route::get('/{id}', [TiketController::class, 'getTiketDetail']);
-    Route::post('/{id}/batal', [TiketController::class, 'batalkanTiket']);
+    Route::post('/{id}/batal', [TiketController::class, 'batalkanTiket'])->name('api.tiket.batal');
     Route::get('/status/{status}', [TiketController::class, 'getTiketByStatus']);
 
     Route::prefix('/{tiket}/penumpang')->group(function () {

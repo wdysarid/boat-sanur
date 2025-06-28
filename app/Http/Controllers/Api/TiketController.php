@@ -7,7 +7,9 @@ use App\Models\Jadwal;
 use App\Models\Pembayaran;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TiketController extends Controller
@@ -95,10 +97,13 @@ class TiketController extends Controller
     public function getTiketSaya(Request $request)
     {
         if (!auth()->check()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 401);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ],
+                401,
+            );
         }
 
         $tickets = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])
@@ -118,10 +123,13 @@ class TiketController extends Controller
     public function getTiketDetail(Request $request, $id)
     {
         if (!auth()->check()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 401);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Unauthorized',
+                ],
+                401,
+            );
         }
 
         // PERBAIKAN: Pastikan hanya bisa melihat tiket milik sendiri
@@ -152,61 +160,149 @@ class TiketController extends Controller
     }
 
     /**
-     * Cancel ticket
+     * Cancel ticket - PERBAIKAN: Tambahkan logging dan error handling yang lebih baik
      */
     public function batalkanTiket(Request $request, $id)
     {
-        $tiket = Tiket::where('id', $id)
-            ->where('user_id', $request->user()->id)
-            ->first();
+        try {
+            // PERBAIKAN: Cek authentication terlebih dahulu
+            if (!auth()->check()) {
+                Log::warning('Unauthorized ticket cancellation attempt', [
+                    'ticket_id' => $id,
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ]);
 
-        if (!$tiket) {
-            return response()->json(
-                [
+                return response()->json([
                     'success' => false,
-                    'message' => 'Tiket tidak ditemukan atau tidak memiliki akses',
-                ],
-                404,
-            );
-        }
+                    'message' => 'Anda harus login untuk membatalkan tiket',
+                ], 401);
+            }
 
-        if ($tiket->status !== 'menunggu') {
-            return response()->json(
-                [
+            $user = auth()->user();
+
+            // PERBAIKAN: Tambahkan logging untuk debugging
+            Log::info('Attempting to cancel ticket', [
+                'ticket_id' => $id,
+                'user_id' => $user->id,
+                'user_email' => $user->email
+            ]);
+
+            // PERBAIKAN: Pastikan $user tidak null sebelum mengakses propertinya
+            if (!$user || !$user->id) {
+                Log::error('User object is null or missing ID', [
+                    'ticket_id' => $id,
+                    'user' => $user
+                ]);
+
+                return response()->json([
                     'success' => false,
-                    'message' => 'Tiket tidak dapat dibatalkan karena status bukan menunggu',
-                ],
-                400,
-            );
+                    'message' => 'Data user tidak valid. Silakan login ulang.',
+                ], 401);
+            }
+
+            $tiket = Tiket::with('pembayaran')
+                ->where('id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$tiket) {
+                Log::warning('Ticket not found or access denied', [
+                    'ticket_id' => $id,
+                    'user_id' => $user->id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tiket tidak ditemukan atau Anda tidak memiliki akses',
+                ], 404);
+            }
+
+            // PERBAIKAN: Validasi status tiket dengan konstanta yang benar
+            $allowedStatuses = [Tiket::STATUS_MENUNGGU, Tiket::STATUS_DIPROSES];
+            if (!in_array($tiket->status, $allowedStatuses)) {
+                Log::warning('Ticket cannot be cancelled due to status', [
+                    'ticket_id' => $id,
+                    'current_status' => $tiket->status,
+                    'allowed_statuses' => $allowedStatuses
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tiket tidak dapat dibatalkan karena status sudah ' . $tiket->status,
+                ], 400);
+            }
+
+            DB::beginTransaction();
+
+            // Update status tiket
+            $tiket->update(['status' => Tiket::STATUS_DIBATALKAN]);
+
+            // Jika ada pembayaran yang masih menunggu, batalkan juga
+            if ($tiket->pembayaran && $tiket->pembayaran->status === Pembayaran::STATUS_MENUNGGU) {
+                $tiket->pembayaran->update([
+                    'status' => Pembayaran::STATUS_DIBATALKAN,
+                    'expires_at' => now(),
+                ]);
+
+                Log::info('Payment also cancelled', [
+                    'ticket_id' => $id,
+                    'payment_id' => $tiket->pembayaran->id
+                ]);
+            }
+
+            DB::commit();
+
+            Log::info('Ticket cancelled successfully', [
+                'ticket_id' => $id,
+                'user_id' => $user->id,
+                'booking_code' => $tiket->kode_pemesanan
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tiket berhasil dibatalkan',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Error cancelling ticket', [
+                'ticket_id' => $id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat membatalkan tiket: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $tiket->update(['status' => 'dibatalkan']);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tiket berhasil dibatalkan',
-        ]);
     }
 
     public function getTiketByStatus(Request $request, $status)
     {
         try {
             if (!auth()->check()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 401);
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Unauthorized',
+                    ],
+                    401,
+                );
             }
 
             $userId = auth()->id();
 
             // PERBAIKAN: Selalu mulai dengan filter user_id untuk keamanan
-            $query = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])
-                ->where('user_id', $userId);
+            $query = Tiket::with(['jadwal.kapal', 'pembayaran', 'penumpang'])->where('user_id', $userId);
 
             switch ($status) {
                 case 'upcoming':
-                    $query->where('status', 'sukses')
+                    $query
+                        ->where('status', 'sukses')
                         ->whereHas('pembayaran', function ($q) {
                             $q->where('status', 'terverifikasi');
                         })
@@ -220,14 +316,13 @@ class TiketController extends Controller
                     $query->where(function ($q) {
                         // Tiket dengan status menunggu atau diproses
                         $q->where('status', 'menunggu')
-                          ->orWhere('status', 'diproses')
-                          // ATAU tiket sukses tapi pembayaran masih menunggu
-                          ->orWhere(function ($q2) {
-                              $q2->where('status', 'sukses')
-                                 ->whereHas('pembayaran', function ($q3) {
-                                     $q3->where('status', 'menunggu');
-                                 });
-                          });
+                            ->orWhere('status', 'diproses')
+                            // ATAU tiket sukses tapi pembayaran masih menunggu
+                            ->orWhere(function ($q2) {
+                                $q2->where('status', 'sukses')->whereHas('pembayaran', function ($q3) {
+                                    $q3->where('status', 'menunggu');
+                                });
+                            });
                     });
                     break;
 
@@ -243,15 +338,16 @@ class TiketController extends Controller
                                     $q4->where('tanggal', '<', now()->format('Y-m-d'));
                                 });
                         })
-                        // Atau tiket yang dibatalkan/ditolak
-                        ->orWhere('status', 'dibatalkan')
-                        ->orWhereHas('pembayaran', function ($q5) {
-                            $q5->where('status', 'ditolak');
-                        });
+                            // Atau tiket yang dibatalkan/ditolak
+                            ->orWhere('status', 'dibatalkan')
+                            ->orWhereHas('pembayaran', function ($q5) {
+                                $q5->where('status', 'ditolak');
+                            });
                     });
                     break;
 
-                default: // 'all'
+                default:
+                    // 'all'
                     // Tampilkan semua tiket
                     break;
             }

@@ -154,4 +154,5 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
         // PDF Routes
         Route::get('/tiket/{tiket}/pdf', [TiketPdfController::class, 'generatePdf'])->name('tiket.pdf');
         Route::get('/tiket/{tiket}/preview', [TiketPdfController::class, 'previewPdf'])->name('tiket.preview');
+        Route::post('/tiket/{id}/batal', [UserController::class, 'batalkanTiket'])->name('tiket.batal');
     });

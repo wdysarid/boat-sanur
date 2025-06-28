@@ -985,6 +985,70 @@ class UserController extends Controller
         }
     }
 
+    // PERBAIKAN: Method batalkanTiket yang lebih robust
+    public function batalkanTiket(Request $request, $id)
+{
+    DB::beginTransaction();
+    try {
+        $user = $request->user();
+
+        // Validasi user
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus login untuk membatalkan tiket',
+            ], 401);
+        }
+
+        // Cari tiket dengan relasi pembayaran
+        $tiket = Tiket::with('pembayaran')
+            ->where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$tiket) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tiket tidak ditemukan atau Anda tidak memiliki akses',
+            ], 404);
+        }
+
+        // Validasi status tiket
+        $allowedStatuses = ['menunggu', 'diproses'];
+        if (!in_array($tiket->status, $allowedStatuses)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tiket tidak dapat dibatalkan karena status sudah ' . $tiket->status,
+            ], 400);
+        }
+
+        // Update status tiket
+        $tiket->update(['status' => 'dibatalkan']);
+
+        // Jika ada pembayaran yang masih menunggu, batalkan juga
+        if ($tiket->pembayaran && $tiket->pembayaran->status === 'menunggu') {
+            $tiket->pembayaran->update([
+                'status' => 'dibatalkan',
+                'expires_at' => now(),
+            ]);
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tiket berhasil dibatalkan',
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
     public function apiRequest($method, $url, $data = [])
     {
         try {
