@@ -60,11 +60,9 @@
                          x-transition:leave-start="opacity-100 scale-100"
                          x-transition:leave-end="opacity-0 scale-95"
                          class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-2 border border-gray-100 max-h-96 overflow-y-auto">
-
                         <div class="px-4 py-2 border-b border-gray-100">
                             <h3 class="text-sm font-semibold text-gray-900">Notifikasi</h3>
                         </div>
-
                         <!-- Sample Notifications -->
                         <div class="divide-y divide-gray-100">
                             <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer">
@@ -86,7 +84,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="px-4 py-2 border-t border-gray-100">
                             <a href="#" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Lihat semua notifikasi</a>
                         </div>
@@ -97,27 +94,34 @@
                 <div class="relative">
                     <button @click="profileDropdownOpen = !profileDropdownOpen"
                             class="flex items-center text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden border-2 border-gray-200">
-                            @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
-                                <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
-                                     alt="{{ Auth::user()->nama }}"
-                                     class="w-full h-full object-cover"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <!-- Fallback to initials if image fails to load -->
-                                <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center" style="display: none;">
-                                    <span class="text-white font-semibold text-sm">
-                                        {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
-                                    </span>
-                                </div>
+                        <!-- Avatar di navbar button - PERBAIKAN -->
+                        <div class="relative inline-block mr-2">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200 flex-shrink-0 bg-gray-100">
+                                @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
+                                    <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
+                                         alt="{{ Auth::user()->nama }}"
+                                         class="w-full h-full object-cover">
+                                @elseif(Auth::user()->avatar)
+                                    <img src="{{ Auth::user()->avatar }}"
+                                         alt="{{ Auth::user()->nama }}"
+                                         class="w-full h-full object-cover">
+                                @else
+                                    <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white font-semibold text-xs">
+                                            {{ strtoupper(substr(Auth::user()->nama ?? 'U', 0, 1)) }}
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Status Indicator - PERBAIKAN -->
+                            @if(Auth::user()->email_verified_at)
+                                <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full z-20"></div>
                             @else
-                                <!-- Default initials if no profile photo -->
-                                <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                                    <span class="text-white font-semibold text-sm">
-                                        {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
-                                    </span>
-                                </div>
+                                <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-yellow-500 border-2 border-white rounded-full z-20"></div>
                             @endif
                         </div>
+
                         <span class="max-w-32 truncate">{{ Auth::user()->nama ?? 'User' }}</span>
                         <svg class="ml-2 h-4 w-4 transition-transform" :class="profileDropdownOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -132,39 +136,73 @@
                          x-transition:leave="transition ease-in duration-75"
                          x-transition:leave-start="opacity-100 scale-100"
                          x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 border border-gray-100">
+                         class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg py-2 border border-gray-100">
 
-                        <div class="px-4 py-5 border-b border-gray-100">
-                            <div class="flex items-center mb-2">
-                                <!-- Profile photo in dropdown header -->
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden border-2 border-gray-200">
-                                    @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
-                                        <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
-                                             alt="{{ Auth::user()->nama }}"
-                                             class="w-full h-full object-cover"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                        <!-- Fallback to initials if image fails to load -->
-                                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center" style="display: none;">
-                                            <span class="text-white font-semibold text-sm">
-                                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
-                                            </span>
+                        <!-- Profile Header di Dropdown - PERBAIKAN -->
+                        <div class="px-4 py-3 border-b border-gray-100">
+                            <div class="flex items-center space-x-3">
+                                <!-- Avatar Container -->
+                                <div class="flex-shrink-0">
+                                    <div class="relative inline-block">
+                                        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
+                                            @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
+                                                <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
+                                                     alt="{{ Auth::user()->nama }}"
+                                                     class="w-full h-full object-cover">
+                                            @elseif(Auth::user()->avatar)
+                                                <img src="{{ Auth::user()->avatar }}"
+                                                     alt="{{ Auth::user()->nama }}"
+                                                     class="w-full h-full object-cover">
+                                            @else
+                                                <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
+                                                    <span class="text-white font-semibold text-sm">
+                                                        {{ strtoupper(substr(Auth::user()->nama ?? 'U', 0, 1)) }}
+                                                    </span>
+                                                </div>
+                                            @endif
                                         </div>
-                                    @else
-                                        <!-- Default initials if no profile photo -->
-                                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                                            <span class="text-white font-semibold text-sm">
-                                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
-                                            </span>
-                                        </div>
-                                    @endif
+
+                                        <!-- Status indicator dengan icon -->
+                                        @if(Auth::user()->email_verified_at)
+                                            <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full flex items-center justify-center z-20">
+                                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        @else
+                                            <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-yellow-500 border-2 border-white rounded-full flex items-center justify-center z-20">
+                                                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
-                                <div class="flex-1">
-                                    <p class="text-xs font-medium text-gray-900">{{ Auth::user()->nama ?? 'User' }}</p>
-                                    <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email ?? 'user@example.com' }}</p>
+
+                                <!-- User Info Container -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-col">
+                                        <h3 class="text-sm font-semibold text-gray-900 truncate">
+                                            {{ Auth::user()->nama ?? 'User' }}
+                                        </h3>
+                                        <p class="text-xs text-gray-500 truncate">
+                                            {{ Auth::user()->email }}
+                                        </p>
+                                        @if(Auth::user()->email_verified_at)
+                                            <span class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 w-fit">
+                                                Terverifikasi
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 w-fit">
+                                                Belum Verifikasi
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Menu Items -->
                         <a href="{{ route('wisatawan.dashboard') }}"
                            class="{{ request()->routeIs('wisatawan.dashboard') ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' }} flex items-center px-4 py-2 text-sm transition-colors">
                             <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,6 +290,7 @@
                 </svg>
                 Beranda
             </a>
+
             <a href="{{ route('wisatawan.dashboard') }}"
                class="{{ request()->routeIs('wisatawan.dashboard') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,6 +298,7 @@
                 </svg>
                 Dashboard
             </a>
+
             <a href="{{ route('wisatawan.pemesanan') }}"
                class="{{ request()->routeIs('wisatawan.pemesanan') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,33 +309,43 @@
         </div>
 
         <div class="pt-4 pb-3 border-t border-gray-200">
-            <div class="flex items-center px-5">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200">
-                    @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
-                        <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
-                             alt="{{ Auth::user()->nama }}"
-                             class="w-full h-full object-cover"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <!-- Fallback to initials if image fails to load -->
-                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center" style="display: none;">
-                            <span class="text-white font-semibold">
-                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
-                            </span>
+            <div class="flex items-center px-5 space-x-3">
+                <!-- Mobile Avatar - PERBAIKAN -->
+                <div class="flex-shrink-0">
+                    <div class="relative inline-block">
+                        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
+                            @if(Auth::user()->foto_user && file_exists(public_path('storage/' . Auth::user()->foto_user)))
+                                <img src="{{ asset('storage/' . Auth::user()->foto_user) }}"
+                                     alt="{{ Auth::user()->nama }}"
+                                     class="w-full h-full object-cover">
+                            @elseif(Auth::user()->avatar)
+                                <img src="{{ Auth::user()->avatar }}"
+                                     alt="{{ Auth::user()->nama }}"
+                                     class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-semibold text-sm">
+                                        {{ strtoupper(substr(Auth::user()->nama ?? 'U', 0, 1)) }}
+                                    </span>
+                                </div>
+                            @endif
                         </div>
-                    @else
-                        <!-- Default initials if no profile photo -->
-                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                            <span class="text-white font-semibold">
-                                {{ substr(Auth::user()->nama ?? 'U', 0, 1) }}
-                            </span>
-                        </div>
-                    @endif
+
+                        <!-- Status indicator -->
+                        @if(Auth::user()->email_verified_at)
+                            <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full z-20"></div>
+                        @else
+                            <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-yellow-500 border-2 border-white rounded-full z-20"></div>
+                        @endif
+                    </div>
                 </div>
-                <div class="ml-3">
-                    <div class="text-base font-medium text-gray-800">{{ Auth::user()->nama ?? 'User' }}</div>
-                    <div class="text-sm font-medium text-gray-500">{{ Auth::user()->email ?? 'user@example.com' }}</div>
+
+                <div class="flex-1 min-w-0">
+                    <div class="text-base font-medium text-gray-800 truncate">{{ Auth::user()->nama ?? 'User' }}</div>
+                    <div class="text-sm font-medium text-gray-500 truncate">{{ Auth::user()->email ?? 'user@example.com' }}</div>
                 </div>
             </div>
+
             <div class="mt-3 space-y-1">
                 <a href="{{ route('wisatawan.profile') }}"
                    class="{{ request()->routeIs('wisatawan.profile') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-4 py-2 text-base font-medium transition-colors">
@@ -304,6 +354,7 @@
                     </svg>
                     Profile Saya
                 </a>
+
                 <a href="{{ route('wisatawan.tiket') }}"
                    class="{{ request()->routeIs('wisatawan.tiket') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-4 py-2 text-base font-medium transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,6 +362,7 @@
                     </svg>
                     Tiket Saya
                 </a>
+
                 <a href="{{ route('wisatawan.pembayaran') }}"
                    class="{{ request()->routeIs('wisatawan.pembayaran') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-4 py-2 text-base font-medium transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,6 +370,7 @@
                     </svg>
                     Pembayaran
                 </a>
+
                 <a href="{{ route('wisatawan.feedback') }}"
                    class="{{ request()->routeIs('wisatawan.feedback') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50' }} flex items-center px-4 py-2 text-base font-medium transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,6 +378,7 @@
                     </svg>
                     Feedback Saya
                 </a>
+
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="flex items-center w-full px-4 py-2 text-base font-medium text-red-600 hover:bg-red-50 transition-colors">
