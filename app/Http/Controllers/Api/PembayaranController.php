@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Mail\EtiketMail;
+use Illuminate\Support\Facades\Mail;
+use App\Services\QrCodeService;
 
 class PembayaranController extends Controller
 {
@@ -159,6 +162,22 @@ class PembayaranController extends Controller
 
             if ($request->status === 'terverifikasi') {
                 $pembayaran->tiket()->update(['status' => Tiket::STATUS_SUKSES]);
+
+                // Kirim email e-tiket
+                $tiket = $pembayaran->tiket;
+                $qrCodeService = app(QrCodeService::class);
+
+                // Generate QR Code data
+                $qrData = json_encode([
+                    'ticket_id' => $tiket->id,
+                    'booking_code' => $tiket->kode_pemesanan,
+                    'user_id' => $tiket->user_id,
+                    'schedule_id' => $tiket->jadwal_id,
+                ]);
+
+                $qrCodeImage = $qrCodeService->generateQrCode($qrData, 200);
+
+                Mail::to($tiket->user->email)->send(new EtiketMail($tiket, $qrCodeImage));
             } elseif ($request->status === 'ditolak') {
                 $pembayaran->tiket()->update(['status' => Tiket::STATUS_DIBATALKAN]);
             }
