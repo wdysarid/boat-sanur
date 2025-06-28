@@ -12,10 +12,27 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
+        <div class="bg-white rounded-lg shadow-xl p-6 flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span class="text-gray-700">Memproses...</span>
+        </div>
+    </div>
+
     <div class="bg-white rounded-lg shadow mb-6">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-800">Daftar Pembayaran</h3>
             <div class="flex space-x-2">
+                <button onclick="loadPaymentData()"
+                    class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
                 <div class="relative">
                     <input type="text" id="search-payment"
                         class="pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -34,18 +51,19 @@
         <div class="p-6">
             <div class="flex justify-between items-center mb-4">
                 <div class="flex space-x-2" id="status-filters">
-                    <button data-status="all" class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-md">Semua</button>
+                    <button data-status="all"
+                        class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-md transition-colors">Semua</button>
                     <button data-status="menunggu"
-                        class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md">Menunggu</button>
+                        class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Menunggu</button>
                     <button data-status="terverifikasi"
-                        class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md">Diverifikasi</button>
+                        class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Diverifikasi</button>
                     <button data-status="ditolak"
-                        class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md">Ditolak</button>
+                        class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Ditolak</button>
                     <button data-status="dibatalkan"
-                        class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md">Dibatalkan</button>
+                        class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">Dibatalkan</button>
                 </div>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto" id="payment-container">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -92,7 +110,7 @@
         <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-medium text-gray-800" id="paymentDetailTitle">Detail Pembayaran</h3>
-                <button id="closeDetailModal" class="text-gray-500 hover:text-gray-700">
+                <button id="closeDetailModal" class="text-gray-500 hover:text-gray-700 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -119,15 +137,29 @@
                     </div>
                 </div>
                 <div class="mt-3 text-center sm:mt-5">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi</h3>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Verifikasi</h3>
                     <div class="mt-2">
-                        <p class="text-sm text-gray-500">Apakah Anda yakin ingin memverifikasi pembayaran ini?</p>
+                        <p class="text-sm text-gray-500">Apakah Anda yakin ingin memverifikasi pembayaran ini? E-tiket akan
+                            dikirim ke email pelanggan.</p>
                     </div>
                 </div>
             </div>
             <div class="px-6 py-4 bg-gray-50 flex flex-row-reverse gap-2">
                 <button id="confirmApprovalBtn"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">Verifikasi</button>
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="btn-text">Verifikasi</span>
+                    <span class="btn-loading hidden">
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        Memproses...
+                    </span>
+                </button>
                 <button id="cancelApprovalBtn"
                     class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">Batal</button>
             </div>
@@ -149,15 +181,29 @@
                     </div>
                 </div>
                 <div class="mt-3 text-center sm:mt-5">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi</h3>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Penolakan</h3>
                     <div class="mt-2">
-                        <p class="text-sm text-gray-500">Apakah Anda yakin ingin menolak pembayaran ini?</p>
+                        <p class="text-sm text-gray-500">Apakah Anda yakin ingin menolak pembayaran ini? Tindakan ini tidak
+                            dapat dibatalkan.</p>
                     </div>
                 </div>
             </div>
             <div class="px-6 py-4 bg-gray-50 flex flex-row-reverse gap-2">
                 <button id="confirmRejectionBtn"
-                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">Tolak</button>
+                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="btn-text">Tolak</span>
+                    <span class="btn-loading hidden">
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        Memproses...
+                    </span>
+                </button>
                 <button id="cancelRejectionBtn"
                     class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">Batal</button>
             </div>
@@ -166,13 +212,14 @@
 
     <script>
         let currentPaymentId = null;
+        let isProcessing = false;
 
         const elements = {
             alertContainer: document.getElementById('alertContainer'),
             alertMessage: document.getElementById('alertMessage'),
-            alertText: document.getElementById('alertText')
+            alertText: document.getElementById('alertText'),
+            loadingOverlay: document.getElementById('loadingOverlay')
         };
-
 
         document.addEventListener('DOMContentLoaded', function() {
             // Load initial data
@@ -185,45 +232,83 @@
                 }
             });
 
+            // Debounce search input
+            let searchTimeout;
+            document.getElementById('search-payment').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    loadPaymentData();
+                }, 500);
+            });
+
             document.querySelectorAll('#status-filters button').forEach(button => {
                 button.addEventListener('click', function() {
                     document.querySelector('#status-filters button.bg-blue-50').classList.remove(
                         'bg-blue-50', 'text-blue-600');
+                    document.querySelector('#status-filters button.bg-blue-50').classList.add(
+                        'text-gray-600', 'hover:bg-gray-50');
+
+                    this.classList.remove('text-gray-600', 'hover:bg-gray-50');
                     this.classList.add('bg-blue-50', 'text-blue-600');
                     loadPaymentData();
                 });
             });
 
             document.getElementById('confirmApprovalBtn').addEventListener('click', function() {
-                if (currentPaymentId) {
+                if (currentPaymentId && !isProcessing) {
                     processPaymentStatus(currentPaymentId, 'verifikasi');
                 }
-                closeApprovalModal();
             });
 
             document.getElementById('cancelApprovalBtn').addEventListener('click', closeApprovalModal);
 
             document.getElementById('confirmRejectionBtn').addEventListener('click', function() {
-                if (currentPaymentId) {
+                if (currentPaymentId && !isProcessing) {
                     processPaymentStatus(currentPaymentId, 'tolak');
                 }
-                closeRejectionModal();
             });
 
             document.getElementById('cancelRejectionBtn').addEventListener('click', closeRejectionModal);
 
             document.getElementById('closeDetailModal').addEventListener('click', closeDetailModal);
 
+            // Handle clicks in payment detail content
             document.getElementById('paymentDetailContent').addEventListener('click', function(e) {
-                if (e.target.closest('[onclick^="showApprovalModal"]')) {
-                    const paymentId = e.target.closest('button').getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (e.target.closest('[data-action="approve"]')) {
+                    const paymentId = e.target.closest('button').dataset.paymentId;
                     showApprovalModal(paymentId);
-                } else if (e.target.closest('[onclick^="showRejectionModal"]')) {
-                    const paymentId = e.target.closest('button').getAttribute('onclick').match(/'([^']+)'/)[1];
+                } else if (e.target.closest('[data-action="reject"]')) {
+                    const paymentId = e.target.closest('button').dataset.paymentId;
                     showRejectionModal(paymentId);
                 }
             });
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('backdrop-blur-sm')) {
+                    closeDetailModal();
+                    closeApprovalModal();
+                    closeRejectionModal();
+                }
+            });
+
+            // Handle escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeDetailModal();
+                    closeApprovalModal();
+                    closeRejectionModal();
+                }
+            });
         });
+
+        function showLoading() {
+            elements.loadingOverlay.classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            elements.loadingOverlay.classList.add('hidden');
+        }
 
         function loadPaymentData(page = 1) {
             const status = document.querySelector('#status-filters button.bg-blue-50').dataset.status;
@@ -236,19 +321,25 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Payment data loaded:', data);
                     if (data.success) {
                         updatePaymentTable(data.data || []);
                         updatePagination(data);
                     } else {
                         console.error('Error:', data.message);
-                        alert('Gagal memuat data: ' + (data.message || 'Unknown error'));
+                        showAlert('Gagal memuat data: ' + (data.message || 'Unknown error'), 'error');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memuat data pembayaran');
+                    console.error('Error loading payment data:', error);
+                    showAlert('Terjadi kesalahan saat memuat data pembayaran', 'error');
                 });
         }
 
@@ -259,7 +350,7 @@
             if (payments.length === 0) {
                 tbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                    <td colspan="8" class="px-6 py-4 text-center text-gray-500" data-title="">
                         Tidak ada data pembayaran yang ditemukan
                     </td>
                 </tr>
@@ -269,13 +360,13 @@
 
             payments.forEach(payment => {
                 const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50';
+                row.className = 'hover:bg-gray-50 transition-colors';
                 row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${payment.id}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-title="ID Pembayaran">${payment.id}</td>
+                <td class="px-6 py-4 whitespace-nowrap" data-title="Pelanggan">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 h-8 w-8">
-                            <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=${payment.user?.nama || 'User'}&background=0D8ABC&color=fff" alt="${payment.user?.nama || 'User'}">
+                            <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=${encodeURIComponent(payment.user?.nama || 'User')}&background=0D8ABC&color=fff" alt="${payment.user?.nama || 'User'}">
                         </div>
                         <div class="ml-4">
                             <div class="text-sm font-medium text-gray-900">${payment.user?.nama || 'User'}</div>
@@ -283,19 +374,19 @@
                         </div>
                     </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4 whitespace-nowrap" data-title="Tiket">
                     <div class="text-sm text-gray-900">${payment.tiket?.jadwal?.rute_asal || '-'} → ${payment.tiket?.jadwal?.rute_tujuan || '-'}</div>
                     <div class="text-sm text-gray-500">${payment.tiket?.jumlah_penumpang || 0} tiket</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp ${formatCurrency(payment.jumlah_bayar)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${getPaymentMethodText(payment.metode_bayar)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(payment.created_at).toLocaleDateString()}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-title="Jumlah">Rp ${formatCurrency(payment.jumlah_bayar)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-title="Metode">${getPaymentMethodText(payment.metode_bayar)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-title="Tanggal">${new Date(payment.created_at).toLocaleDateString('id-ID')}</td>
+                <td class="px-6 py-4 whitespace-nowrap" data-title="Status">
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(payment.status)}">
                         ${getStatusText(payment.status)}
                     </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" data-title="Aksi">
                     ${renderActionButtons(payment)}
                 </td>
             `;
@@ -334,18 +425,18 @@
             // Text showing current range
             const showingText = `
         <div class="text-sm text-gray-700 hidden sm:block">
-            Menampilkan <span class="font-medium">${data.from}</span> sampai <span class="font-medium">${data.to}</span> dari <span class="font-medium">${data.total}</span> pembayaran
+            Menampilkan <span class="font-medium">${data.from || 0}</span> sampai <span class="font-medium">${data.to || 0}</span> dari <span class="font-medium">${data.total || 0}</span> pembayaran
         </div>
     `;
 
             // Previous button
             const prevButton = data.prev_page_url ?
-                `<button onclick="loadPaymentData(${data.current_page - 1})" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">Sebelumnya</button>` :
+                `<button onclick="loadPaymentData(${data.current_page - 1})" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">Sebelumnya</button>` :
                 `<button disabled class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-400 cursor-not-allowed">Sebelumnya</button>`;
 
             // Next button
             const nextButton = data.next_page_url ?
-                `<button onclick="loadPaymentData(${data.current_page + 1})" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">Selanjutnya</button>` :
+                `<button onclick="loadPaymentData(${data.current_page + 1})" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">Selanjutnya</button>` :
                 `<button disabled class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-400 cursor-not-allowed">Selanjutnya</button>`;
 
             // Page numbers
@@ -354,11 +445,9 @@
             let startPage, endPage;
 
             if (data.last_page <= maxVisiblePages) {
-                // Jika total halaman kurang dari maxVisiblePages, tampilkan semua
                 startPage = 1;
                 endPage = data.last_page;
             } else {
-                // Hitung halaman yang akan ditampilkan
                 const half = Math.floor(maxVisiblePages / 2);
                 if (data.current_page <= half + 1) {
                     startPage = 1;
@@ -376,7 +465,7 @@
             for (let i = startPage; i <= endPage; i++) {
                 pageNumbers += `
             <button onclick="loadPaymentData(${i})"
-                class="px-3 py-1 border border-gray-300 rounded-md text-sm ${i === data.current_page ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}">
+                class="px-3 py-1 border border-gray-300 rounded-md text-sm transition-colors ${i === data.current_page ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}">
                 ${i}
             </button>
         `;
@@ -385,8 +474,8 @@
             // Tambahkan ellipsis jika diperlukan
             if (startPage > 1) {
                 pageNumbers = `
-            <button onclick="loadPaymentData(1)" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">1</button>
-            ${startPage > 2 ? '<span class="px-2">...</span>' : ''}
+            <button onclick="loadPaymentData(1)" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">1</button>
+            ${startPage > 2 ? '<span class="px-2 text-gray-500">...</span>' : ''}
             ${pageNumbers}
         `;
             }
@@ -394,8 +483,8 @@
             if (endPage < data.last_page) {
                 pageNumbers = `
             ${pageNumbers}
-            ${endPage < data.last_page - 1 ? '<span class="px-2">...</span>' : ''}
-            <button onclick="loadPaymentData(${data.last_page})" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">${data.last_page}</button>
+            ${endPage < data.last_page - 1 ? '<span class="px-2 text-gray-500">...</span>' : ''}
+            <button onclick="loadPaymentData(${data.last_page})" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">${data.last_page}</button>
         `;
             }
 
@@ -450,33 +539,35 @@
                 case 'qris':
                     return 'QRIS';
                 default:
-                    return method;
+                    return method || '-';
             }
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('id-ID').format(amount);
+            return new Intl.NumberFormat('id-ID').format(amount || 0);
         }
 
         function renderActionButtons(payment) {
+            const baseClasses = "text-sm font-medium transition-colors";
+
             if (payment.status === 'terverifikasi') {
                 return `
                 <div class="flex space-x-2">
-                    <button data-id="${payment.id}" class="view-payment text-blue-600 hover:text-blue-900">Lihat</button>
+                    <button data-id="${payment.id}" class="view-payment ${baseClasses} text-blue-600 hover:text-blue-900">Lihat</button>
                 </div>
             `;
             } else if (payment.status === 'ditolak' || payment.status === 'dibatalkan') {
                 return `
                 <div class="flex space-x-2">
-                    <button data-id="${payment.id}" class="view-payment text-blue-600 hover:text-blue-900">Lihat</button>
+                    <button data-id="${payment.id}" class="view-payment ${baseClasses} text-blue-600 hover:text-blue-900">Lihat</button>
                 </div>
             `;
             } else {
                 return `
                 <div class="flex space-x-2">
-                    <button data-id="${payment.id}" class="view-payment text-blue-600 hover:text-blue-900">Lihat</button>
-                    <button data-id="${payment.id}" class="approve-payment text-green-600 hover:text-green-900">Verifikasi</button>
-                    <button data-id="${payment.id}" class="reject-payment text-red-600 hover:text-red-900">Tolak</button>
+                    <button data-id="${payment.id}" class="view-payment ${baseClasses} text-blue-600 hover:text-blue-900">Lihat</button>
+                    <button data-id="${payment.id}" class="approve-payment ${baseClasses} text-green-600 hover:text-green-900">Verifikasi</button>
+                    <button data-id="${payment.id}" class="reject-payment ${baseClasses} text-red-600 hover:text-red-900">Tolak</button>
                 </div>
             `;
             }
@@ -498,16 +589,18 @@
             document.getElementById('approvalConfirmModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             currentPaymentId = null;
+            resetButtonState('confirmApprovalBtn');
         }
 
         function closeRejectionModal() {
             document.getElementById('rejectionConfirmModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             currentPaymentId = null;
+            resetButtonState('confirmRejectionBtn');
         }
 
         function showPaymentDetail(paymentId) {
-            fetch(`/api/pembayaran/${paymentId}`, { // Perbaikan endpoint
+            fetch(`/api/pembayaran/${paymentId}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
@@ -521,18 +614,19 @@
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Payment detail loaded:', data);
                     if (data.success) {
                         renderPaymentDetail(data.data);
                         document.getElementById('paymentDetailModal').classList.remove('hidden');
                         document.body.style.overflow = 'hidden';
-                        currentPaymentId = paymentId; // Simpan paymentId untuk aksi verifikasi/tolak
+                        currentPaymentId = paymentId;
                     } else {
-                        alert(data.message || 'Gagal memuat detail pembayaran');
+                        showAlert(data.message || 'Gagal memuat detail pembayaran', 'error');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memuat detail pembayaran');
+                    console.error('Error loading payment detail:', error);
+                    showAlert('Terjadi kesalahan saat memuat detail pembayaran', 'error');
                 });
         }
 
@@ -547,20 +641,26 @@
             // Prepare passenger list HTML
             let passengerList = '';
             if (payment.tiket?.penumpang?.length > 0) {
-                passengerList = payment.tiket.penumpang.map(passenger => `
-                    <div class="border-b border-gray-200 py-2">
-                        <div class="flex justify-between">
-                            <span class="font-medium">${passenger.nama_lengkap}</span>
-                            <span class="text-sm text-gray-500">${passenger.no_identitas}</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span>${passenger.jenis_kelamin === 'laki-laki' ? 'Laki-laki' : 'Perempuan'}, ${passenger.usia} tahun</span>
-                            ${passenger.is_pemesan ? '<span class="text-blue-600">Pemesan</span>' : ''}
+                passengerList = payment.tiket.penumpang.map((passenger, index) => `
+                    <div class="border-b border-gray-200 py-3 ${index === payment.tiket.penumpang.length - 1 ? 'border-b-0' : ''}">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-medium text-gray-900">${passenger.nama_lengkap}</span>
+                                    ${passenger.is_pemesan ? '<span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Pemesan</span>' : ''}
+                                </div>
+                                <div class="mt-1 text-sm text-gray-600">
+                                    <span>${passenger.jenis_kelamin === 'laki-laki' ? 'Laki-laki' : 'Perempuan'}, ${passenger.usia} tahun</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-500">${passenger.no_identitas}</div>
+                            </div>
                         </div>
                     </div>
                 `).join('');
             } else {
-                passengerList = '<p class="text-sm text-gray-500">Tidak ada data penumpang</p>';
+                passengerList = '<p class="text-sm text-gray-500 text-center py-4">Tidak ada data penumpang</p>';
             }
 
             const content = document.getElementById('paymentDetailContent');
@@ -579,10 +679,18 @@
                                     <span class="text-sm font-medium text-gray-500 w-32">Email</span>
                                     <span class="text-sm text-gray-900">${payment.user?.email || '-'}</span>
                                 </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">No. HP</span>
+                                    <span class="text-sm text-gray-900">${payment.user?.no_hp || '-'}</span>
+                                </div>
                             </div>
 
                             <h4 class="text-sm font-medium text-gray-500 mt-6 mb-4">Informasi Tiket</h4>
                             <div class="space-y-3">
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Kode Booking</span>
+                                    <span class="text-sm text-gray-900 font-mono">${payment.tiket?.kode_pemesanan || '-'}</span>
+                                </div>
                                 <div class="flex">
                                     <span class="text-sm font-medium text-gray-500 w-32">Rute</span>
                                     <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.rute_asal || '-'} → ${payment.tiket?.jadwal?.rute_tujuan || '-'}</span>
@@ -593,7 +701,11 @@
                                 </div>
                                 <div class="flex">
                                     <span class="text-sm font-medium text-gray-500 w-32">Tanggal</span>
-                                    <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.tanggal ? new Date(payment.tiket.jadwal.tanggal).toLocaleDateString() : '-'}, ${payment.tiket?.jadwal?.waktu_berangkat || '-'}</span>
+                                    <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.tanggal ? new Date(payment.tiket.jadwal.tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-sm font-medium text-gray-500 w-32">Waktu</span>
+                                    <span class="text-sm text-gray-900">${payment.tiket?.jadwal?.waktu_berangkat || '-'} - ${payment.tiket?.jadwal?.waktu_tiba || '-'} WITA</span>
                                 </div>
                                 <div class="flex">
                                     <span class="text-sm font-medium text-gray-500 w-32">Jumlah Tiket</span>
@@ -606,7 +718,7 @@
                             <div class="space-y-3">
                                 <div class="flex">
                                     <span class="text-sm font-medium text-gray-500 w-32">ID Pembayaran</span>
-                                    <span class="text-sm text-gray-900">${payment.id}</span>
+                                    <span class="text-sm text-gray-900 font-mono">#${payment.id}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="text-sm font-medium text-gray-500 w-32">Metode</span>
@@ -614,7 +726,7 @@
                                 </div>
                                 <div class="flex">
                                     <span class="text-sm font-medium text-gray-500 w-32">Tanggal</span>
-                                    <span class="text-sm text-gray-900">${new Date(payment.created_at).toLocaleDateString()}</span>
+                                    <span class="text-sm text-gray-900">${new Date(payment.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="text-sm font-medium text-gray-500 w-32">Status</span>
@@ -628,10 +740,10 @@
                             <div class="space-y-3">
                                 <div class="flex justify-between">
                                     <span class="text-sm text-gray-500">Tiket (${payment.tiket?.jumlah_penumpang || 0} x Rp ${formatCurrency(payment.tiket?.jadwal?.harga_tiket || 0)})</span>
-                                    <span class="text-sm text-gray-900">Rp ${formatCurrency(payment.tiket?.total_harga || 0)}</span>
+                                    <span class="text-sm text-gray-900">Rp ${formatCurrency((payment.tiket?.jumlah_penumpang || 0) * (payment.tiket?.jadwal?.harga_tiket || 0))}</span>
                                 </div>
                                 <div class="pt-2 border-t border-gray-200 flex justify-between">
-                                    <span class="text-sm font-medium text-gray-900">Total</span>
+                                    <span class="text-sm font-medium text-gray-900">Total Dibayar</span>
                                     <span class="text-sm font-medium text-gray-900">Rp ${formatCurrency(payment.jumlah_bayar)}</span>
                                 </div>
                             </div>
@@ -640,7 +752,7 @@
 
                     <!-- Passenger List Section -->
                     <div class="mt-6">
-                        <h4 class="text-sm font-medium text-gray-500 mb-4">Daftar Penumpang</h4>
+                        <h4 class="text-sm font-medium text-gray-500 mb-4">Daftar Penumpang (${payment.tiket?.jumlah_penumpang || 0} orang)</h4>
                         <div class="bg-gray-50 rounded-lg p-4">
                             ${passengerList}
                         </div>
@@ -650,33 +762,93 @@
                 <div>
                     <h4 class="text-sm font-medium text-gray-500 mb-4">Bukti Pembayaran</h4>
                     <div class="mb-4">
-                        <img src="${payment.bukti_transfer_url || 'https://via.placeholder.com/400x500'}" alt="Bukti Pembayaran" class="w-full h-auto rounded-lg">
+                        <img src="${payment.bukti_transfer_url || 'https://via.placeholder.com/400x500?text=Tidak+Ada+Gambar'}"
+                             alt="Bukti Pembayaran"
+                             class="w-full h-auto rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                             onclick="window.open(this.src, '_blank')"
+                             onerror="this.src='https://via.placeholder.com/400x500?text=Gambar+Tidak+Ditemukan'">
                     </div>
                     ${payment.bukti_transfer_url ? `
-                            <div class="flex justify-center">
-                                <a href="${payment.bukti_transfer_url}" download class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Unduh Bukti Pembayaran
-                                </a>
-                            </div>
-                            ` : ''}
+                                <div class="flex justify-center mb-4">
+                                    <a href="${payment.bukti_transfer_url}" target="_blank" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                        <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Unduh Bukti Pembayaran
+                                    </a>
+                                </div>
+                                ` : ''}
 
                     <!-- Tambahkan tombol aksi jika status masih menunggu -->
                     ${payment.status === 'menunggu' ? `
-                            <div class="mt-6 flex flex-col sm:flex-row gap-2">
-                                <button onclick="showApprovalModal('${payment.id}')" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
-                                    Verifikasi
-                                </button>
-                                <button onclick="showRejectionModal('${payment.id}')" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                                    Tolak
-                                </button>
-                            </div>
-                        ` : ''}
+                                <div class="mt-6 flex flex-col gap-2">
+                                    <button data-action="approve" data-payment-id="${payment.id}" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                        <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Verifikasi Pembayaran
+                                    </button>
+                                    <button data-action="reject" data-payment-id="${payment.id}" class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                        <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Tolak Pembayaran
+                                    </button>
+                                </div>
+                            ` : payment.status === 'terverifikasi' ? `
+                                <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-green-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span class="text-sm font-medium text-green-800">Pembayaran telah diverifikasi</span>
+                                    </div>
+                                    <p class="text-sm text-green-700 mt-1">E-tiket telah dikirim ke email pelanggan</p>
+                                </div>
+                            ` : payment.status === 'ditolak' ? `
+                                <div class="mt-6 p-4 bg-red-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-red-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        <span class="text-sm font-medium text-red-800">Pembayaran ditolak</span>
+                                    </div>
+                                </div>
+                            ` : ''}
                 </div>
             </div>
             `;
         }
 
+        function setButtonLoading(buttonId, isLoading) {
+            const button = document.getElementById(buttonId);
+            const textSpan = button.querySelector('.btn-text');
+            const loadingSpan = button.querySelector('.btn-loading');
+
+            if (isLoading) {
+                textSpan.classList.add('hidden');
+                loadingSpan.classList.remove('hidden');
+                button.disabled = true;
+            } else {
+                textSpan.classList.remove('hidden');
+                loadingSpan.classList.add('hidden');
+                button.disabled = false;
+            }
+        }
+
+        function resetButtonState(buttonId) {
+            setButtonLoading(buttonId, false);
+        }
+
         function processPaymentStatus(paymentId, action) {
+            if (isProcessing) return;
+
+            isProcessing = true;
+            const buttonId = action === 'verifikasi' ? 'confirmApprovalBtn' : 'confirmRejectionBtn';
+            setButtonLoading(buttonId, true);
+
+            console.log(`Processing payment ${paymentId} with action: ${action}`);
+
             fetch(`/api/pembayaran/${paymentId}/verifikasi`, {
                     method: 'POST',
                     headers: {
@@ -689,16 +861,19 @@
                     })
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw err;
-                        });
-                    }
-                    return response.json();
+                    console.log('Response status:', response.status);
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Network response was not ok');
+                        }
+                        return data;
+                    });
                 })
                 .then(data => {
+                    console.log('Response data:', data);
+
                     if (data.success) {
-                        // Close the modal first
+                        // Close modals immediately
                         if (action === 'verifikasi') {
                             closeApprovalModal();
                         } else {
@@ -706,18 +881,27 @@
                         }
                         closeDetailModal();
 
-                        // Show success notification
-                        showAlert(`Pembayaran berhasil ${action === 'verifikasi' ? 'diverifikasi' : 'ditolak'}`, 'success');
+                        // Show success notification immediately
+                        const message = action === 'verifikasi' ?
+                            'Pembayaran berhasil diverifikasi dan e-tiket telah dikirim ke email pelanggan' :
+                            'Pembayaran berhasil ditolak';
+                        showAlert(message, 'success');
 
-                        // Refresh the data
-                        loadPaymentData();
+                        // Refresh the data immediately
+                        setTimeout(() => {
+                            loadPaymentData();
+                        }, 100);
                     } else {
-                        showAlert(data.message || 'Gagal memperbarui status pembayaran', 'error');
+                        throw new Error(data.message || 'Gagal memperbarui status pembayaran');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('Terjadi kesalahan saat memperbarui status pembayaran: ' + (error.message || error), 'error');
+                    showAlert('Terjadi kesalahan: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    isProcessing = false;
+                    setButtonLoading(buttonId, false);
                 });
         }
 
@@ -727,21 +911,40 @@
                 return;
             }
 
-            const alertClasses = type === 'success'
-                ? 'text-green-800 bg-green-50'
-                : 'text-red-800 bg-red-50';
+            const alertClasses = type === 'success' ?
+                'text-green-800 bg-green-50 border border-green-200' :
+                'text-red-800 bg-red-50 border border-red-200';
 
             elements.alertMessage.className = `p-4 text-sm rounded-lg ${alertClasses}`;
             elements.alertText.textContent = message;
             elements.alertContainer.classList.remove('hidden');
 
+            // Auto hide after 5 seconds
             setTimeout(() => {
                 elements.alertContainer.classList.add('hidden');
             }, 5000);
+
+            // Scroll to top to show alert
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
     </script>
 
     <style>
+        /* Loading animation */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive table styles */
         @media (max-width: 640px) {
             #payment-container .overflow-x-auto {
                 width: 100%;
@@ -771,6 +974,9 @@
             #payment-container tr {
                 border: 1px solid #e5e7eb;
                 margin-bottom: 1rem;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                background: white;
             }
 
             #payment-container td {
@@ -780,18 +986,54 @@
                 padding-left: 50%;
                 white-space: normal;
                 text-align: left;
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
+            }
+
+            #payment-container td:last-child {
+                border-bottom: none;
             }
 
             #payment-container td:before {
                 position: absolute;
-                top: 6px;
-                left: 6px;
+                top: 0.5rem;
+                left: 0;
                 width: 45%;
                 padding-right: 10px;
                 white-space: nowrap;
                 font-weight: 600;
-                content: attr(data-title);
+                content: attr(data-title) ":";
+                color: #6b7280;
+                font-size: 0.875rem;
             }
+        }
+
+        /* Modal improvements */
+        .backdrop-blur-sm {
+            backdrop-filter: blur(4px);
+        }
+
+        /* Button hover effects */
+        .transition-colors {
+            transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+        }
+
+        /* Custom scrollbar for modal */
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 @endsection

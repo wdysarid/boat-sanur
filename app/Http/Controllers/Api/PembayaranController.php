@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\EtiketMail;
 use Illuminate\Support\Facades\Mail;
 use App\Services\QrCodeService;
+use Illuminate\Support\Facades\Log;
 
 class PembayaranController extends Controller
 {
@@ -135,58 +136,101 @@ class PembayaranController extends Controller
             );
         }
 
-        $pembayaran = Pembayaran::with('tiket')->find($id);
+        try {
+            $pembayaran = Pembayaran::with('tiket.user')->find($id);
 
-        if (!$pembayaran) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Pembayaran tidak ditemukan',
-                ],
-                404,
-            );
-        }
-
-        if ($pembayaran->status !== 'menunggu') {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Pembayaran sudah diproses sebelumnya',
-                ],
-                400,
-            );
-        }
-
-        DB::transaction(function () use ($pembayaran, $request) {
-            $pembayaran->update(['status' => $request->status]);
-
-            if ($request->status === 'terverifikasi') {
-                $pembayaran->tiket()->update(['status' => Tiket::STATUS_SUKSES]);
-
-                // Kirim email e-tiket
-                $tiket = $pembayaran->tiket;
-                $qrCodeService = app(QrCodeService::class);
-
-                // Generate QR Code data
-                $qrData = json_encode([
-                    'ticket_id' => $tiket->id,
-                    'booking_code' => $tiket->kode_pemesanan,
-                    'user_id' => $tiket->user_id,
-                    'schedule_id' => $tiket->jadwal_id,
-                ]);
-
-                $qrCodeImage = $qrCodeService->generateQrCode($qrData, 200);
-
-                Mail::to($tiket->user->email)->send(new EtiketMail($tiket, $qrCodeImage));
-            } elseif ($request->status === 'ditolak') {
-                $pembayaran->tiket()->update(['status' => Tiket::STATUS_DIBATALKAN]);
+            if (!$pembayaran) {
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Pembayaran tidak ditemukan',
+                    ],
+                    404,
+                );
             }
-        });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Status pembayaran diperbarui',
-        ]);
+            if ($pembayaran->status !== 'menunggu') {
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Pembayaran sudah diproses sebelumnya',
+                    ],
+                    400,
+                );
+            }
+
+            DB::transaction(function () use ($pembayaran, $request) {
+                // Update status pembayaran
+                $pembayaran->update(['status' => $request->status]);
+
+                if ($request->status === 'terverifikasi') {
+                    // Update status tiket
+                    $pembayaran->tiket()->update(['status' => Tiket::STATUS_SUKSES]);
+
+                    // Kirim email e-tiket secara asynchronous
+                    $this->sendEtiketEmail($pembayaran->tiket);
+
+                } elseif ($request->status === 'ditolak') {
+                    $pembayaran->tiket()->update(['status' => Tiket::STATUS_DIBATALKAN]);
+                }
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status pembayaran berhasil diperbarui',
+                'data' => [
+                    'payment_id' => $pembayaran->id,
+                    'new_status' => $request->status
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error verifying payment', [
+                'payment_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui status pembayaran: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Send e-ticket email asynchronously
+     */
+    private function sendEtiketEmail($tiket)
+    {
+        try {
+            $qrCodeService = app(QrCodeService::class);
+
+            // Generate QR Code data
+            $qrData = json_encode([
+                'ticket_id' => $tiket->id,
+                'booking_code' => $tiket->kode_pemesanan,
+                'user_id' => $tiket->user_id,
+                'schedule_id' => $tiket->jadwal_id,
+            ]);
+
+            $qrCodeImage = $qrCodeService->generateQrCode($qrData, 200);
+
+            // Kirim email
+            Mail::to($tiket->user->email)->send(new EtiketMail($tiket, $qrCodeImage));
+
+            Log::info('E-ticket email sent successfully', [
+                'ticket_id' => $tiket->id,
+                'user_email' => $tiket->user->email
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error sending e-ticket email', [
+                'ticket_id' => $tiket->id,
+                'error' => $e->getMessage()
+            ]);
+            // Jangan throw error, biarkan proses verifikasi tetap berhasil
+        }
     }
 
     public function cancelPayment(Request $request)
