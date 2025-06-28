@@ -164,7 +164,7 @@
         </div>
     </div>
 
-    <!-- Detail Tiket Modal - PERBAIKAN: Modal yang lebih komprehensif -->
+    <!-- Detail Tiket Modal -->
     <div id="ticketDetailModal"
         class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
@@ -183,38 +183,88 @@
         </div>
     </div>
 
-    <!-- Cancel Ticket Confirmation Modal -->
+    <!-- IMPROVED: Modal Konfirmasi Pembatalan Tiket -->
     <div id="cancelTicketModal"
         class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-800">Konfirmasi Pembatalan Tiket</h3>
-                <button id="closeCancelTicketModal" class="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Konfirmasi Pembatalan
+                    </h3>
+                    <button id="closeCancelTicketModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <div class="p-6">
+
+            <!-- Content -->
+            <div class="px-6 py-6">
+                <!-- Warning Icon -->
                 <div class="flex items-center justify-center mb-4">
-                    <svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Ticket Info -->
+                <div id="cancelTicketInfo" class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-medium text-gray-900 mb-2">Detail Tiket yang akan dibatalkan:</h4>
+                    <div class="space-y-1 text-sm text-gray-600">
+                        <p><span class="font-medium">Kode:</span> <span id="cancelTicketCode">-</span></p>
+                        <p><span class="font-medium">Rute:</span> <span id="cancelTicketRoute">-</span></p>
+                        <p><span class="font-medium">Tanggal:</span> <span id="cancelTicketDate">-</span></p>
+                        <p><span class="font-medium">Penumpang:</span> <span id="cancelTicketPassengers">-</span></p>
+                    </div>
+                </div>
+
+                <!-- Warning Message -->
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div class="flex">
+                        <svg class="w-5 h-5 text-red-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <h4 class="text-sm font-medium text-red-800 mb-1">Peringatan Penting!</h4>
+                            <ul class="text-sm text-red-700 space-y-1">
+                                <li>• Tiket yang dibatalkan tidak dapat dikembalikan</li>
+                                <li>• Pembayaran yang sudah dilakukan akan diproses sesuai kebijakan</li>
+                                <li>• Aksi ini tidak dapat dibatalkan</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation Question -->
+                <p class="text-center text-gray-700 font-medium mb-6">
+                    Apakah Anda yakin ingin membatalkan tiket ini?
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelCancelTicket"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                    Tidak, Batalkan
+                </button>
+                <button id="confirmCancelTicket"
+                    class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                </div>
-                <p class="text-center text-gray-700 mb-6">Apakah Anda yakin ingin membatalkan tiket ini? Aksi ini tidak
-                    dapat dibatalkan.</p>
-                <div class="flex justify-center space-x-4">
-                    <button id="confirmCancelTicket"
-                        class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
-                        Ya, Batalkan
-                    </button>
-                    <button id="cancelCancelTicket"
-                        class="px-6 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg transition-colors">
-                        Tidak
-                    </button>
-                </div>
+                    Ya, Batalkan Tiket
+                </button>
             </div>
         </div>
     </div>
@@ -227,7 +277,175 @@
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script>
-        // PERBAIKAN: Fungsi untuk memuat tiket berdasarkan status dengan URL yang benar
+        // Global variables
+        let currentTicketToCancel = null;
+
+        // IMPROVED: Fungsi untuk membatalkan tiket dengan modal konfirmasi
+        function cancelTicket(ticketId) {
+            // Cari data tiket dari DOM atau fetch dari server
+            fetchTicketDataForCancellation(ticketId);
+        }
+
+        // IMPROVED: Fetch ticket data untuk modal konfirmasi
+        function fetchTicketDataForCancellation(ticketId) {
+            showLoading();
+
+            fetch(`/wisatawan/tiket/${ticketId}/detail`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gagal memuat data tiket');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showCancelTicketModal(data.data);
+                } else {
+                    throw new Error(data.message || 'Gagal memuat data tiket');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Gagal memuat data tiket: ' + error.message, 'error');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+
+        // IMPROVED: Tampilkan modal konfirmasi pembatalan dengan data tiket
+        function showCancelTicketModal(ticket) {
+            currentTicketToCancel = ticket;
+
+            // Populate modal dengan data tiket
+            document.getElementById('cancelTicketCode').textContent = ticket.kode_pemesanan;
+            document.getElementById('cancelTicketRoute').textContent =
+                `${ticket.jadwal.rute_asal} → ${ticket.jadwal.rute_tujuan}`;
+
+            // Format tanggal
+            const ticketDate = new Date(ticket.jadwal.tanggal);
+            document.getElementById('cancelTicketDate').textContent =
+                ticketDate.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+            document.getElementById('cancelTicketPassengers').textContent =
+                `${ticket.jumlah_penumpang} orang`;
+
+            // Tampilkan modal
+            const modal = document.getElementById('cancelTicketModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Focus pada tombol batal untuk accessibility
+            setTimeout(() => {
+                document.getElementById('cancelCancelTicket').focus();
+            }, 100);
+        }
+
+        // IMPROVED: Tutup modal konfirmasi
+        function closeCancelTicketModal() {
+            const modal = document.getElementById('cancelTicketModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentTicketToCancel = null;
+        }
+
+        // IMPROVED: Konfirmasi pembatalan tiket
+        function confirmTicketCancellation() {
+            if (!currentTicketToCancel) {
+                showToast('Data tiket tidak valid', 'error');
+                return;
+            }
+
+            const confirmBtn = document.getElementById('confirmCancelTicket');
+            const originalText = confirmBtn.innerHTML;
+
+            // Disable button dan show loading
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `
+                <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Membatalkan...
+            `;
+
+            fetch(`/api/tiket/${currentTicketToCancel.id}/batal`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Gagal membatalkan tiket');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    closeCancelTicketModal();
+                    showToast('Tiket berhasil dibatalkan', 'success');
+                    // Refresh list tiket
+                    filterTickets('all');
+                } else {
+                    throw new Error(data.message || 'Gagal membatalkan tiket');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast(error.message || 'Terjadi kesalahan saat membatalkan tiket', 'error');
+            })
+            .finally(() => {
+                // Restore button
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalText;
+            });
+        }
+
+        // Event listeners untuk modal konfirmasi
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close modal buttons
+            document.getElementById('closeCancelTicketModal').addEventListener('click', closeCancelTicketModal);
+            document.getElementById('cancelCancelTicket').addEventListener('click', closeCancelTicketModal);
+
+            // Confirm cancellation button
+            document.getElementById('confirmCancelTicket').addEventListener('click', confirmTicketCancellation);
+
+            // Close modal when clicking outside
+            document.getElementById('cancelTicketModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCancelTicketModal();
+                }
+            });
+
+            // Close modal with ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('cancelTicketModal');
+                    if (!modal.classList.contains('hidden')) {
+                        closeCancelTicketModal();
+                    }
+                }
+            });
+        });
+
+        // Rest of the existing JavaScript code remains the same...
         function filterTickets(status) {
             showLoading();
 
@@ -249,7 +467,6 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        // Pastikan data.data ada dan merupakan array
                         const tickets = Array.isArray(data.data) ? data.data : [];
                         renderTickets(tickets);
                         updateStats(data.stats);
@@ -260,7 +477,6 @@
                 .catch(error => {
                     console.error('Error:', error);
                     showToast(error.message || 'Terjadi kesalahan saat memuat tiket', 'error');
-                    // Tampilkan empty state jika error
                     document.getElementById('emptyState').classList.remove('hidden');
                     document.getElementById('ticketsList').classList.add('hidden');
                 })
@@ -291,7 +507,6 @@
             }
         }
 
-        // Fungsi untuk merender tiket
         function renderTickets(tickets) {
             const container = document.getElementById('ticketsList');
             const emptyState = document.getElementById('emptyState');
@@ -304,7 +519,6 @@
                 return;
             }
 
-            // Filter tickets yang tidak valid
             const validTickets = tickets.filter(ticket => {
                 if (!ticket.id) {
                     console.warn('Invalid ticket skipped:', ticket);
@@ -328,9 +542,7 @@
             });
         }
 
-        // Fungsi untuk membuat elemen tiket
         function createTicketElement(ticket) {
-            // Tentukan status tiket berdasarkan kondisi
             let status, bgColor, textColor, statusText, badgeClass, statusMessage;
 
             if (ticket.status === 'sukses') {
@@ -339,7 +551,6 @@
                     const ticketDate = new Date(ticket.jadwal.tanggal);
 
                     if (ticketDate >= today) {
-                        // Tiket akan datang
                         status = 'upcoming';
                         bgColor = 'bg-green-500';
                         textColor = 'text-green-100';
@@ -347,7 +558,6 @@
                         badgeClass = 'bg-green-400 text-green-900';
                         statusMessage = '✅ Tiket sudah dikonfirmasi. Tiba di pelabuhan 30 menit sebelum keberangkatan.';
                     } else {
-                        // Tiket sudah selesai
                         status = 'completed';
                         bgColor = 'bg-gray-500';
                         textColor = 'text-gray-100';
@@ -356,7 +566,6 @@
                         statusMessage = 'Perjalanan selesai dengan sukses';
                     }
                 } else if (ticket.pembayaran?.status === 'menunggu') {
-                    // PERBAIKAN: Tiket sukses tapi pembayaran masih menunggu konfirmasi
                     status = 'pending';
                     bgColor = 'bg-yellow-500';
                     textColor = 'text-yellow-100';
@@ -371,7 +580,6 @@
                     badgeClass = 'bg-red-400 text-red-900';
                     statusMessage = '❌ Pembayaran ditolak. Silakan hubungi customer service atau lakukan pemesanan ulang.';
                 } else {
-                    // PERBAIKAN: Tiket sukses tapi tidak ada pembayaran atau status lain
                     status = 'pending';
                     bgColor = 'bg-yellow-500';
                     textColor = 'text-yellow-100';
@@ -401,7 +609,6 @@
                 badgeClass = 'bg-red-400 text-red-900';
                 statusMessage = 'Tiket ini telah dibatalkan.';
             } else {
-                // Status default
                 status = 'pending';
                 bgColor = 'bg-gray-500';
                 textColor = 'text-gray-100';
@@ -410,8 +617,6 @@
                 statusMessage = 'Status tiket tidak diketahui. Silakan hubungi customer service.';
             }
 
-            // Rest of the function remains the same...
-            // Format tanggal
             const ticketDate = new Date(ticket.jadwal.tanggal);
             const formattedDate = ticketDate.toLocaleDateString('id-ID', {
                 day: 'numeric',
@@ -419,20 +624,11 @@
                 year: 'numeric'
             });
 
-            // Format harga
             const totalHarga = new Intl.NumberFormat('id-ID', {
                 style: 'currency',
                 currency: 'IDR'
             }).format(ticket.total_harga);
 
-            const cancelButton = `
-                <button onclick="cancelTicket('${ticket.id}')"
-                    class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">
-                    Batalkan
-                </button>
-            `;
-
-            // Buat elemen tiket
             const ticketDiv = document.createElement('div');
             ticketDiv.className =
                 `bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ticket-card ${status === 'completed' ? 'opacity-75' : ''}`;
@@ -489,11 +685,10 @@
             return ticketDiv;
         }
 
-        // Fungsi untuk merender aksi tiket berdasarkan status
         function renderTicketActions(ticket, status) {
             if (!ticket.id) {
                 console.error('Invalid ticket data in renderTicketActions:', ticket);
-                return ''; // Return string kosong jika data tidak valid
+                return '';
             }
 
             let actions = '';
@@ -506,20 +701,18 @@
                             Lihat Detail
                         </button>
                         ${ticket.status === 'menunggu' ? `
-                                                                                                    <a href="{{ route('wisatawan.pembayaran') }}?tiket_id=${ticket.id}"
-                                                                                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors">
-                                                                                                        Bayar Sekarang
-                                                                                                    </a>
-                                                                                                ` : `
-
-                                                                                                `}
+                            <a href="{{ route('wisatawan.pembayaran') }}?tiket_id=${ticket.id}"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors">
+                                Bayar Sekarang
+                            </a>
+                        ` : ''}
                     </div>
                     ${ticket.status === 'menunggu' || ticket.status === 'diproses' ? `
-                                                                                                <button onclick="cancelTicket('${ticket.id}')"
-                                                                                                    class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">
-                                                                                                    Batalkan
-                                                                                                </button>
-                                                                                            ` : ''}
+                        <button onclick="cancelTicket('${ticket.id}')"
+                            class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">
+                            Batalkan
+                        </button>
+                    ` : ''}
                 `;
             } else if (status === 'upcoming') {
                 actions = `
@@ -547,7 +740,6 @@
                     </div>
                 `;
             } else if (status === 'completed') {
-                // PERBAIKAN: Semua tiket completed bisa lihat detail
                 actions = `
                     <div class="flex justify-center space-x-3">
                         <button onclick="viewTicketDetails('${ticket.id}')"
@@ -561,7 +753,6 @@
             return actions;
         }
 
-        // Fungsi untuk memperbarui statistik
         function updateStats(stats) {
             document.querySelector('[data-stat="total"]').textContent = stats.total;
             document.querySelector('[data-stat="upcoming"]').textContent = stats.upcoming;
@@ -569,9 +760,7 @@
             document.querySelector('[data-stat="completed"]').textContent = stats.completed;
         }
 
-        // PERBAIKAN: Fungsi untuk menampilkan detail tiket dengan modal yang lebih komprehensif
         function viewTicketDetails(ticketId) {
-            // PERBAIKAN: Gunakan route web yang sudah ditambahkan
             fetch(`/wisatawan/tiket/${ticketId}/detail`, {
                     headers: {
                         'Accept': 'application/json',
@@ -600,13 +789,11 @@
                 });
         }
 
-        // PERBAIKAN: Modal detail tiket yang mirip dengan modal pembayaran admin
         function showTicketDetailModal(ticket, qrCodeDataUri) {
             const modal = document.getElementById('ticketDetailModal');
             const title = document.getElementById('ticketDetailTitle');
             const content = document.getElementById('ticketDetailContent');
 
-            // Format tanggal
             const formattedDate = new Date(ticket.jadwal.tanggal).toLocaleDateString('id-ID', {
                 weekday: 'long',
                 day: 'numeric',
@@ -614,7 +801,6 @@
                 year: 'numeric'
             });
 
-            // Format penumpang
             let passengerList = '';
             if (ticket.penumpang && ticket.penumpang.length > 0) {
                 passengerList = ticket.penumpang.map(passenger => `
@@ -633,7 +819,6 @@
                 passengerList = '<p class="text-sm text-gray-500">Tidak ada data penumpang</p>';
             }
 
-            // Format status pembayaran jika ada
             let paymentStatus = '';
             if (ticket.pembayaran) {
                 paymentStatus = `
@@ -658,7 +843,6 @@
                 paymentStatus = '<p class="text-sm text-gray-500">Belum ada data pembayaran</p>';
             }
 
-            // QR Code section - PERBAIKAN: Gunakan QR Code dari server
             let qrCodeSection = '';
             if (qrCodeDataUri && ticket.status === 'sukses' && ticket.pembayaran?.status === 'terverifikasi') {
                 qrCodeSection = `
@@ -691,7 +875,6 @@
     `;
             }
 
-            // Set konten modal
             title.textContent = `Detail Tiket ${ticket.kode_pemesanan}`;
             content.innerHTML = `
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -767,28 +950,28 @@
                     Bukti Pembayaran
                 </h4>
                 ${ticket.pembayaran?.bukti_transfer_url ? `
-                                                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                                        <div class="p-3 bg-gray-50 border-b border-gray-200">
-                                                            <button onclick="togglePaymentProof()" class="flex items-center justify-between w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900">
-                                                                <span>Lihat Bukti Transfer</span>
-                                                                <svg id="paymentProofIcon" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                        <div id="paymentProofContent" class="hidden p-3">
-                                                            <img src="${ticket.pembayaran.bukti_transfer_url}" alt="Bukti Pembayaran" class="w-full h-auto rounded-lg border mb-3">
-                                                            <div class="flex justify-center">
-                                                                <a href="${ticket.pembayaran.bukti_transfer_url}" download class="px-3 py-2 border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                                    <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                                    </svg>
-                                                                    Unduh
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ` : '<p class="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">Tidak ada bukti pembayaran</p>'}
+                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div class="p-3 bg-gray-50 border-b border-gray-200">
+                            <button onclick="togglePaymentProof()" class="flex items-center justify-between w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900">
+                                <span>Lihat Bukti Transfer</span>
+                                <svg id="paymentProofIcon" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="paymentProofContent" class="hidden p-3">
+                            <img src="${ticket.pembayaran.bukti_transfer_url}" alt="Bukti Pembayaran" class="w-full h-auto rounded-lg border mb-3">
+                            <div class="flex justify-center">
+                                <a href="${ticket.pembayaran.bukti_transfer_url}" download class="px-3 py-2 border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    Unduh
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                ` : '<p class="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">Tidak ada bukti pembayaran</p>'}
             </div>
         </div>
     </div>
@@ -808,19 +991,16 @@
                 }
             };
 
-            // Tampilkan modal
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
 
-        // Fungsi untuk menutup modal detail
         function closeTicketDetailModal() {
             const modal = document.getElementById('ticketDetailModal');
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
 
-        // Fungsi helper untuk status class
         function getStatusClass(status) {
             switch (status) {
                 case 'menunggu':
@@ -838,7 +1018,6 @@
             }
         }
 
-        // Fungsi helper untuk status text
         function getStatusText(status) {
             switch (status) {
                 case 'menunggu':
@@ -858,7 +1037,6 @@
             }
         }
 
-        // Fungsi helper untuk metode pembayaran text
         function getPaymentMethodText(method) {
             switch (method) {
                 case 'transfer':
@@ -870,54 +1048,11 @@
             }
         }
 
-        // PERBAIKAN: Fungsi untuk membatalkan tiket dengan URL yang benar
-        function cancelTicket(ticketId) {
-            if (confirm('Apakah Anda yakin ingin membatalkan tiket ini?')) {
-                showLoading();
-
-                fetch(`/api/tiket/${ticketId}/batal`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        credentials: 'include'
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => {
-                                throw new Error(err.message || 'Gagal membatalkan tiket');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Tiket berhasil dibatalkan', 'success');
-                            // Refresh list tiket
-                            filterTickets('all');
-                        } else {
-                            throw new Error(data.message || 'Gagal membatalkan tiket');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast(error.message || 'Terjadi kesalahan saat membatalkan tiket', 'error');
-                    })
-                    .finally(() => {
-                        hideLoading();
-                    });
-            }
-        }
-
-        // Fungsi untuk mengunduh tiket
         function downloadTicket(ticketId) {
             showToast('Memproses unduhan PDF...', 'info');
             window.location.href = `/wisatawan/tiket/${ticketId}/pdf`;
         }
 
-        // Fungsi untuk menampilkan toast
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -973,14 +1108,12 @@
             }, 4000);
         }
 
-        // Memuat tiket saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
             const closeButton = document.getElementById('closeTicketDetailModal');
             if (closeButton) {
                 closeButton.addEventListener('click', closeTicketDetailModal);
             }
 
-            // Close modal ketika klik di luar modal
             const modal = document.getElementById('ticketDetailModal');
             if (modal) {
                 modal.addEventListener('click', function(e) {
@@ -990,14 +1123,12 @@
                 });
             }
 
-            // Close modal dengan ESC key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeTicketDetailModal();
                 }
             });
 
-            // Load tickets saat halaman dimuat
             filterTickets('all');
         });
     </script>
