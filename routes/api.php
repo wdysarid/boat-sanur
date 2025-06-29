@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\KapalController;
 use App\Http\Controllers\Api\TiketController;
 use App\Http\Controllers\api\JadwalController;
+use App\Http\Controllers\Api\QrCodeController;
 use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\PenumpangController;
 use App\Http\Controllers\Api\PembayaranController;
@@ -19,6 +20,14 @@ Route::post('/login', [AuthController::class, 'login'])
     ->middleware('web');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+Route::prefix('v1')->group(function () {
+    // FIXED: QR Code API routes
+    Route::prefix('qr')->group(function () {
+        Route::post('/generate', [QrCodeController::class, 'generateQrCode']);
+        Route::get('/ticket/{ticketId}', [QrCodeController::class, 'generateTicketQrCode']);
+    });
+});
 
 // Protected Routes
 // Route::middleware('auth:sanctum')->group(function () {

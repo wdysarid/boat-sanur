@@ -166,6 +166,9 @@
             border-radius: 10px;
             padding: 10px;
             background: white;
+            /* IMPROVED: Optimized size for simple QR codes */
+            width: 180px;
+            height: 180px;
         }
 
         .important-notice {
@@ -175,6 +178,30 @@
             padding: 15px;
             margin: 20px 0;
             color: #856404;
+        }
+
+        /* IMPROVED: QR Code section styling for simple codes */
+        .qr-info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .qr-info h4 {
+            color: #1976d2;
+            margin: 0 0 5px 0;
+            font-size: 14px;
+        }
+
+        .qr-info p {
+            color: #1565c0;
+            margin: 0;
+            font-size: 12px;
+            font-family: monospace;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -259,12 +286,15 @@
 
             <div class="qr-section">
                 <h3 style="margin-top: 0; color: #007bff;">QR Code Boarding</h3>
-                <img src="{{ $qrCodeImage }}" alt="QR Code Tiket" class="qr-code-img" width="180" height="180">
+                <img src="{{ $qrCodeImage }}" alt="QR Code Tiket" class="qr-code-img">
+
+                <!-- IMPROVED: Simple QR Code information -->
+                <div class="qr-info">
+                    <p>{{ $tiket->kode_pemesanan }}</p>
+                </div>
+
                 <p style="font-size: 12px; margin: 15px 0 5px 0; font-weight: bold;">
                     Scan QR Code ini saat boarding
-                </p>
-                <p style="font-size: 10px; color: #6c757d; margin: 0;">
-                    Kode: {{ $tiket->kode_pemesanan }}
                 </p>
             </div>
         </div>

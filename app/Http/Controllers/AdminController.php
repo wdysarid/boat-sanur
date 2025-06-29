@@ -11,14 +11,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use App\Services\QrCodeService;
 
 class AdminController extends Controller
 {
     private $apiUrl;
+    protected $qrCodeService;
 
-    public function __construct()
+    public function __construct(QrCodeService $qrCodeService)
     {
         $this->apiUrl = env('APP_API_URL', 'http://localhost:8000/api');
+        $this->qrCodeService = $qrCodeService;
     }
 
     public function indexKapal()
@@ -163,42 +166,133 @@ class AdminController extends Controller
         return view('admin.passengers');
     }
 
-    public function getPassengerData(Request $request)
+    public function getPassengersData(Request $request)
     {
         try {
-            $query = Penumpang::with(['tiket.jadwal.kapal', 'user'])
-                ->select('penumpang.*')
-                ->join('tiket', 'tiket.id', '=', 'penumpang.tiket_id')
-                ->join('jadwal', 'jadwal.id', '=', 'tiket.jadwal_id');
+            $validator = Validator::make($request->all(), [
+                'search' => 'nullable|string|max:255',
+                'status' => 'nullable|in:booked,checked_in,boarded,completed,cancelled',
+                'jadwal_id' => 'nullable|exists:jadwal,id',
+                'date' => 'nullable|date',
+                'page' => 'nullable|integer|min:1',
+            ]);
 
-            // Apply filters
-            if ($request->has('search') && !empty($request->search)) {
+            if ($validator->fails()) {
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Validasi gagal',
+                        'errors' => $validator->errors(),
+                    ],
+                    422,
+                );
+            }
+
+            // FIXED: Query yang lebih sederhana dan aman
+            $query = Penumpang::with([
+                'tiket' => function ($q) {
+                    $q->select('id', 'kode_pemesanan', 'jadwal_id', 'user_id', 'status', 'jumlah_penumpang', 'total_harga');
+                },
+                'tiket.jadwal' => function ($q) {
+                    $q->select('id', 'rute_asal', 'rute_tujuan', 'tanggal', 'waktu_berangkat', 'kapal_id');
+                },
+                'tiket.jadwal.kapal' => function ($q) {
+                    $q->select('id', 'nama_kapal');
+                },
+                'user' => function ($q) {
+                    $q->select('id', 'nama', 'email');
+                },
+            ]);
+
+            // Apply search filter
+            if ($request->filled('search')) {
                 $search = $request->search;
-                $query->where(function($q) use ($search) {
-                    $q->where('penumpang.nama_lengkap', 'like', "%{$search}%")
-                      ->orWhere('penumpang.no_identitas', 'like', "%{$search}%")
-                      ->orWhere('tiket.kode_pemesanan', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('no_identitas', 'like', "%{$search}%")
+                        ->orWhereHas('tiket', function ($subQ) use ($search) {
+                            $subQ->where('kode_pemesanan', 'like', "%{$search}%");
+                        });
                 });
             }
 
-            if ($request->has('status') && $request->status !== 'all' && !empty($request->status)) {
-                $query->where('penumpang.status', $request->status);
+            // Apply status filter
+            if ($request->filled('status') && $request->status !== 'all') {
+                $query->where('status', $request->status);
             }
 
-            if ($request->has('jadwal_id') && !empty($request->jadwal_id)) {
-                $query->where('tiket.jadwal_id', $request->jadwal_id);
+            // Apply schedule filter
+            if ($request->filled('jadwal_id')) {
+                $query->whereHas('tiket', function ($q) use ($request) {
+                    $q->where('jadwal_id', $request->jadwal_id);
+                });
             }
 
-            if ($request->has('date') && !empty($request->date)) {
-                $query->whereDate('jadwal.tanggal', $request->date);
+            // Apply date filter
+            if ($request->filled('date')) {
+                $query->whereHas('tiket.jadwal', function ($q) use ($request) {
+                    $q->whereDate('tanggal', $request->date);
+                });
             }
+
+            // Get total count before pagination
+            $totalCount = $query->count();
 
             // Pagination
             $perPage = 15;
-            $penumpang = $query->orderBy('penumpang.created_at', 'desc')
-                              ->paginate($perPage);
+            $page = $request->get('page', 1);
 
-            // Get stats for dashboard
+            $penumpang = $query
+                ->orderBy('created_at', 'desc')
+                ->skip(($page - 1) * $perPage)
+                ->take($perPage)
+                ->get();
+
+            // FIXED: Stats calculation yang lebih aman
+            $stats = $this->calculatePassengerStats();
+
+            // Manual pagination data
+            $paginationData = [
+                'current_page' => (int) $page,
+                'data' => $penumpang,
+                'first_page_url' => '?page=1',
+                'from' => ($page - 1) * $perPage + 1,
+                'last_page' => (int) ceil($totalCount / $perPage),
+                'last_page_url' => '?page=' . ceil($totalCount / $perPage),
+                'next_page_url' => $page < ceil($totalCount / $perPage) ? '?page=' . ($page + 1) : null,
+                'path' => $request->url(),
+                'per_page' => $perPage,
+                'prev_page_url' => $page > 1 ? '?page=' . ($page - 1) : null,
+                'to' => min($page * $perPage, $totalCount),
+                'total' => $totalCount,
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $paginationData,
+                'stats' => $stats,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting passengers data', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'filters' => $request->all(),
+            ]);
+
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Gagal memuat data penumpang: ' . $e->getMessage(),
+                    'error' => config('app.debug') ? $e->getTraceAsString() : null,
+                ],
+                500,
+            );
+        }
+    }
+
+    private function calculatePassengerStats()
+    {
+        try {
             $stats = [
                 'total' => Penumpang::count(),
                 'booked' => Penumpang::where('status', 'booked')->count(),
@@ -208,70 +302,126 @@ class AdminController extends Controller
                 'cancelled' => Penumpang::where('status', 'cancelled')->count(),
             ];
 
-            return response()->json([
-                'success' => true,
-                'data' => $penumpang,
-                'stats' => $stats
-            ]);
-
+            return $stats;
         } catch (\Exception $e) {
-            Log::error('Error loading passenger data', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Error calculating passenger stats: ' . $e->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memuat data penumpang: ' . $e->getMessage()
-            ], 500);
+            return [
+                'total' => 0,
+                'booked' => 0,
+                'checked_in' => 0,
+                'boarded' => 0,
+                'completed' => 0,
+                'cancelled' => 0,
+            ];
         }
+    }
+
+    public function passengers()
+    {
+        return view('admin.passengers');
     }
 
     public function showPassenger($id)
     {
-        return view('admin.show', ['id' => $id]);
+        return view('admin.show', ['passengerId' => $id]);
     }
 
     public function getPassengerDetail($id)
     {
         try {
-            $penumpang = Penumpang::with([
-                    'tiket.jadwal.kapal',
-                    'tiket.pembayaran',
-                    'user'
-                ])
-                ->findOrFail($id);
+            $passenger = Penumpang::with([
+                'tiket' => function ($q) {
+                    $q->select('id', 'kode_pemesanan', 'jadwal_id', 'user_id', 'status', 'jumlah_penumpang', 'total_harga', 'created_at');
+                },
+                'tiket.jadwal' => function ($q) {
+                    $q->select('id', 'rute_asal', 'rute_tujuan', 'tanggal', 'waktu_berangkat', 'waktu_tiba', 'kapal_id');
+                },
+                'tiket.jadwal.kapal' => function ($q) {
+                    $q->select('id', 'nama_kapal');
+                },
+                'tiket.pembayaran' => function ($q) {
+                    $q->select('id', 'tiket_id', 'status', 'metode_bayar', 'jumlah_bayar', 'updated_at');
+                },
+                'user' => function ($q) {
+                    $q->select('id', 'nama', 'email');
+                },
+            ])->find($id);
+
+            if (!$passenger) {
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Penumpang tidak ditemukan',
+                    ],
+                    404,
+                );
+            }
+
+            // FIXED: Generate QR Code sederhana jika tiket valid
+            $qrCodeData = null;
+            if ($passenger->tiket && $passenger->tiket->kode_pemesanan) {
+                try {
+                    // FIXED: QR Code sederhana hanya berisi kode pemesanan
+                    $qrData = $passenger->tiket->kode_pemesanan; // Format: "TKT-ABC123"
+                    $qrCodeData = $this->qrCodeService->generateQrCode($qrData, 200);
+
+                    Log::info('Simple QR Code generated for passenger detail', [
+                        'passenger_id' => $id,
+                        'ticket_id' => $passenger->tiket->id,
+                        'qr_data' => $qrData,
+                    ]);
+                } catch (\Exception $qrError) {
+                    Log::error('Error generating QR Code for passenger detail', [
+                        'passenger_id' => $id,
+                        'error' => $qrError->getMessage(),
+                    ]);
+                }
+            }
 
             return response()->json([
                 'success' => true,
-                'data' => $penumpang
+                'data' => $passenger,
+                'qr_code' => $qrCodeData,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting passenger detail', [
+                'passenger_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Penumpang tidak ditemukan: ' . $e->getMessage()
-            ], 404);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Gagal memuat detail penumpang: ' . $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 
     public function getJadwalOptions()
     {
         try {
-            $jadwals = Jadwal::where('tanggal', '>=', now()->format('Y-m-d'))
+            $jadwal = Jadwal::select('id', 'rute_asal', 'rute_tujuan', 'tanggal', 'waktu_berangkat')
+                ->where('tanggal', '>=', now()->format('Y-m-d'))
                 ->orderBy('tanggal', 'asc')
-                ->get(['id', 'rute_asal', 'rute_tujuan', 'tanggal', 'waktu_berangkat']);
+                ->orderBy('waktu_berangkat', 'asc')
+                ->get();
 
             return response()->json([
                 'success' => true,
-                'data' => $jadwals
+                'data' => $jadwal,
             ]);
-
         } catch (\Exception $e) {
+            Log::error('Error getting jadwal options: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memuat data jadwal'
-            ], 500);
+                'message' => 'Gagal memuat jadwal',
+                'data' => [],
+            ]);
         }
     }
 
@@ -286,11 +436,14 @@ class AdminController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validasi gagal',
-                    'errors' => $validator->errors(),
-                ], 422);
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Validasi gagal',
+                        'errors' => $validator->errors(),
+                    ],
+                    422,
+                );
             }
 
             // Use the API controller method
@@ -299,17 +452,59 @@ class AdminController extends Controller
 
             $penumpangController = new \App\Http\Controllers\Api\PenumpangController();
             return $penumpangController->checkInPenumpang($apiRequest);
-
         } catch (\Exception $e) {
             Log::error('Admin check-in error', [
                 'error' => $e->getMessage(),
-                'tiket_id' => $request->tiket_id
+                'tiket_id' => $request->tiket_id,
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal melakukan check-in: ' . $e->getMessage()
-            ], 500);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Gagal melakukan check-in: ' . $e->getMessage(),
+                ],
+                500,
+            );
+        }
+    }
+
+    public function generateQrCode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'data' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response('Invalid data', 400);
+        }
+
+        try {
+            // FIXED: Generate QR Code sederhana
+            $qrData = $request->data;
+
+            // Normalisasi format
+            if (!str_starts_with($qrData, 'TKT-') && preg_match('/^[A-Z0-9]+$/', $qrData)) {
+                $qrData = 'TKT-' . $qrData;
+            }
+
+            Log::info('Admin generating simple QR Code', [
+                'original_data' => $request->data,
+                'normalized_data' => $qrData,
+            ]);
+
+            $qrCodeDataUri = $this->qrCodeService->generateQrCode($qrData, 200);
+
+            // Convert data URI to binary
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $qrCodeDataUri));
+
+            return response($imageData)->header('Content-Type', 'image/png')->header('Cache-Control', 'public, max-age=3600');
+        } catch (\Exception $e) {
+            Log::error('Error generating QR Code for admin', [
+                'data' => $request->data,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response('Error generating QR Code', 500);
         }
     }
 

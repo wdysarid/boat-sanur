@@ -174,25 +174,25 @@ class PembayaranController extends Controller
                     // Update status tiket
                     $pembayaran->tiket()->update(['status' => Tiket::STATUS_SUKSES]);
 
-                    // Generate QR Code menggunakan service yang sudah ada
+                    // PERBAIKAN: Generate QR Code sederhana menggunakan service yang sudah diperbaiki
                     try {
                         $qrCodePath = $this->qrCodeService->generateTicketQrCode($pembayaran->tiket);
 
-                        Log::info('QR Code generated successfully', [
+                        Log::info('Simple QR Code generated successfully', [
                             'ticket_id' => $pembayaran->tiket->id,
-                            'qr_path' => $qrCodePath
+                            'booking_code' => $pembayaran->tiket->kode_pemesanan,
+                            'qr_path' => $qrCodePath,
                         ]);
                     } catch (\Exception $qrError) {
-                        Log::error('QR Code generation failed', [
+                        Log::error('Simple QR Code generation failed', [
                             'ticket_id' => $pembayaran->tiket->id,
-                            'error' => $qrError->getMessage()
+                            'error' => $qrError->getMessage(),
                         ]);
                         // Continue without failing the verification
                     }
 
                     // Kirim email e-tiket secara asynchronous
                     $this->sendEtiketEmail($pembayaran->tiket);
-
                 } elseif ($request->status === 'ditolak') {
                     $pembayaran->tiket()->update(['status' => Tiket::STATUS_DIBATALKAN]);
                 }
@@ -203,52 +203,50 @@ class PembayaranController extends Controller
                 'message' => 'Status pembayaran berhasil diperbarui',
                 'data' => [
                     'payment_id' => $pembayaran->id,
-                    'new_status' => $request->status
-                ]
+                    'new_status' => $request->status,
+                ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error verifying payment', [
                 'payment_id' => $id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat memperbarui status pembayaran: ' . $e->getMessage(),
-            ], 500);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat memperbarui status pembayaran: ' . $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 
     /**
-     * Send e-ticket email asynchronously
+     * PERBAIKAN: Send e-ticket email dengan QR Code sederhana
      */
     private function sendEtiketEmail($tiket)
     {
         try {
-            // Generate QR Code data for email
-            $qrData = json_encode([
-                'ticket_id' => $tiket->id,
-                'booking_code' => $tiket->kode_pemesanan,
-                'user_id' => $tiket->user_id,
-                'schedule_id' => $tiket->jadwal_id,
-            ]);
+            // PERBAIKAN: Generate QR Code data sederhana untuk email - hanya kode pemesanan
+            $qrData = $tiket->kode_pemesanan; // Format: "TKT-ABC123"
 
             $qrCodeImage = $this->qrCodeService->generateQrCode($qrData, 200);
 
             // Kirim email
             Mail::to($tiket->user->email)->send(new EtiketMail($tiket, $qrCodeImage));
 
-            Log::info('E-ticket email sent successfully', [
+            Log::info('E-ticket email sent successfully with simple QR', [
                 'ticket_id' => $tiket->id,
-                'user_email' => $tiket->user->email
+                'booking_code' => $tiket->kode_pemesanan,
+                'user_email' => $tiket->user->email,
+                'qr_data' => $qrData,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error sending e-ticket email', [
                 'ticket_id' => $tiket->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             // Jangan throw error, biarkan proses verifikasi tetap berhasil
         }

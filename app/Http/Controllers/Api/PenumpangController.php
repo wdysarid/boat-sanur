@@ -190,36 +190,52 @@ class PenumpangController extends Controller
                 );
             }
 
-            $query = Penumpang::with(['tiket.jadwal.kapal', 'user'])
-                ->select('penumpang.*')
-                ->join('tiket', 'tiket.id', '=', 'penumpang.tiket_id')
-                ->join('jadwal', 'jadwal.id', '=', 'tiket.jadwal_id');
+            $query = Penumpang::with([
+                'tiket' => function ($q) {
+                    $q->select('id', 'kode_pemesanan', 'jadwal_id', 'user_id', 'status', 'jumlah_penumpang', 'total_harga');
+                },
+                'tiket.jadwal' => function ($q) {
+                    $q->select('id', 'rute_asal', 'rute_tujuan', 'tanggal', 'waktu_berangkat', 'kapal_id');
+                },
+                'tiket.jadwal.kapal' => function ($q) {
+                    $q->select('id', 'nama_kapal');
+                },
+                'user' => function ($q) {
+                    $q->select('id', 'nama', 'email');
+                },
+            ]);;
 
             // Apply filters
             if ($request->has('search') && !empty($request->search)) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
-                    $q->where('penumpang.nama_lengkap', 'like', "%{$search}%")
-                        ->orWhere('penumpang.no_identitas', 'like', "%{$search}%")
-                        ->orWhere('tiket.kode_pemesanan', 'like', "%{$search}%");
+                    $q->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('no_identitas', 'like', "%{$search}%")
+                        ->orWhereHas('tiket', function ($q) use ($search) {
+                            $q->where('kode_pemesanan', 'like', "%{$search}%");
+                        });
                 });
             }
 
             if ($request->has('status') && $request->status !== 'all' && !empty($request->status)) {
-                $query->where('penumpang.status', $request->status);
+                $query->where('status', $request->status);
             }
 
             if ($request->has('jadwal_id') && !empty($request->jadwal_id)) {
-                $query->where('tiket.jadwal_id', $request->jadwal_id);
+                $query->whereHas('tiket', function ($q) use ($request) {
+                    $q->where('jadwal_id', $request->jadwal_id);
+                });
             }
 
             if ($request->has('date') && !empty($request->date)) {
-                $query->whereDate('jadwal.tanggal', $request->date);
+                $query->whereHas('tiket.jadwal', function ($q) use ($request) {
+                    $q->whereDate('tanggal', $request->date);
+                });
             }
 
             // Pagination
             $perPage = 15;
-            $penumpang = $query->orderBy('penumpang.created_at', 'desc')->paginate($perPage);
+            $penumpang = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
             // Get stats for dashboard
             $stats = [
@@ -237,11 +253,12 @@ class PenumpangController extends Controller
                 'stats' => $stats,
             ]);
         } catch (\Exception $e) {
+            Log::error('Error loading passengers data: ' . $e->getMessage());
             return response()->json(
                 [
                     'success' => false,
                     'message' => 'Gagal memuat data penumpang',
-                    'error' => $e->getMessage(),
+                    'error' => config('app.debug') ? $e->getMessage() : null,
                 ],
                 500,
             );
@@ -249,97 +266,109 @@ class PenumpangController extends Controller
     }
 
     /**
-     * Check-in passenger by QR code or ID
+     * PERBAIKAN: Check-in passenger by QR code or ID dengan format sederhana
      */
     public function checkInPenumpang(Request $request)
-{
-    try {
-        $validator = Validator::make($request->all(), [
-            'tiket_id' => 'required_without:qr_code|exists:tiket,id',
-            'qr_code' => 'required_without:tiket_id|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Validasi gagal',
-                    'errors' => $validator->errors(),
-                ],
-                422,
-            );
-        }
-
-        // Find ticket by ID or QR code
-        if ($request->has('tiket_id')) {
-            $tiket = Tiket::with(['jadwal', 'penumpang'])->find($request->tiket_id);
-        } else {
-            $qrCode = $request->qr_code;
-
-            // Try to find by booking code directly if not JSON
-            if (strpos($qrCode, 'TKT-') === 0) {
-                $kodePemesanan = $qrCode;
-            } else {
-                $kodePemesanan = 'TKT-' . $qrCode;
-            }
-
-            $tiket = Tiket::with(['jadwal', 'penumpang'])
-                ->where('kode_pemesanan', $kodePemesanan)
-                ->first();
-        }
-
-        if (!$tiket) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Tiket tidak ditemukan',
-                ],
-                404,
-            );
-        }
-
-        DB::beginTransaction();
-
-        // Update all passengers in this ticket
-        $updated = Penumpang::where('tiket_id', $tiket->id)
-            ->where('status', 'booked')
-            ->update([
-                'status' => 'checked_in',
-                'checked_in_at' => now(),
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'tiket_id' => 'required_without:qr_code|exists:tiket,id',
+                'qr_code' => 'required_without:tiket_id|string',
             ]);
 
-        if ($updated === 0) {
+            if ($validator->fails()) {
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Validasi gagal',
+                        'errors' => $validator->errors(),
+                    ],
+                    422,
+                );
+            }
+
+            // PERBAIKAN: Cari tiket berdasarkan ID atau QR code sederhana
+            if ($request->has('tiket_id')) {
+                $tiket = Tiket::find($request->tiket_id);
+            } else {
+                $qrCode = $request->qr_code;
+
+                // PERBAIKAN: Format QR code sederhana - langsung kode pemesanan
+                // QR Code bisa berupa "TKT-ABC123" atau "ABC123"
+                $kodePemesanan = $qrCode;
+
+                // Jika tidak ada prefix TKT-, tambahkan
+                if (strpos($qrCode, 'TKT-') !== 0) {
+                    $kodePemesanan = 'TKT-' . $qrCode;
+                }
+
+                Log::info('Searching ticket by QR code', [
+                    'original_qr' => $qrCode,
+                    'search_code' => $kodePemesanan,
+                ]);
+
+                $tiket = Tiket::where('kode_pemesanan', $kodePemesanan)->first();
+            }
+
+            if (!$tiket) {
+                Log::warning('Ticket not found for check-in', [
+                    'qr_code' => $request->qr_code ?? null,
+                    'tiket_id' => $request->tiket_id ?? null,
+                ]);
+
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Tiket tidak ditemukan',
+                    ],
+                    404,
+                );
+            }
+
+            DB::beginTransaction();
+
+            // Update status penumpang
+            $updated = Penumpang::where('tiket_id', $tiket->id)
+                ->where('status', 'booked')
+                ->update([
+                    'status' => 'checked_in',
+                    'checked_in_at' => now(),
+                ]);
+
+            DB::commit();
+
+            Log::info('Passenger check-in successful', [
+                'ticket_id' => $tiket->id,
+                'booking_code' => $tiket->kode_pemesanan,
+                'passengers_updated' => $updated,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penumpang berhasil check-in',
+                'data' => [
+                    'tiket_id' => $tiket->id,
+                    'passengers_checked_in' => $updated,
+                ],
+            ]);
+        } catch (\Exception $e) {
             DB::rollBack();
+
+            Log::error('Check-in error', [
+                'error' => $e->getMessage(),
+                'qr_code' => $request->qr_code ?? null,
+                'tiket_id' => $request->tiket_id ?? null,
+            ]);
+
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Penumpang sudah check-in sebelumnya atau tidak ditemukan',
+                    'message' => 'Gagal melakukan check-in',
                 ],
-                400,
+                500,
             );
         }
-
-        DB::commit();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Penumpang berhasil check-in',
-            'data' => [
-                'tiket' => $tiket->load('penumpang'),
-                'passengers_checked_in' => $updated,
-            ],
-        ]);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(
-            [
-                'success' => false,
-                'message' => 'Gagal melakukan check-in: ' . $e->getMessage(),
-            ],
-            500,
-        );
     }
-}
 
     /**
      * Get passenger detail

@@ -152,6 +152,15 @@ Route::middleware(['auth.role:admin'])
 
         Route::get('/feedback', [AdminController::class, 'indexFeedback'])->name('feedback');
         Route::get('/feedback/data', [AdminController::class, 'getFeedbackData'])->name('feedback.data');
+
+        // FIXED: PDF routes untuk admin
+        Route::get('/tiket/{id}/pdf', [TiketPdfController::class, 'generateAdminPdf'])->name('tiket.pdf');
+
+        // QR Code generation route
+        Route::get('/qr-code/generate', [AdminController::class, 'generateQrCode'])->name('qr.generate');
+
+        // Jadwal options
+        Route::get('/jadwal-options', [AdminController::class, 'getJadwalOptions'])->name('jadwal.options');
     });
 
 // ========== USER ROUTES (PROTECTED) ==========
@@ -199,6 +208,8 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
 
         Route::post('/feedback/tambah', [UserController::class, 'tambahFeedback'])->name('feedback.tambah');
 
+        Route::get('/tiket/{id}/pdf', [TiketPdfController::class, 'generatePdf'])->name('tiket.pdf');
+        Route::get('/tiket/{id}/preview', [TiketPdfController::class, 'previewPdf'])->name('tiket.preview');
         // PDF Routes
         Route::get('/tiket/{tiket}/pdf', [TiketPdfController::class, 'generatePdf'])->name('tiket.pdf');
         Route::get('/tiket/{tiket}/preview', [TiketPdfController::class, 'previewPdf'])->name('tiket.preview');

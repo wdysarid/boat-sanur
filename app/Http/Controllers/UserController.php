@@ -936,33 +936,26 @@ class UserController extends Controller
                 $ticket->pembayaran->bukti_transfer_url = asset('storage/' . $ticket->pembayaran->bukti_transfer);
             }
 
-            // Generate QR Code jika tiket sudah dikonfirmasi
+            // PERBAIKAN: Generate QR Code sederhana jika tiket sudah dikonfirmasi
             $qrCodeData = null;
 
             try {
                 if ($ticket->status === 'sukses' && $ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
-                    Log::info('Generating QR Code for confirmed ticket', ['ticket_id' => $id]);
+                    Log::info('Generating simple QR Code for confirmed ticket', ['ticket_id' => $id]);
 
-                    // Generate QR Code data
-                    $qrData = json_encode([
-                        'ticket_id' => $ticket->id,
-                        'booking_code' => $ticket->kode_pemesanan,
-                        'user_id' => $ticket->user_id,
-                        'schedule_id' => $ticket->jadwal_id,
-                        'date' => $ticket->jadwal->tanggal,
-                        'departure_time' => $ticket->jadwal->waktu_berangkat,
-                        'route' => $ticket->jadwal->rute_asal . ' - ' . $ticket->jadwal->rute_tujuan,
-                        'passengers' => $ticket->jumlah_penumpang,
-                        'generated_at' => now()->toISOString(),
-                    ]);
+                    // PERBAIKAN: QR Data sederhana - hanya kode pemesanan
+                    $qrData = $ticket->kode_pemesanan; // Format: "TKT-ABC123"
 
                     // Generate QR Code sebagai data URI untuk modal
                     $qrCodeData = $this->qrCodeService->generateQrCode($qrData, 200);
 
-                    Log::info('QR Code generated successfully for modal', ['ticket_id' => $id]);
+                    Log::info('Simple QR Code generated successfully for modal', [
+                        'ticket_id' => $id,
+                        'qr_data' => $qrData
+                    ]);
                 }
             } catch (\Exception $qrError) {
-                Log::error('Error generating QR Code for modal', [
+                Log::error('Error generating simple QR Code for modal', [
                     'ticket_id' => $id,
                     'error' => $qrError->getMessage(),
                     'trace' => $qrError->getTraceAsString(),
@@ -1023,32 +1016,38 @@ class UserController extends Controller
 
             // Validasi user
             if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda harus login untuk membatalkan tiket',
-                ], 401);
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Anda harus login untuk membatalkan tiket',
+                    ],
+                    401,
+                );
             }
 
             // Cari tiket dengan relasi pembayaran
-            $tiket = Tiket::with('pembayaran')
-                ->where('id', $id)
-                ->where('user_id', $user->id)
-                ->first();
+            $tiket = Tiket::with('pembayaran')->where('id', $id)->where('user_id', $user->id)->first();
 
             if (!$tiket) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tiket tidak ditemukan atau Anda tidak memiliki akses',
-                ], 404);
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Tiket tidak ditemukan atau Anda tidak memiliki akses',
+                    ],
+                    404,
+                );
             }
 
             // Validasi status tiket
             $allowedStatuses = ['menunggu', 'diproses'];
             if (!in_array($tiket->status, $allowedStatuses)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tiket tidak dapat dibatalkan karena status sudah ' . $tiket->status,
-                ], 400);
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Tiket tidak dapat dibatalkan karena status sudah ' . $tiket->status,
+                    ],
+                    400,
+                );
             }
 
             // Update status tiket
@@ -1068,13 +1067,15 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'Tiket berhasil dibatalkan',
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-            ], 500);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 

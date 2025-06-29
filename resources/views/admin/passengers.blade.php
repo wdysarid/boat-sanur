@@ -225,7 +225,7 @@
         </div>
     </div>
 
-    <!-- Enhanced QR Scanner Modal -->
+    <!-- Enhanced QR Scanner Modal - IMPROVED: Optimized for simple QR codes -->
     <div id="qrScannerModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg max-w-lg w-full p-6">
@@ -286,15 +286,29 @@
                             <p class="text-sm text-gray-500">Mengaktifkan kamera...</p>
                         </div>
                     </div>
+                    <div class="bg-blue-50 rounded-lg p-3 text-sm text-blue-800">
+                        <p class="font-medium mb-1">Tips untuk scan optimal:</p>
+                        <ul class="text-xs space-y-1">
+                            <li>• Pastikan QR Code dalam frame</li>
+                            <li>• Jaga jarak 10-30 cm dari kamera</li>
+                            <li>• Pastikan pencahayaan cukup</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Manual Tab Content -->
                 <div id="manual-content" class="tab-content hidden">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Masukkan Kode QR</label>
-                        <input type="text" id="qrCodeInput" placeholder="Masukkan kode QR atau kode pemesanan..."
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Masukkan Kode Pemesanan</label>
+                        <input type="text" id="qrCodeInput" placeholder="Contoh: TKT-ABC123 atau ABC123"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Format: TKT-001-2025 atau 001-2025</p>
+                        <div class="mt-2 text-xs text-gray-500">
+                            <p class="font-medium mb-1">Format yang didukung:</p>
+                            <ul class="space-y-1">
+                                <li>• TKT-ABC123 (format lengkap)</li>
+                                <li>• ABC123 (kode saja)</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -449,26 +463,86 @@
 
         function processImageQR(imageSrc) {
             const img = new Image();
-            img.crossOrigin = "anonymous";
             img.onload = function() {
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                context.drawImage(img, 0, 0);
 
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                // Ukuran optimal untuk scanning
+                canvas.width = Math.min(800, img.width);
+                canvas.height = Math.min(800, img.height);
+
+                context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Tambahkan preprocessing gambar
+                const imageData = preprocessImage(context, canvas.width, canvas.height);
+
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
 
                 const result = document.getElementById('upload-result');
                 if (code) {
-                    result.innerHTML = `<span class="text-green-600">✓ QR Code terdeteksi: ${code.data}</span>`;
-                    document.getElementById('qrCodeInput').value = code.data;
+                    // IMPROVED: Handle simple QR code format
+                    let qrContent = code.data.trim();
+
+                    // Normalisasi format kode - QR Code sederhana hanya berisi kode pemesanan
+                    if (!qrContent.startsWith('TKT-') && qrContent.match(/^[A-Z0-9]+$/)) {
+                        qrContent = 'TKT-' + qrContent;
+                    }
+
+                    result.innerHTML = `
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-green-800 font-medium">QR Code terdeteksi!</span>
+                            </div>
+                            <p class="text-green-700 text-sm mt-1">Kode: ${qrContent}</p>
+                        </div>
+                    `;
+                    document.getElementById('qrCodeInput').value = qrContent;
                 } else {
-                    result.innerHTML = '<span class="text-red-600">✗ QR Code tidak terdeteksi dalam gambar</span>';
+                    result.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    <span class="text-red-800 font-medium">QR Code tidak terdeteksi</span>
+                                </div>
+                                <button onclick="retryScan()" class="text-blue-600 text-sm hover:text-blue-800">Coba Lagi</button>
+                            </div>
+                            <p class="text-red-700 text-sm mt-1">Pastikan gambar jelas dan QR Code terlihat</p>
+                        </div>
+                    `;
                 }
             };
             img.src = imageSrc;
+        }
+
+        // Fungsi preprocessing gambar untuk meningkatkan deteksi
+        function preprocessImage(context, width, height) {
+            // Konversi ke grayscale untuk meningkatkan deteksi
+            const imageData = context.getImageData(0, 0, width, height);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                data[i] = avg; // R
+                data[i + 1] = avg; // G
+                data[i + 2] = avg; // B
+                // Alpha channel tetap
+            }
+
+            context.putImageData(imageData, 0, 0);
+            return context.getImageData(0, 0, width, height);
+        }
+
+        function retryScan() {
+            document.getElementById('upload-preview').classList.add('hidden');
+            document.getElementById('qr-file-upload').value = '';
         }
 
         function loadPassengerData(page = 1) {
@@ -487,7 +561,7 @@
                 page: page
             });
 
-            fetch(`/admin/passengers/data?${params}`, {
+            fetch(`/api/penumpang/all?${params}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
@@ -857,8 +931,17 @@
             processQrScanResult(qrCode);
         }
 
+        // IMPROVED: Process simple QR code format
         function processQrScanResult(qrCode) {
             showLoading();
+
+            // Normalize QR code - simple format is just the booking code
+            let normalizedCode = qrCode.trim();
+
+            // If it doesn't start with TKT-, add it
+            if (!normalizedCode.startsWith('TKT-') && normalizedCode.match(/^[A-Z0-9]+$/)) {
+                normalizedCode = 'TKT-' + normalizedCode;
+            }
 
             // Simple POST with QR code data
             fetch(`/api/penumpang/checkin`, {
@@ -869,13 +952,13 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
-                        qr_code: qrCode
+                        qr_code: normalizedCode
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showAlert('Success', 'Penumpang berhasil check-in', 'success');
+                        showAlert('Success', `Penumpang berhasil check-in! Kode: ${normalizedCode}`, 'success');
                         loadPassengerData(currentPage);
                         closeQrScanner();
                     } else {

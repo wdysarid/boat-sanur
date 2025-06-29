@@ -105,7 +105,7 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">QR Code</label>
+                                    <label class="block text-sm font-medium text-gray-700">QR Code Data</label>
                                     <p id="ticket-qr"
                                         class="mt-1 text-xs text-gray-900 font-mono bg-gray-50 px-2 py-1 rounded break-all">
                                         --</p>
@@ -243,7 +243,7 @@
         </div>
     </div>
 
-    <!-- QR Code Modal -->
+    <!-- QR Code Modal - IMPROVED: Optimized for simple QR codes -->
     <div id="qrCodeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg max-w-sm w-full p-6 text-center">
@@ -259,10 +259,11 @@
 
                 <div class="mb-4">
                     <div id="qrCodeContainer" class="flex justify-center">
-                        <img id="qr-code-image" class="w-40 h-40 border-2 border-gray-300 rounded" alt="QR Code"
+                        <img id="qr-code-image"
+                            class="w-48 h-48 border-4 border-blue-300 rounded-lg p-2 bg-white shadow-lg" alt="QR Code"
                             style="display: none;">
                         <div id="qr-code-placeholder"
-                            class="w-40 h-40 bg-gray-200 flex items-center justify-center text-xs text-gray-500 border-2 border-dashed border-gray-300 rounded">
+                            class="w-48 h-48 bg-gray-200 flex items-center justify-center text-xs text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
                             <div class="text-center">
                                 <svg class="w-16 h-16 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -270,13 +271,21 @@
                                         d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12v4m6-4h.01M12 8h.01M12 8h4.01M12 8h-4.01">
                                     </path>
                                 </svg>
-                                <p id="qr-code-text">QR Code</p>
+                                <p id="qr-code-text">QR Code tidak tersedia</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <p id="qr-code-value" class="text-xs text-gray-600 mb-4 font-mono bg-gray-50 p-2 rounded break-all">--</p>
+                <div class="bg-blue-50 rounded-lg p-3 mb-4">
+                    <p class="text-xs text-blue-800 font-medium mb-1">Kode Pemesanan:</p>
+                    <p id="qr-code-value" class="text-sm text-blue-900 font-mono break-all">--</p>
+                </div>
+
+                <div class="text-xs text-gray-500 mb-4">
+                    <p>✓ QR Code sederhana untuk scan cepat</p>
+                    <p>✓ Kompatibel dengan semua scanner</p>
+                </div>
 
                 <div class="flex space-x-2">
                     <button onclick="downloadQrCode()"
@@ -374,7 +383,8 @@
 
             // Render ticket info
             document.getElementById('ticket-code').textContent = passenger.tiket?.kode_pemesanan || '-';
-            document.getElementById('ticket-qr').textContent = passenger.tiket?.qr_code_path || '-';
+            // IMPROVED: Show simple QR data format
+            document.getElementById('ticket-qr').textContent = passenger.tiket?.kode_pemesanan || '-';
             document.getElementById('booking-date').textContent = passenger.tiket?.created_at ?
                 formatDateTime(passenger.tiket.created_at) : '-';
 
@@ -444,7 +454,7 @@
 
             // Always show QR code and print buttons
             actionButtons.innerHTML += `
-        <button onclick="showQrCode('${passenger.tiket?.qr_code_path || passenger.tiket?.kode_pemesanan}')"
+        <button onclick="showQrCode('${passenger.tiket?.kode_pemesanan || ''}')"
                 class="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 flex items-center justify-center">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12v4m6-4h.01M12 8h.01M12 8h4.01M12 8h-4.01"></path>
@@ -631,26 +641,35 @@
             }
         }
 
-        function showQrCode(qrCodePath) {
-            if (!qrCodePath) {
-                showAlert('Error', 'QR Code tidak tersedia', 'error');
-                return;
-            }
-
-            // Use existing QR code from database
-            document.getElementById('qr-code-text').textContent = qrCodePath;
-            document.getElementById('qr-code-value').textContent = qrCodePath;
-
+        // IMPROVED: Show QR Code with simple format
+        function showQrCode(kodePemesanan) {
+            const modal = document.getElementById('qrCodeModal');
             const qrImage = document.getElementById('qr-code-image');
             const placeholder = document.getElementById('qr-code-placeholder');
+            const qrValue = document.getElementById('qr-code-value');
 
-            // Check if QR code path is a full URL or relative path
-            const qrImageUrl = qrCodePath.startsWith('http') ? qrCodePath : `/storage/${qrCodePath}`;
-            qrImage.src = qrImageUrl;
-            qrImage.style.display = 'block';
-            placeholder.style.display = 'none';
+            if (kodePemesanan) {
+                // Generate QR code URL - assuming we have a route for this
+                const qrUrl = `/admin/qr-code/generate?data=${encodeURIComponent(kodePemesanan)}`;
 
-            document.getElementById('qrCodeModal').classList.remove('hidden');
+                qrImage.src = qrUrl;
+                qrImage.style.display = 'block';
+                placeholder.style.display = 'none';
+                qrValue.textContent = kodePemesanan;
+
+                // Add error handling for QR image
+                qrImage.onerror = function() {
+                    qrImage.style.display = 'none';
+                    placeholder.style.display = 'flex';
+                    document.getElementById('qr-code-text').textContent = 'QR Code tidak dapat dimuat';
+                };
+            } else {
+                qrImage.style.display = 'none';
+                placeholder.style.display = 'flex';
+                qrValue.textContent = 'Tidak ada data';
+            }
+
+            modal.classList.remove('hidden');
         }
 
         function closeQrCode() {
@@ -662,13 +681,16 @@
 
             qrImage.style.display = 'none';
             placeholder.style.display = 'flex';
+            document.getElementById('qr-code-text').textContent = 'QR Code tidak tersedia';
         }
 
         function downloadQrCode() {
             const qrImage = document.getElementById('qr-code-image');
-            if (qrImage.src) {
+            const kodePemesanan = document.getElementById('qr-code-value').textContent;
+
+            if (qrImage.src && kodePemesanan !== 'Tidak ada data') {
                 const link = document.createElement('a');
-                link.download = `qr-code-${document.getElementById('qr-code-value').textContent}.png`;
+                link.download = `qr-code-${kodePemesanan}.png`;
                 link.href = qrImage.src;
                 link.click();
             } else {
