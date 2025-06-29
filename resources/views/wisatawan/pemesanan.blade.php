@@ -267,10 +267,14 @@
 
                         <!-- Action Buttons -->
                         <div class="flex justify-between">
-                            <a href="{{ route('wisatawan.dashboard') }}"
+                            {{-- <a href="{{ route('wisatawan.dashboard') }}"
                                 class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
                                 Kembali
-                            </a>
+                            </a> --}}
+                            <button type="button" id="backButton"
+                                class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                                Kembali
+                            </button>
                             <button type="submit"
                                 class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -425,6 +429,33 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Konfirmasi Kembali -->
+    <div id="confirmBackModal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="flex justify-center mb-4">
+                <svg class="h-12 w-12 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 text-center mb-2">Yakin ingin keluar?</h3>
+            <p class="text-sm text-gray-500 text-center mb-6">
+                Data yang sudah diisi tidak akan tersimpan. Anda akan kembali ke halaman dashboard.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <button id="cancelBackBtn" type="button"
+                    class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                    Batal
+                </button>
+                <a href="{{ route('wisatawan.dashboard') }}" id="confirmBackBtn"
+                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                    Ya, Kembali
+                </a>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -441,13 +472,29 @@
             const ticketPrice = {{ $ticket['price'] ?? 145000 }};
             const adminFee = 5000;
 
+            const backButton = document.getElementById('backButton');
+            const confirmBackModal = document.getElementById('confirmBackModal');
+            const cancelBackBtn = document.getElementById('cancelBackBtn');
+
+            if (backButton && confirmBackModal && cancelBackBtn) {
+                backButton.addEventListener('click', function() {
+                    confirmBackModal.classList.remove('hidden');
+                });
+
+                cancelBackBtn.addEventListener('click', function() {
+                    confirmBackModal.classList.add('hidden');
+                });
+            }
+
+
             // FITUR BARU: Page Leave Confirmation
             let hasUnsavedChanges = false;
             let isSubmitting = false;
             const hasTicketSelected = {{ isset($ticket) && $ticket ? 'true' : 'false' }};
 
             // Track form changes untuk mendeteksi perubahan
-            const formInputs = document.querySelectorAll('#bookingForm input, #bookingForm select, #bookingForm textarea');
+            const formInputs = document.querySelectorAll(
+                '#bookingForm input, #bookingForm select, #bookingForm textarea');
             formInputs.forEach(input => {
                 input.addEventListener('change', function() {
                     hasUnsavedChanges = true;
@@ -467,7 +514,8 @@
             window.addEventListener('beforeunload', function(e) {
                 // Hanya tampilkan konfirmasi jika ada perubahan, tidak sedang submit, dan ada tiket yang dipilih
                 if (hasUnsavedChanges && !isSubmitting && hasTicketSelected) {
-                    const confirmationMessage = 'Jika Anda keluar dari halaman ini, tiket yang sudah dipilih akan hilang. Apakah Anda yakin ingin meninggalkan halaman?';
+                    const confirmationMessage =
+                        'Jika Anda keluar dari halaman ini, tiket yang sudah dipilih akan hilang. Apakah Anda yakin ingin meninggalkan halaman?';
                     e.preventDefault();
                     e.returnValue = confirmationMessage;
                     return confirmationMessage;
@@ -477,7 +525,9 @@
             // Handle navigation via browser back/forward buttons
             window.addEventListener('popstate', function(e) {
                 if (hasUnsavedChanges && !isSubmitting && hasTicketSelected) {
-                    const confirmLeave = confirm('Jika Anda keluar dari halaman ini, tiket yang sudah dipilih akan hilang. Apakah Anda yakin ingin meninggalkan halaman?');
+                    const confirmLeave = confirm(
+                        'Jika Anda keluar dari halaman ini, tiket yang sudah dipilih akan hilang. Apakah Anda yakin ingin meninggalkan halaman?'
+                    );
                     if (!confirmLeave) {
                         // Push current state back untuk prevent navigation
                         history.pushState(null, null, window.location.href);
@@ -488,13 +538,16 @@
             // Handle clicks pada navigation links
             document.addEventListener('click', function(e) {
                 const link = e.target.closest('a');
-                if (link && link.href && !link.href.includes('#') && hasUnsavedChanges && !isSubmitting && hasTicketSelected) {
+                if (link && link.href && !link.href.includes('#') && hasUnsavedChanges && !isSubmitting &&
+                    hasTicketSelected) {
                     // Skip confirmation untuk form submission buttons
                     if (link.closest('#bookingForm')) {
                         return;
                     }
 
-                    const confirmLeave = confirm('Jika Anda keluar dari halaman ini, tiket yang sudah dipilih akan hilang. Apakah Anda yakin ingin meninggalkan halaman?');
+                    const confirmLeave = confirm(
+                        'Jika Anda keluar dari halaman ini, tiket yang sudah dipilih akan hilang. Apakah Anda yakin ingin meninggalkan halaman?'
+                    );
                     if (!confirmLeave) {
                         e.preventDefault();
                         return false;
@@ -768,6 +821,7 @@
                     e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
                 }
             });
+
         });
     </script>
 @endpush

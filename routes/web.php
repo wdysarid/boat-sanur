@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\TiketPdfController;
 use App\Http\Controllers\Api\TiketController;
 use App\Http\Controllers\Api\JadwalController;
@@ -69,7 +70,7 @@ Route::get('/search', [JadwalController::class, 'search'])->name('search.tickets
 
 // FITUR BARU: Route khusus untuk booking redirect (sebelum group wisatawan)
 // Route ini akan handle user yang belum login saat ingin booking tiket
-Route::get('/pemesanan', function(Request $request) {
+Route::get('/pemesanan', function (Request $request) {
     if (!auth()->check()) {
         // FITUR BARU: Simpan booking intent dengan key spesifik untuk booking
         session([
@@ -81,7 +82,7 @@ Route::get('/pemesanan', function(Request $request) {
                 'passenger_count' => $request->get('passenger_count', 1),
                 'passenger_type' => $request->get('passenger_type', 'domestic'),
             ],
-            'url.intended' => route('wisatawan.pemesanan')
+            'url.intended' => route('wisatawan.pemesanan'),
         ]);
 
         return redirect()->route('login')->with('info', 'Silakan login terlebih dahulu untuk melanjutkan pemesanan.');
@@ -91,7 +92,7 @@ Route::get('/pemesanan', function(Request $request) {
 })->name('pemesanan.guest');
 
 // FITUR BARU: Route alternatif untuk book ticket (opsional)
-Route::get('/book-ticket', function(Request $request) {
+Route::get('/book-ticket', function (Request $request) {
     if (!auth()->check()) {
         // FITUR BARU: Simpan data booking dengan key yang spesifik
         session([
@@ -103,7 +104,7 @@ Route::get('/book-ticket', function(Request $request) {
                 'passenger_count' => $request->get('passenger_count', 1),
                 'passenger_type' => $request->get('passenger_type', 'domestic'),
             ],
-            'url.intended' => route('wisatawan.pemesanan')
+            'url.intended' => route('wisatawan.pemesanan'),
         ]);
 
         return redirect()->route('login')->with('info', 'Silakan login terlebih dahulu untuk melanjutkan pemesanan.');
@@ -138,9 +139,11 @@ Route::middleware(['auth.role:admin'])
 
         Route::get('/payments/data', [AdminController::class, 'getPaymentData'])->name('payments.data');
 
-        Route::get('/passengers', function () {
-            return view('admin.passengers');
-        })->name('passengers');
+        Route::get('/passengers', [AdminController::class, 'indexPassengers'])->name('passengers');
+        Route::get('/passengers/data', [AdminController::class, 'getPassengerData'])->name('passengers.data');
+        Route::get('/passengers/{id}', [AdminController::class, 'showPassenger'])->name('passengers.show');
+        Route::get('/passengers/{id}/detail', [AdminController::class, 'getPassengerDetail'])->name('passengers.detail');
+        Route::get('/jadwal-options', [AdminController::class, 'getJadwalOptions'])->name('jadwal.options');
 
         Route::get('/show', function () {
             return view('admin.show');
@@ -199,4 +202,11 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
         Route::get('/tiket/{tiket}/pdf', [TiketPdfController::class, 'generatePdf'])->name('tiket.pdf');
         Route::get('/tiket/{tiket}/preview', [TiketPdfController::class, 'previewPdf'])->name('tiket.preview');
         Route::post('/tiket/{id}/batal', [UserController::class, 'batalkanTiket'])->name('tiket.batal');
+    });
+
+Route::prefix('api')
+    ->middleware(['web'])
+    ->group(function () {
+        // Penumpang check-in (for admin scanner)
+        Route::post('/penumpang/checkin', [\App\Http\Controllers\Api\PenumpangController::class, 'checkInPenumpang']);
     });

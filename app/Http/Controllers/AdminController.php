@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Jadwal;
 use App\Models\Feedback;
 use App\Models\Pembayaran;
+use App\Models\Penumpang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -36,7 +39,7 @@ class AdminController extends Controller
     public function getFeedbackData(Request $request)
     {
         try {
-            $query = Feedback::with(['user']); // Remove withTrashed()
+            $query = Feedback::with(['user']);
 
             // Filter by status
             if ($request->has('status') && $request->status !== 'all') {
@@ -150,6 +153,118 @@ class AdminController extends Controller
                 ],
                 500,
             );
+        }
+    }
+
+    public function indexPassengers()
+    {
+        return view('admin.passengers');
+    }
+
+    public function getPassengerData(Request $request)
+    {
+        try {
+            $query = Penumpang::with(['tiket.jadwal.kapal', 'user'])
+                ->select('penumpang.*')
+                ->join('tiket', 'tiket.id', '=', 'penumpang.tiket_id')
+                ->join('jadwal', 'jadwal.id', '=', 'tiket.jadwal_id');
+
+            // Apply filters
+            if ($request->has('search') && !empty($request->search)) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('penumpang.nama_lengkap', 'like', "%{$search}%")
+                      ->orWhere('penumpang.no_identitas', 'like', "%{$search}%")
+                      ->orWhere('tiket.kode_pemesanan', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->has('status') && $request->status !== 'all' && !empty($request->status)) {
+                $query->where('penumpang.status', $request->status);
+            }
+
+            if ($request->has('jadwal_id') && !empty($request->jadwal_id)) {
+                $query->where('tiket.jadwal_id', $request->jadwal_id);
+            }
+
+            if ($request->has('date') && !empty($request->date)) {
+                $query->whereDate('jadwal.tanggal', $request->date);
+            }
+
+            // Pagination
+            $perPage = 15;
+            $penumpang = $query->orderBy('penumpang.created_at', 'desc')
+                              ->paginate($perPage);
+
+            // Get stats for dashboard
+            $stats = [
+                'total' => Penumpang::count(),
+                'booked' => Penumpang::where('status', 'booked')->count(),
+                'checked_in' => Penumpang::where('status', 'checked_in')->count(),
+                'boarded' => Penumpang::where('status', 'boarded')->count(),
+                'completed' => Penumpang::where('status', 'completed')->count(),
+                'cancelled' => Penumpang::where('status', 'cancelled')->count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $penumpang,
+                'stats' => $stats
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data penumpang: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function showPassenger($id)
+    {
+        return view('admin.show', ['id' => $id]);
+    }
+
+    public function getPassengerDetail($id)
+    {
+        try {
+            $penumpang = Penumpang::with([
+                    'tiket.jadwal.kapal',
+                    'tiket.pembayaran',
+                    'user'
+                ])
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $penumpang
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Penumpang tidak ditemukan: ' . $e->getMessage()
+            ], 404);
+        }
+    }
+
+    public function getJadwalOptions()
+    {
+        try {
+            $jadwals = Jadwal::where('tanggal', '>=', now()->format('Y-m-d'))
+                ->orderBy('tanggal', 'asc')
+                ->get(['id', 'rute_asal', 'rute_tujuan', 'tanggal', 'waktu_berangkat']);
+
+            return response()->json([
+                'success' => true,
+                'data' => $jadwals
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data jadwal'
+            ], 500);
         }
     }
 
