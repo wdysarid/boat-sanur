@@ -65,10 +65,12 @@ Route::prefix('tiket')->middleware(['web', 'auth'])->group(function () {
 
 // Penumpang Routes
 Route::prefix('penumpang')->group(function () {
-    Route::get('/', [PenumpangController::class, 'getAllPenumpang']); // Untuk admin
-    Route::post('/checkin', [PenumpangController::class, 'checkInPenumpang']);
-    Route::get('/{id}', [PenumpangController::class, 'getDetailPenumpang']);
-});
+        // Route::post('/', [PenumpangController::class, 'store']);
+        Route::get('/tiket/{tiket_id}', [PenumpangController::class, 'show']);
+        Route::post('/checkin', [PenumpangController::class, 'checkInPenumpang']);
+        Route::get('/all', [PenumpangController::class, 'getAllPenumpang']);
+        Route::get('/{id}', [PenumpangController::class, 'getDetailPenumpang']);
+    });
 
 // Pembayaran (Payment) Routes
 Route::prefix('pembayaran')->middleware(['web', 'auth'])->group(function () {

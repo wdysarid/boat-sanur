@@ -16,6 +16,13 @@ use Illuminate\Support\Facades\Log;
 
 class PembayaranController extends Controller
 {
+    protected $qrCodeService;
+
+    public function __construct(QrCodeService $qrCodeService)
+    {
+        $this->qrCodeService = $qrCodeService;
+    }
+
     public function uploadBuktiBayar(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -65,7 +72,7 @@ class PembayaranController extends Controller
                 'jumlah_bayar' => $request->jumlah_bayar,
                 'bukti_transfer' => $path,
                 'status' => 'menunggu',
-                'expires_at' => now()->addMinutes(15), // Tambahkan waktu kadaluarsa
+                'expires_at' => now()->addMinutes(15),
             ]);
 
             return response()->json(
@@ -167,6 +174,22 @@ class PembayaranController extends Controller
                     // Update status tiket
                     $pembayaran->tiket()->update(['status' => Tiket::STATUS_SUKSES]);
 
+                    // Generate QR Code menggunakan service yang sudah ada
+                    try {
+                        $qrCodePath = $this->qrCodeService->generateTicketQrCode($pembayaran->tiket);
+
+                        Log::info('QR Code generated successfully', [
+                            'ticket_id' => $pembayaran->tiket->id,
+                            'qr_path' => $qrCodePath
+                        ]);
+                    } catch (\Exception $qrError) {
+                        Log::error('QR Code generation failed', [
+                            'ticket_id' => $pembayaran->tiket->id,
+                            'error' => $qrError->getMessage()
+                        ]);
+                        // Continue without failing the verification
+                    }
+
                     // Kirim email e-tiket secara asynchronous
                     $this->sendEtiketEmail($pembayaran->tiket);
 
@@ -204,9 +227,7 @@ class PembayaranController extends Controller
     private function sendEtiketEmail($tiket)
     {
         try {
-            $qrCodeService = app(QrCodeService::class);
-
-            // Generate QR Code data
+            // Generate QR Code data for email
             $qrData = json_encode([
                 'ticket_id' => $tiket->id,
                 'booking_code' => $tiket->kode_pemesanan,
@@ -214,7 +235,7 @@ class PembayaranController extends Controller
                 'schedule_id' => $tiket->jadwal_id,
             ]);
 
-            $qrCodeImage = $qrCodeService->generateQrCode($qrData, 200);
+            $qrCodeImage = $this->qrCodeService->generateQrCode($qrData, 200);
 
             // Kirim email
             Mail::to($tiket->user->email)->send(new EtiketMail($tiket, $qrCodeImage));

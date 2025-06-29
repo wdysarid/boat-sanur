@@ -10,6 +10,16 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    optimizeDeps: {
+        include: ["html5-qrcode"],
+    }, build: {
+    rollupOptions: {
+      external: [],
+      output: {
+        globals: {},
+      },
+    },
+  },
 });
 
 

@@ -11,13 +11,10 @@ class Tiket extends Model
 
     protected $table = 'tiket';
 
-    protected $fillable = [
-        'user_id',
-        'jadwal_id',
-        'kode_pemesanan',
-        'jumlah_penumpang',
-        'total_harga',
-        'status',
+    protected $fillable = ['user_id', 'jadwal_id', 'kode_pemesanan', 'jumlah_penumpang', 'total_harga', 'status', 'qr_code_path', 'qr_generated_at'];
+
+    protected $casts = [
+        'qr_generated_at' => 'datetime',
     ];
 
     public const STATUS_MENUNGGU = 'menunggu';
@@ -52,6 +49,19 @@ class Tiket extends Model
 
     public function getCheckedInCountAttribute()
     {
-        return $this->checkedInPassengers()->count();
+        return $this->penumpang()->where('status', 'checked_in')->count();
+    }
+
+    public function checkedInPassengers()
+    {
+        return $this->penumpang()->where('status', 'checked_in');
+    }
+
+    public function getQrCodeUrlAttribute()
+    {
+        if ($this->qr_code_path) {
+            return asset('storage/' . $this->qr_code_path);
+        }
+        return null;
     }
 }

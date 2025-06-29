@@ -176,10 +176,15 @@
 
         <!-- Loading Indicator -->
         <div id="loading-indicator" class="hidden text-center py-4">
-            <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-blue-500 hover:bg-blue-400 transition ease-in-out duration-150 cursor-not-allowed">
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <div
+                class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-blue-500 hover:bg-blue-400 transition ease-in-out duration-150 cursor-not-allowed">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                        stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
                 </svg>
                 Memuat data...
             </div>
@@ -237,24 +242,31 @@
                 <!-- Tab Navigation -->
                 <div class="flex border-b border-gray-200 mb-4">
                     <button id="camera-tab" onclick="switchTab('camera')"
-                            class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                        class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                         Kamera
                     </button>
                     <button id="manual-tab" onclick="switchTab('manual')"
-                            class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+                        class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
                         </svg>
                         Manual
                     </button>
                     <button id="upload-tab" onclick="switchTab('upload')"
-                            class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+                        class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                            </path>
                         </svg>
                         Upload
                     </button>
@@ -262,9 +274,11 @@
 
                 <!-- Camera Tab Content -->
                 <div id="camera-content" class="tab-content">
-                    <div id="qr-reader" class="mb-4 w-full h-64 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
+                    <div id="qr-reader"
+                        class="mb-4 w-full h-64 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
                         <div class="text-center">
-                            <svg class="w-16 h-16 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-16 h-16 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12v4m6-4h.01M12 8h.01M12 8h4.01M12 8h-4.01">
                                 </path>
@@ -288,15 +302,21 @@
                 <div id="upload-content" class="tab-content hidden">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Upload Gambar QR Code</label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                        <div
+                            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                             <div class="space-y-1 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
+                                    viewBox="0 0 48 48">
+                                    <path
+                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                                 <div class="flex text-sm text-gray-600">
-                                    <label for="qr-file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                    <label for="qr-file-upload"
+                                        class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                         <span>Upload gambar</span>
-                                        <input id="qr-file-upload" name="qr-file-upload" type="file" accept="image/*" class="sr-only" onchange="handleFileUpload(event)">
+                                        <input id="qr-file-upload" name="qr-file-upload" type="file" accept="image/*"
+                                            class="sr-only" onchange="handleFileUpload(event)">
                                     </label>
                                     <p class="pl-1">atau drag and drop</p>
                                 </div>
@@ -330,7 +350,8 @@
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg max-w-sm w-full p-6">
                 <div class="flex items-center mb-4">
-                    <div id="alertIcon" class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                    <div id="alertIcon"
+                        class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center mr-3">
                         <!-- Icon will be inserted here -->
                     </div>
                     <h3 id="alertTitle" class="text-lg font-medium text-gray-900"></h3>
@@ -389,12 +410,14 @@
             // Update tab buttons
             document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
             document.querySelectorAll('[id$="-tab"]').forEach(button => {
-                button.className = 'px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700';
+                button.className =
+                    'px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700';
             });
 
             // Show selected tab
             document.getElementById(`${tab}-content`).classList.remove('hidden');
-            document.getElementById(`${tab}-tab`).className = 'px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600';
+            document.getElementById(`${tab}-tab`).className =
+                'px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600';
 
             currentTab = tab;
 
@@ -515,7 +538,8 @@
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition-colors';
 
-                const boardingTime = calculateBoardingTime(passenger.tiket?.jadwal?.tanggal, passenger.tiket?.jadwal?.waktu_berangkat);
+                const boardingTime = calculateBoardingTime(passenger.tiket?.jadwal?.tanggal, passenger.tiket?.jadwal
+                    ?.waktu_berangkat);
 
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -748,7 +772,9 @@
             if (currentTab !== 'camera') return;
 
             // Request camera permission first
-            navigator.mediaDevices.getUserMedia({ video: true })
+            navigator.mediaDevices.getUserMedia({
+                    video: true
+                })
                 .then(function(stream) {
                     // Permission granted, stop the stream and start QR scanner
                     stream.getTracks().forEach(track => track.stop());
@@ -775,12 +801,16 @@
 
             const config = {
                 fps: 10,
-                qrbox: { width: 250, height: 250 }
+                qrbox: {
+                    width: 250,
+                    height: 250
+                }
             };
 
             // Start scanner
-            html5QrCode.start(
-                { facingMode: "environment" },
+            html5QrCode.start({
+                    facingMode: "environment"
+                },
                 config,
                 qrCodeSuccessCallback
             ).catch(err => {
@@ -828,13 +858,9 @@
         }
 
         function processQrScanResult(qrCode) {
-            if (!qrCode || qrCode.trim() === '') {
-                showAlert('Error', 'QR Code tidak valid atau kosong', 'error');
-                return;
-            }
-
             showLoading();
 
+            // Simple POST with QR code data
             fetch(`/api/penumpang/checkin`, {
                     method: 'POST',
                     headers: {

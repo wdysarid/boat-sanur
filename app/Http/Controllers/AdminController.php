@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Jadwal;
 use App\Models\Feedback;
-use App\Models\Pembayaran;
 use App\Models\Penumpang;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -213,6 +215,11 @@ class AdminController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Error loading passenger data', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memuat data penumpang: ' . $e->getMessage()
@@ -264,6 +271,44 @@ class AdminController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memuat data jadwal'
+            ], 500);
+        }
+    }
+
+    /**
+     * Check-in passenger via admin interface
+     */
+    public function checkInPassenger(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'tiket_id' => 'required|exists:tiket,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            // Use the API controller method
+            $apiRequest = new Request();
+            $apiRequest->merge(['tiket_id' => $request->tiket_id]);
+
+            $penumpangController = new \App\Http\Controllers\Api\PenumpangController();
+            return $penumpangController->checkInPenumpang($apiRequest);
+
+        } catch (\Exception $e) {
+            Log::error('Admin check-in error', [
+                'error' => $e->getMessage(),
+                'tiket_id' => $request->tiket_id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal melakukan check-in: ' . $e->getMessage()
             ], 500);
         }
     }
