@@ -379,7 +379,7 @@
                                         </div>
                                     </div>
 
-                                    <button onclick="downloadTicket('{{ $tiket->kode_pemesanan }}')"
+                                    <button onclick="downloadTicket('{{ $tiket->id }}')"
                                         class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors">
                                         Download E-Tiket
                                     </button>
@@ -424,8 +424,8 @@
 @push('scripts')
     <script>
         function downloadTicket(ticketId) {
-            alert('Mengunduh E-Tiket untuk ' + ticketId);
-            // Implementasi download e-tiket
+            showToast('Memproses unduhan PDF...', 'info');
+            window.location.href = `/wisatawan/tiket/${ticketId}/pdf`;
         }
 
         // Simple toast notification

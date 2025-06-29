@@ -130,20 +130,32 @@ class DatabaseSeeder extends Seeder
             // Dapatkan user pemesan
             $userPemesan = User::find($tiket->user_id);
 
-            // Buat penumpang utama (pemesan) menggunakan factory
-            Penumpang::factory()
+
+            $pemesan = Penumpang::factory()
                 ->pemesan($userPemesan)
                 ->create([
                     'tiket_id' => $tiket->id,
                 ]);
 
+            // Randomly check in some passengers
+            if (rand(0, 1)) {
+                $pemesan->checkIn();
+            }
+
             // Buat penumpang tambahan jika jumlah penumpang > 1
             if ($tiket->jumlah_penumpang > 1) {
-                Penumpang::factory()
+                $penumpangTambahan = Penumpang::factory()
                     ->count($tiket->jumlah_penumpang - 1)
                     ->create([
                         'tiket_id' => $tiket->id,
                     ]);
+
+                // Randomly check in some additional passengers
+                $penumpangTambahan->each(function ($penumpang) {
+                    if (rand(0, 1)) {
+                        $penumpang->checkIn();
+                    }
+                });
             }
         }
 

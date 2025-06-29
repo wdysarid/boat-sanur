@@ -17,7 +17,13 @@ class Penumpang extends Model
         'no_identitas',
         'usia',
         'jenis_kelamin',
-        'is_pemesan'
+        'is_pemesan',
+        'status',
+        'checked_in_at'
+    ];
+
+    protected $casts = [
+        'checked_in_at' => 'datetime',
     ];
 
     public function tiket()
@@ -28,5 +34,13 @@ class Penumpang extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function checkIn()
+    {
+        return $this->update([
+            'status' => 'checked_in',
+            'checked_in_at' => now()
+        ]);
     }
 }

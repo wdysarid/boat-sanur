@@ -24,6 +24,8 @@ class PenumpangFactory extends Factory
             'usia' => $this->faker->numberBetween(5, 70),
             'jenis_kelamin' => $this->faker->randomElement(['laki-laki', 'perempuan']),
             'is_pemesan' => false, // Default false, akan diupdate di seeder
+            'status' => 'booked',
+            'checked_in_at' => null,
         ];
     }
 
@@ -35,6 +37,16 @@ class PenumpangFactory extends Factory
                 'user_id' => $user->id,
                 'nama_lengkap' => $user->nama,
                 'usia' => $this->faker->numberBetween(18, 60),
+            ];
+        });
+    }
+
+    public function checkedIn()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'status' => 'checked_in',
+                'checked_in_at' => $this->faker->dateTimeBetween('-1 week', 'now'),
             ];
         });
     }

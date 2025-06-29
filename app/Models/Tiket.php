@@ -49,4 +49,9 @@ class Tiket extends Model
     {
         return $this->hasOne(Penumpang::class)->where('is_pemesan', true);
     }
+
+    public function getCheckedInCountAttribute()
+    {
+        return $this->checkedInPassengers()->count();
+    }
 }
