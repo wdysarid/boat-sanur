@@ -277,7 +277,8 @@
                                                     {{ number_format($ticket['price'], 0, ',', '.') }}</p>
                                             </div>
                                             @if ($ticket['available_seats'] > 0)
-                                                <a href="{{ route('wisatawan.pemesanan', [
+                                                <!-- PERUBAHAN: Ganti link untuk menggunakan route baru yang handle redirect -->
+                                                <a href="{{ route('pemesanan.guest', [
                                                     'jadwal_id' => $ticket['id'],
                                                     'from' => $ticket['departure_port'],
                                                     'to' => $ticket['arrival_port'],

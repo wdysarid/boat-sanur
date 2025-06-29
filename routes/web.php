@@ -67,6 +67,50 @@ Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallbac
 // Search
 Route::get('/search', [JadwalController::class, 'search'])->name('search.tickets');
 
+// FITUR BARU: Route khusus untuk booking redirect (sebelum group wisatawan)
+// Route ini akan handle user yang belum login saat ingin booking tiket
+Route::get('/pemesanan', function(Request $request) {
+    if (!auth()->check()) {
+        // FITUR BARU: Simpan booking intent dengan key spesifik untuk booking
+        session([
+            'booking_intent' => [
+                'jadwal_id' => $request->get('jadwal_id'),
+                'from' => $request->get('from'),
+                'to' => $request->get('to'),
+                'departure_date' => $request->get('departure_date'),
+                'passenger_count' => $request->get('passenger_count', 1),
+                'passenger_type' => $request->get('passenger_type', 'domestic'),
+            ],
+            'url.intended' => route('wisatawan.pemesanan')
+        ]);
+
+        return redirect()->route('login')->with('info', 'Silakan login terlebih dahulu untuk melanjutkan pemesanan.');
+    }
+
+    return redirect()->route('wisatawan.pemesanan', $request->all());
+})->name('pemesanan.guest');
+
+// FITUR BARU: Route alternatif untuk book ticket (opsional)
+Route::get('/book-ticket', function(Request $request) {
+    if (!auth()->check()) {
+        // FITUR BARU: Simpan data booking dengan key yang spesifik
+        session([
+            'booking_intent' => [
+                'jadwal_id' => $request->get('jadwal_id'),
+                'from' => $request->get('from'),
+                'to' => $request->get('to'),
+                'departure_date' => $request->get('departure_date'),
+                'passenger_count' => $request->get('passenger_count', 1),
+                'passenger_type' => $request->get('passenger_type', 'domestic'),
+            ],
+            'url.intended' => route('wisatawan.pemesanan')
+        ]);
+
+        return redirect()->route('login')->with('info', 'Silakan login terlebih dahulu untuk melanjutkan pemesanan.');
+    }
+
+    return redirect()->route('wisatawan.pemesanan', $request->all());
+})->name('book.ticket');
 
 // API routes
 Route::get('/api/feedback', [FeedbackController::class, 'getFeedback']);

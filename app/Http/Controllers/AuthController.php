@@ -15,14 +15,14 @@ use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
-    // buat test api aja ini
+    // EXISTING FUNCTION - tidak diubah
     public function getUser()
     {
         $user = User::all();
         return response()->json($user);
     }
 
-    // daftar akun (buat akun)
+    // EXISTING FUNCTION - tidak diubah
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -50,7 +50,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-    //login akun
+    // EXISTING FUNCTION - tidak diubah
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -92,7 +92,7 @@ class AuthController extends Controller
         ]);
     }
 
-    //logout akun
+    // EXISTING FUNCTION - tidak diubah
     public function logout(Request $request)
     {
         // Ambil nama user sebelum logout (jika ada) - PERBAIKAN ERROR
@@ -121,11 +121,13 @@ class AuthController extends Controller
         return redirect('/login');
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function profile(Request $request)
     {
         return response()->json(['user' => $request->user()]);
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function updateProfile(Request $request)
     {
         // Dapatkan user_id dari input form
@@ -176,6 +178,7 @@ class AuthController extends Controller
         ]);
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -195,6 +198,7 @@ class AuthController extends Controller
         ]);
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function resetPassword(Request $request)
     {
         $request->validate([
@@ -219,7 +223,7 @@ class AuthController extends Controller
 
     // ========== WEB AUTHENTICATION METHODS ==========
 
-    // Web Register - untuk form register
+    // EXISTING FUNCTION - tidak diubah
     public function webRegister(Request $request)
     {
         // TAMBAHAN: Store intended URL jika ada
@@ -265,7 +269,7 @@ class AuthController extends Controller
         }
     }
 
-    // Web Login - untuk form login
+    // MODIFIKASI: Web Login dengan fitur booking redirect
     public function webLogin(Request $request)
     {
         // TAMBAHAN: Store intended URL jika ada
@@ -307,27 +311,13 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        // MODIFIKASI: Cek intended URL sebelum redirect berdasarkan role
-        $intendedUrl = session('url.intended');
-
-        if ($intendedUrl) {
-            session()->forget('url.intended');
-
-            // Add success message for feedback context
-            if (str_contains($intendedUrl, '#feedback')) {
-                return redirect($intendedUrl)->with('success', 'Login berhasil! Sekarang Anda dapat memberikan feedback.');
-            }
-
-            return redirect($intendedUrl)->with('success', 'Login berhasil! Selamat datang, ' . $user->nama . '!');
-        }
-
-        // Default redirect berdasarkan role jika tidak ada intended URL
-        return $this->redirectBasedOnRole($user);
+        // PERUBAHAN BESAR: Gunakan method baru untuk handle multiple intent types
+        return $this->handleIntendedRedirect($user);
     }
 
     // ========== GOOGLE OAUTH METHODS ==========
 
-    // Google OAuth - Redirect to Google
+    // EXISTING FUNCTION - tidak diubah
     public function redirectToGoogle()
     {
         try {
@@ -339,7 +329,7 @@ class AuthController extends Controller
         }
     }
 
-    // Google OAuth - Handle callback (FIXED dengan auto email verification)
+    // MODIFIKASI: Google OAuth callback dengan fitur booking redirect
     public function handleGoogleCallback()
     {
         try {
@@ -367,23 +357,8 @@ class AuthController extends Controller
                     'role' => $user->role,
                 ]);
 
-                // TAMBAHAN: Cek intended URL untuk Google OAuth juga
-                $intendedUrl = session('url.intended');
-
-                if ($intendedUrl) {
-                    session()->forget('url.intended');
-
-                    if (str_contains($intendedUrl, '#feedback')) {
-                        return redirect($intendedUrl)->with('success', 'Selamat datang kembali, ' . $user->nama . '! Sekarang Anda dapat memberikan feedback.');
-                    }
-
-                    return redirect($intendedUrl)->with('success', 'Selamat datang kembali, ' . $user->nama . '!');
-                }
-
-                // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
-                return redirect()
-                    ->route('wisatawan.dashboard')
-                    ->with('success', 'Selamat datang, ' . $user->nama . '!');
+                // PERUBAHAN: Gunakan method baru untuk handle redirect
+                return $this->handleIntendedRedirect($user);
             }
 
             // Check if user exists with this email (untuk link akun existing)
@@ -404,23 +379,8 @@ class AuthController extends Controller
                     'role' => $existingUser->role,
                 ]);
 
-                // TAMBAHAN: Cek intended URL untuk existing user juga
-                $intendedUrl = session('url.intended');
-
-                if ($intendedUrl) {
-                    session()->forget('url.intended');
-
-                    if (str_contains($intendedUrl, '#feedback')) {
-                        return redirect($intendedUrl)->with('success', 'Selamat datang kembali, ' . $existingUser->nama . '! Sekarang Anda dapat memberikan feedback.');
-                    }
-
-                    return redirect($intendedUrl)->with('success', 'Selamat datang kembali, ' . $existingUser->nama . '!');
-                }
-
-                // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
-                return redirect()
-                    ->route('wisatawan.dashboard')
-                    ->with('success', 'Selamat datang, ' . $existingUser->nama . '!');
+                // PERUBAHAN: Gunakan method baru untuk handle redirect
+                return $this->handleIntendedRedirect($existingUser);
             }
 
             // CREATE NEW USER - REGISTRASI OTOMATIS SEPERTI GOOGLE UMUMNYA
@@ -442,23 +402,9 @@ class AuthController extends Controller
                 'role' => $newUser->role,
             ]);
 
-            // TAMBAHAN: Cek intended URL untuk new user juga
-            $intendedUrl = session('url.intended');
+            // PERUBAHAN: Gunakan method baru untuk handle redirect
+            return $this->handleIntendedRedirect($newUser);
 
-            if ($intendedUrl) {
-                session()->forget('url.intended');
-
-                if (str_contains($intendedUrl, '#feedback')) {
-                    return redirect($intendedUrl)->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis. Sekarang Anda dapat memberikan feedback.');
-                }
-
-                return redirect($intendedUrl)->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
-            }
-
-            // SELALU REDIRECT KE DASHBOARD WISATAWAN jika tidak ada intended URL
-            return redirect()
-                ->route('wisatawan.dashboard')
-                ->with('success', 'Selamat datang, ' . $newUser->nama . '! Akun Anda telah dibuat otomatis.');
         } catch (Exception $e) {
             Log::error('Google OAuth Error: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -467,7 +413,7 @@ class AuthController extends Controller
         }
     }
 
-    // Helper method untuk redirect berdasarkan role (HANYA UNTUK FORM LOGIN)
+    // EXISTING FUNCTION - tidak diubah
     private function redirectBasedOnRole($user)
     {
         Log::info('Redirecting user based on role', [
@@ -487,5 +433,38 @@ class AuthController extends Controller
                 ->route('wisatawan.dashboard')
                 ->with('success', 'Selamat datang, ' . $user->nama . '!');
         }
+    }
+
+    // FITUR BARU: Method untuk handle multiple types of intended redirects
+    // Menggabungkan booking redirect dan feedback redirect yang sudah ada
+    private function handleIntendedRedirect($user)
+    {
+        $intendedUrl = session('url.intended');
+
+        if ($intendedUrl) {
+            // FITUR BARU: Handle booking intent specifically untuk ticket booking
+            if (str_contains($intendedUrl, 'pemesanan')) {
+                $bookingIntent = session('booking_intent');
+                if ($bookingIntent) {
+                    // Clear session setelah digunakan
+                    session()->forget(['booking_intent', 'url.intended']);
+                    return redirect()->route('wisatawan.pemesanan', $bookingIntent)
+                        ->with('success', 'Login berhasil! Silakan lanjutkan pemesanan Anda.');
+                }
+            }
+
+            // EXISTING FUNCTIONALITY: Handle feedback intent (tidak diubah untuk menjaga compatibility)
+            if (str_contains($intendedUrl, '#feedback')) {
+                session()->forget('url.intended');
+                return redirect($intendedUrl)->with('success', 'Login berhasil! Sekarang Anda dapat memberikan feedback.');
+            }
+
+            // EXISTING FUNCTIONALITY: Handle other intended URLs (tidak diubah)
+            session()->forget('url.intended');
+            return redirect($intendedUrl)->with('success', 'Login berhasil! Selamat datang, ' . $user->nama . '!');
+        }
+
+        // Default redirect berdasarkan role (tidak diubah)
+        return $this->redirectBasedOnRole($user);
     }
 }

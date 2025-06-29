@@ -32,6 +32,7 @@ class UserController extends Controller
         $this->qrCodeService = $qrCodeService;
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function showProfile()
     {
         return view('wisatawan.profile', [
@@ -39,6 +40,7 @@ class UserController extends Controller
         ]);
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function updateProfile(Request $request)
     {
         try {
@@ -150,6 +152,7 @@ class UserController extends Controller
         }
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function changePassword(Request $request)
     {
         try {
@@ -259,6 +262,7 @@ class UserController extends Controller
         }
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function feedbackForm()
     {
         return view('wisatawan.feedback-form')->with([
@@ -266,6 +270,7 @@ class UserController extends Controller
         ]);
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function tambahFeedback(Request $request)
     {
         $existingFeedback = Feedback::where('user_id', auth()->id())->first();
@@ -318,10 +323,24 @@ class UserController extends Controller
         }
     }
 
+    // MODIFIKASI: Pemesanan dengan fitur booking redirect
     public function pemesanan(Request $request)
     {
         try {
+            // PERUBAHAN: Prioritaskan parameter dari URL, fallback ke session jika ada
             $jadwalId = $request->query('jadwal_id');
+
+            // FITUR BARU: Jika tidak ada jadwal_id di URL, cek session booking_intent
+            if (!$jadwalId) {
+                $bookingIntent = session('booking_intent');
+                if ($bookingIntent && isset($bookingIntent['jadwal_id'])) {
+                    $jadwalId = $bookingIntent['jadwal_id'];
+                    // Merge session data dengan request untuk view
+                    $request->merge($bookingIntent);
+                    // PENTING: Clear session setelah digunakan untuk mencegah konflik
+                    session()->forget('booking_intent');
+                }
+            }
 
             if (!$jadwalId) {
                 return view('wisatawan.pemesanan', [
@@ -389,6 +408,7 @@ class UserController extends Controller
         }
     }
 
+    // EXISTING FUNCTION - tidak diubah
     private function calculateDuration($departure, $arrival)
     {
         $departureTime = Carbon::parse($departure);
@@ -398,6 +418,7 @@ class UserController extends Controller
         return $duration->h > 0 ? $duration->h . ' jam ' . $duration->i . ' menit' : $duration->i . ' menit';
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function prosesPemesanan(Request $request)
     {
         DB::beginTransaction();
@@ -506,6 +527,7 @@ class UserController extends Controller
         }
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function pembayaran(Request $request)
     {
         try {
@@ -573,6 +595,7 @@ class UserController extends Controller
         }
     }
 
+    // EXISTING FUNCTION - tidak diubah
     private function formatTiketData($tiket)
     {
         $biaya_admin = 5000;
@@ -596,6 +619,8 @@ class UserController extends Controller
             ],
         ];
     }
+
+    // EXISTING FUNCTION - tidak diubah
     public function prosesPembayaran(Request $request)
     {
         DB::beginTransaction();
@@ -695,6 +720,7 @@ class UserController extends Controller
         }
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function konfirmasi(Request $request)
     {
         try {
@@ -730,6 +756,7 @@ class UserController extends Controller
         }
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function tiketSaya()
     {
         try {
@@ -750,7 +777,7 @@ class UserController extends Controller
         }
     }
 
-    // TAMBAHAN: Method untuk filter tiket berdasarkan status
+    // EXISTING FUNCTION - tidak diubah
     public function getTiketByStatus(Request $request, $status)
     {
         try {
@@ -839,7 +866,7 @@ class UserController extends Controller
         }
     }
 
-    // PERBAIKAN: Statistik yang lebih akurat
+    // EXISTING FUNCTION - tidak diubah
     private function calculateTicketStats($tickets)
     {
         $total = $tickets->count();
@@ -879,6 +906,7 @@ class UserController extends Controller
         ];
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function getTiketDetail($id)
     {
         try {
@@ -969,6 +997,7 @@ class UserController extends Controller
         }
     }
 
+    // EXISTING FUNCTION - tidak diubah
     public function showTiket($id)
     {
         try {
@@ -985,70 +1014,71 @@ class UserController extends Controller
         }
     }
 
-    // PERBAIKAN: Method batalkanTiket yang lebih robust
+    // EXISTING FUNCTION - tidak diubah
     public function batalkanTiket(Request $request, $id)
-{
-    DB::beginTransaction();
-    try {
-        $user = $request->user();
+    {
+        DB::beginTransaction();
+        try {
+            $user = $request->user();
 
-        // Validasi user
-        if (!$user) {
+            // Validasi user
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda harus login untuk membatalkan tiket',
+                ], 401);
+            }
+
+            // Cari tiket dengan relasi pembayaran
+            $tiket = Tiket::with('pembayaran')
+                ->where('id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$tiket) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tiket tidak ditemukan atau Anda tidak memiliki akses',
+                ], 404);
+            }
+
+            // Validasi status tiket
+            $allowedStatuses = ['menunggu', 'diproses'];
+            if (!in_array($tiket->status, $allowedStatuses)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tiket tidak dapat dibatalkan karena status sudah ' . $tiket->status,
+                ], 400);
+            }
+
+            // Update status tiket
+            $tiket->update(['status' => 'dibatalkan']);
+
+            // Jika ada pembayaran yang masih menunggu, batalkan juga
+            if ($tiket->pembayaran && $tiket->pembayaran->status === 'menunggu') {
+                $tiket->pembayaran->update([
+                    'status' => 'dibatalkan',
+                    'expires_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
             return response()->json([
-                'success' => false,
-                'message' => 'Anda harus login untuk membatalkan tiket',
-            ], 401);
-        }
-
-        // Cari tiket dengan relasi pembayaran
-        $tiket = Tiket::with('pembayaran')
-            ->where('id', $id)
-            ->where('user_id', $user->id)
-            ->first();
-
-        if (!$tiket) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tiket tidak ditemukan atau Anda tidak memiliki akses',
-            ], 404);
-        }
-
-        // Validasi status tiket
-        $allowedStatuses = ['menunggu', 'diproses'];
-        if (!in_array($tiket->status, $allowedStatuses)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tiket tidak dapat dibatalkan karena status sudah ' . $tiket->status,
-            ], 400);
-        }
-
-        // Update status tiket
-        $tiket->update(['status' => 'dibatalkan']);
-
-        // Jika ada pembayaran yang masih menunggu, batalkan juga
-        if ($tiket->pembayaran && $tiket->pembayaran->status === 'menunggu') {
-            $tiket->pembayaran->update([
-                'status' => 'dibatalkan',
-                'expires_at' => now(),
+                'success' => true,
+                'message' => 'Tiket berhasil dibatalkan',
             ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
         }
-
-        DB::commit();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tiket berhasil dibatalkan',
-        ]);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-        ], 500);
     }
-}
 
+    // EXISTING FUNCTION - tidak diubah (PERBAIKAN SYNTAX ERROR)
     public function apiRequest($method, $url, $data = [])
     {
         try {
