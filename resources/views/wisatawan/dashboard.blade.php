@@ -248,7 +248,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-3 pt-3 border-t border-gray-100">
-                                    <a href="{{ route('wisatawan.tiket.show', $trip['id']) }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Lihat Detail →</a>
+                                    <a href="{{ route('wisatawan.tiket') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Lihat Detail →</a>
                                 </div>
                             </div>
                         @empty

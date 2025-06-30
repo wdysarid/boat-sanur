@@ -195,9 +195,7 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
 
         Route::get('/konfirmasi', [UserController::class, 'konfirmasi'])->name('konfirmasi');
 
-        Route::get('/profile', function () {
-            return view('wisatawan.profile');
-        })->name('profile');
+        Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
 
         Route::get('/profile/edit', function () {
             return view('wisatawan.edit-profile');

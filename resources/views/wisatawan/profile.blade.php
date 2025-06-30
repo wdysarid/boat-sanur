@@ -94,11 +94,11 @@
                         <div class="mt-6 pt-6 border-t border-gray-200">
                             <div class="grid grid-cols-2 gap-4 text-center">
                                 <div>
-                                    <p class="text-2xl font-bold text-blue-600">12</p>
+                                    <p class="text-2xl font-bold text-blue-600">{{ $total_trips ?? 200 }}</p>
                                     <p class="text-xs text-gray-600">Total Perjalanan</p>
                                 </div>
                                 <div>
-                                    <p class="text-2xl font-bold text-green-600">3</p>
+                                    <p class="text-2xl font-bold text-green-600">{{ $monthly_trips ?? 100 }}</p>
                                     <p class="text-xs text-gray-600">Perjalanan Bulan Ini</p>
                                 </div>
                             </div>
@@ -109,7 +109,7 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
                         <h4 class="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h4>
                         <div class="space-y-3">
-                            <a href="{{ route('wisatawan.dashboard') }}"
+                            <a href="{{ route('search.tickets') }}"
                                 class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                                 <svg class="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -127,15 +127,6 @@
                                 </svg>
                                 <span class="text-sm font-medium">Lihat Tiket Saya</span>
                             </a>
-                            <button onclick="downloadHistory()"
-                                class="flex items-center p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full text-left">
-                                <svg class="w-5 h-5 mr-3 text-purple-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <span class="text-sm font-medium">Download Riwayat</span>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -542,10 +533,6 @@
 
         function changePassword() {
             showToast('Fitur ubah password akan segera tersedia', 'info');
-        }
-
-        function downloadHistory() {
-            showToast('Mengunduh riwayat perjalanan...', 'success');
         }
 
         // Handle profile form submission

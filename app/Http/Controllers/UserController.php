@@ -245,9 +245,47 @@ class UserController extends Controller
     // EXISTING FUNCTION - tidak diubah
     public function showProfile()
     {
+        $user = auth()->user();
+        $travelStats = $this->getTravelStats($user);
+
         return view('wisatawan.profile', [
-            'user' => auth()->user(),
+            'user' => $user,
+            'total_trips' => $travelStats['total_trips'],
+            'monthly_trips' => $travelStats['monthly_trips']
         ]);
+    }
+
+    // Tambahkan method ini di UserController.php
+    private function getTravelStats($user)
+    {
+        // Total perjalanan (tiket sukses + pembayaran terverifikasi + sudah lewat tanggal)
+        $totalTrips = Tiket::where('user_id', $user->id)
+            ->where('status', 'sukses')
+            ->whereHas('pembayaran', function($q) {
+                $q->where('status', 'terverifikasi');
+            })
+            ->whereHas('jadwal', function($q) {
+                $q->where('tanggal', '<', now()->format('Y-m-d'));
+            })
+            ->count();
+
+        // Perjalanan bulan ini (filter tambahan untuk bulan ini)
+        $monthlyTrips = Tiket::where('user_id', $user->id)
+            ->where('status', 'sukses')
+            ->whereHas('pembayaran', function($q) {
+                $q->where('status', 'terverifikasi');
+            })
+            ->whereHas('jadwal', function($q) {
+                $q->where('tanggal', '<', now()->format('Y-m-d'))
+                ->whereMonth('tanggal', now()->month)
+                ->whereYear('tanggal', now()->year);
+            })
+            ->count();
+
+        return [
+            'total_trips' => $totalTrips,
+            'monthly_trips' => $monthlyTrips
+        ];
     }
 
     // EXISTING FUNCTION - tidak diubah
