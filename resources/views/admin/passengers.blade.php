@@ -10,8 +10,8 @@
             <p class="text-gray-600">Kelola data penumpang dan status boarding</p>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6" id="stats-cards">
+        <!-- SIMPLIFIED: Statistics Cards - Only 3 statuses -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6" id="stats-cards">
             <div class="bg-white rounded-lg shadow p-4">
                 <div class="flex items-center">
                     <div class="p-2 bg-blue-100 rounded-lg">
@@ -45,8 +45,8 @@
 
             <div class="bg-white rounded-lg shadow p-4">
                 <div class="flex items-center">
-                    <div class="p-2 bg-orange-100 rounded-lg">
-                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
@@ -54,34 +54,6 @@
                     <div class="ml-3">
                         <p class="text-sm font-medium text-gray-500">Checked In</p>
                         <p class="text-lg font-semibold text-gray-900" id="stat-checked-in">0</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="flex items-center">
-                    <div class="p-2 bg-green-100 rounded-lg">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-500">Boarded</p>
-                        <p class="text-lg font-semibold text-gray-900" id="stat-boarded">0</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="flex items-center">
-                    <div class="p-2 bg-gray-100 rounded-lg">
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-500">Completed</p>
-                        <p class="text-lg font-semibold text-gray-900" id="stat-completed">0</p>
                     </div>
                 </div>
             </div>
@@ -116,7 +88,7 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
-                    <!-- Status Filter -->
+                    <!-- SIMPLIFIED: Status Filter - Only 3 options -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <select id="status-filter"
@@ -124,8 +96,6 @@
                             <option value="">Semua Status</option>
                             <option value="booked">Booked</option>
                             <option value="checked_in">Checked In</option>
-                            <option value="boarded">Boarded</option>
-                            <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
@@ -206,8 +176,6 @@
                                 Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Check-in</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Boarding</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi
                             </th>
                         </tr>
@@ -225,12 +193,13 @@
         </div>
     </div>
 
-    <!-- Enhanced QR Scanner Modal - IMPROVED: Optimized for simple QR codes -->
+    <!-- IMPROVED: QR Scanner Modal with smaller camera and larger background -->
     <div id="qrScannerModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-lg w-full p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Scan QR Code</h3>
+            <!-- IMPROVED: Larger modal container -->
+            <div class="bg-white rounded-lg max-w-2xl w-full p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-medium text-gray-900">Scan QR Code</h3>
                     <button onclick="closeQrScanner()" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -240,9 +209,9 @@
                 </div>
 
                 <!-- Tab Navigation -->
-                <div class="flex border-b border-gray-200 mb-4">
+                <div class="flex border-b border-gray-200 mb-6">
                     <button id="camera-tab" onclick="switchTab('camera')"
-                        class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                        class="px-6 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
@@ -253,7 +222,7 @@
                         Kamera
                     </button>
                     <button id="manual-tab" onclick="switchTab('manual')"
-                        class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+                        class="px-6 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
@@ -262,7 +231,7 @@
                         Manual
                     </button>
                     <button id="upload-tab" onclick="switchTab('upload')"
-                        class="px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+                        class="px-6 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
@@ -274,20 +243,23 @@
 
                 <!-- Camera Tab Content -->
                 <div id="camera-content" class="tab-content">
-                    <div id="qr-reader"
-                        class="mb-4 w-full h-64 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
-                        <div class="text-center">
-                            <svg class="w-16 h-16 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12v4m6-4h.01M12 8h.01M12 8h4.01M12 8h-4.01">
-                                </path>
-                            </svg>
-                            <p class="text-sm text-gray-500">Mengaktifkan kamera...</p>
+                    <!-- IMPROVED: Smaller camera with larger container -->
+                    <div class="flex justify-center mb-6">
+                        <div id="qr-reader"
+                            class="w-80 h-60 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
+                            <div class="text-center">
+                                <svg class="w-16 h-16 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12v4m6-4h.01M12 8h.01M12 8h4.01M12 8h-4.01">
+                                    </path>
+                                </svg>
+                                <p class="text-sm text-gray-500">Mengaktifkan kamera...</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="bg-blue-50 rounded-lg p-3 text-sm text-blue-800">
-                        <p class="font-medium mb-1">Tips untuk scan optimal:</p>
+                    <div class="bg-blue-50 rounded-lg p-4 text-sm text-blue-800">
+                        <p class="font-medium mb-2">Tips untuk scan optimal:</p>
                         <ul class="text-xs space-y-1">
                             <li>• Pastikan QR Code dalam frame</li>
                             <li>• Jaga jarak 10-30 cm dari kamera</li>
@@ -298,12 +270,12 @@
 
                 <!-- Manual Tab Content -->
                 <div id="manual-content" class="tab-content hidden">
-                    <div class="mb-4">
+                    <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Masukkan Kode Pemesanan</label>
                         <input type="text" id="qrCodeInput" placeholder="Contoh: TKT-ABC123 atau ABC123"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <div class="mt-2 text-xs text-gray-500">
-                            <p class="font-medium mb-1">Format yang didukung:</p>
+                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="mt-3 text-xs text-gray-500">
+                            <p class="font-medium mb-2">Format yang didukung:</p>
                             <ul class="space-y-1">
                                 <li>• TKT-ABC123 (format lengkap)</li>
                                 <li>• ABC123 (kode saja)</li>
@@ -314,7 +286,7 @@
 
                 <!-- Upload Tab Content -->
                 <div id="upload-content" class="tab-content hidden">
-                    <div class="mb-4">
+                    <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Upload Gambar QR Code</label>
                         <div
                             class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
@@ -344,15 +316,27 @@
                     </div>
                 </div>
 
+                <!-- IMPROVED: Toast notification area -->
+                <div id="toast-container" class="mb-4 hidden">
+                    <div id="toast-message" class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span id="toast-text" class="text-green-800 font-medium"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Action Buttons -->
-                <div class="flex space-x-3 mt-6">
+                <div class="flex space-x-3 mt-8">
                     <button onclick="processQrScan()" id="process-btn"
-                        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">
                         Proses Check-in
                     </button>
                     <button onclick="closeQrScanner()"
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
-                        Batal
+                        class="px-6 py-3 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 font-medium">
+                        Tutup
                     </button>
                 </div>
             </div>
@@ -425,13 +409,13 @@
             document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
             document.querySelectorAll('[id$="-tab"]').forEach(button => {
                 button.className =
-                    'px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700';
+                    'px-6 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700';
             });
 
             // Show selected tab
             document.getElementById(`${tab}-content`).classList.remove('hidden');
             document.getElementById(`${tab}-tab`).className =
-                'px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600';
+                'px-6 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600';
 
             currentTab = tab;
 
@@ -467,13 +451,13 @@
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
 
-                // Ukuran optimal untuk scanning
+                // Optimal size for scanning
                 canvas.width = Math.min(800, img.width);
                 canvas.height = Math.min(800, img.height);
 
                 context.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                // Tambahkan preprocessing gambar
+                // Add image preprocessing
                 const imageData = preprocessImage(context, canvas.width, canvas.height);
 
                 const code = jsQR(imageData.data, imageData.width, imageData.height, {
@@ -482,10 +466,9 @@
 
                 const result = document.getElementById('upload-result');
                 if (code) {
-                    // IMPROVED: Handle simple QR code format
                     let qrContent = code.data.trim();
 
-                    // Normalisasi format kode - QR Code sederhana hanya berisi kode pemesanan
+                    // Normalize format
                     if (!qrContent.startsWith('TKT-') && qrContent.match(/^[A-Z0-9]+$/)) {
                         qrContent = 'TKT-' + qrContent;
                     }
@@ -522,9 +505,9 @@
             img.src = imageSrc;
         }
 
-        // Fungsi preprocessing gambar untuk meningkatkan deteksi
+        // Image preprocessing function to improve detection
         function preprocessImage(context, width, height) {
-            // Konversi ke grayscale untuk meningkatkan deteksi
+            // Convert to grayscale to improve detection
             const imageData = context.getImageData(0, 0, width, height);
             const data = imageData.data;
 
@@ -533,7 +516,7 @@
                 data[i] = avg; // R
                 data[i + 1] = avg; // G
                 data[i + 2] = avg; // B
-                // Alpha channel tetap
+                // Alpha channel remains
             }
 
             context.putImageData(imageData, 0, 0);
@@ -545,6 +528,7 @@
             document.getElementById('qr-file-upload').value = '';
         }
 
+        // FIXED: Load passenger data with proper error handling
         function loadPassengerData(page = 1) {
             const status = document.getElementById('status-filter').value;
             const search = document.getElementById('search-passenger').value;
@@ -553,15 +537,15 @@
 
             showLoading();
 
-            const params = new URLSearchParams({
-                status: status,
-                search: search,
-                jadwal_id: jadwalId,
-                date: date,
-                page: page
-            });
+            const params = new URLSearchParams();
+            if (status) params.append('status', status);
+            if (search) params.append('search', search);
+            if (jadwalId) params.append('jadwal_id', jadwalId);
+            if (date) params.append('date', date);
+            params.append('page', page);
 
-            fetch(`/api/penumpang/all?${params}`, {
+            // FIXED: Use correct endpoint
+            fetch(`/admin/passengers/data?${params}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
@@ -570,7 +554,7 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.json();
                 })
@@ -586,7 +570,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading passenger data:', error);
-                    showAlert('Error', 'Terjadi kesalahan saat memuat data penumpang', 'error');
+                    showAlert('Error', 'Terjadi kesalahan saat memuat data penumpang: ' + error.message, 'error');
                 })
                 .finally(() => {
                     hideLoading();
@@ -600,7 +584,7 @@
             if (passengers.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                             Tidak ada data penumpang yang ditemukan
                         </td>
                     </tr>
@@ -611,9 +595,6 @@
             passengers.forEach(passenger => {
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition-colors';
-
-                const boardingTime = calculateBoardingTime(passenger.tiket?.jadwal?.tanggal, passenger.tiket?.jadwal
-                    ?.waktu_berangkat);
 
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -636,7 +617,6 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900">${passenger.tiket?.jadwal?.rute_asal || '-'} → ${passenger.tiket?.jadwal?.rute_tujuan || '-'}</div>
                         <div class="text-sm text-gray-500">${formatDate(passenger.tiket?.jadwal?.tanggal)} ${passenger.tiket?.jadwal?.waktu_berangkat}</div>
-                        <div class="text-xs text-gray-400">Boarding: ${boardingTime}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(passenger.status)}">
@@ -645,9 +625,6 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         ${passenger.checked_in_at ? formatDateTime(passenger.checked_in_at) : '-'}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${boardingTime}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
@@ -743,12 +720,11 @@
             container.innerHTML = paginationHTML;
         }
 
+        // SIMPLIFIED: Update stats for only 3 statuses
         function updateStats(stats) {
             document.getElementById('stat-total').textContent = stats.total || 0;
             document.getElementById('stat-booked').textContent = stats.booked || 0;
             document.getElementById('stat-checked-in').textContent = stats.checked_in || 0;
-            document.getElementById('stat-boarded').textContent = stats.boarded || 0;
-            document.getElementById('stat-completed').textContent = stats.completed || 0;
             document.getElementById('stat-cancelled').textContent = stats.cancelled || 0;
         }
 
@@ -834,9 +810,10 @@
             // Reset to camera tab
             switchTab('camera');
 
-            // Clear previous inputs
+            // Clear previous inputs and toast
             document.getElementById('qrCodeInput').value = '';
             document.getElementById('upload-preview').classList.add('hidden');
+            hideToast();
 
             // Initialize camera scanner
             initializeCameraScanner();
@@ -866,18 +843,19 @@
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
                 // Stop scanning
                 html5QrCode.stop().then(() => {
-                    processQrScanResult(decodedText);
-                    closeQrScanner();
+                    // IMPROVED: Process QR and show toast instead of closing modal
+                    processQrScanResult(decodedText, true);
                 }).catch(err => {
                     console.error("Error stopping scanner:", err);
                 });
             };
 
+            // IMPROVED: Smaller QR box configuration
             const config = {
                 fps: 10,
                 qrbox: {
-                    width: 250,
-                    height: 250
+                    width: 200,
+                    height: 200
                 }
             };
 
@@ -912,6 +890,7 @@
                 });
             }
             document.getElementById('qrScannerModal').classList.add('hidden');
+            hideToast();
         }
 
         function processQrScan() {
@@ -928,14 +907,14 @@
                 return;
             }
 
-            processQrScanResult(qrCode);
+            processQrScanResult(qrCode, false);
         }
 
-        // IMPROVED: Process simple QR code format
-        function processQrScanResult(qrCode) {
+        // IMPROVED: Process QR scan result with toast notification
+        function processQrScanResult(qrCode, fromCamera = false) {
             showLoading();
 
-            // Normalize QR code - simple format is just the booking code
+            // Normalize QR code
             let normalizedCode = qrCode.trim();
 
             // If it doesn't start with TKT-, add it
@@ -958,20 +937,59 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showAlert('Success', `Penumpang berhasil check-in! Kode: ${normalizedCode}`, 'success');
+                        // IMPROVED: Show toast notification and keep modal open
+                        showToast(data.message || `Berhasil check-in untuk tiket ${normalizedCode}`, 'success');
                         loadPassengerData(currentPage);
-                        closeQrScanner();
+
+                        // If from camera, restart scanner after a delay
+                        if (fromCamera && currentTab === 'camera') {
+                            setTimeout(() => {
+                                initializeCameraScanner();
+                            }, 2000);
+                        }
                     } else {
-                        showAlert('Error', data.message || 'Gagal melakukan check-in', 'error');
+                        showToast(data.message || 'Gagal melakukan check-in', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('Error', 'Terjadi kesalahan saat melakukan check-in', 'error');
+                    showToast('Terjadi kesalahan saat melakukan check-in', 'error');
                 })
                 .finally(() => {
                     hideLoading();
                 });
+        }
+
+        // IMPROVED: Toast notification functions
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const messageEl = document.getElementById('toast-message');
+            const textEl = document.getElementById('toast-text');
+
+            textEl.textContent = message;
+
+            // Update styling based on type
+            if (type === 'success') {
+                messageEl.className = 'bg-green-50 border border-green-200 rounded-lg p-4';
+                messageEl.querySelector('svg').className = 'w-5 h-5 text-green-600 mr-3';
+                textEl.className = 'text-green-800 font-medium';
+            } else {
+                messageEl.className = 'bg-red-50 border border-red-200 rounded-lg p-4';
+                messageEl.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+                messageEl.querySelector('svg').className = 'w-5 h-5 text-red-600 mr-3';
+                textEl.className = 'text-red-800 font-medium';
+            }
+
+            container.classList.remove('hidden');
+
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                hideToast();
+            }, 5000);
+        }
+
+        function hideToast() {
+            document.getElementById('toast-container').classList.add('hidden');
         }
 
         // Helper functions
@@ -983,16 +1001,13 @@
                 parts[0].substring(0, 2);
         }
 
+        // SIMPLIFIED: Status class for only 3 statuses
         function getStatusClass(status) {
             switch (status) {
                 case 'checked_in':
                     return 'bg-green-100 text-green-800';
                 case 'booked':
                     return 'bg-yellow-100 text-yellow-800';
-                case 'boarded':
-                    return 'bg-blue-100 text-blue-800';
-                case 'completed':
-                    return 'bg-gray-100 text-gray-800';
                 case 'cancelled':
                     return 'bg-red-100 text-red-800';
                 default:
@@ -1000,16 +1015,13 @@
             }
         }
 
+        // SIMPLIFIED: Status text for only 3 statuses
         function getStatusText(status) {
             switch (status) {
                 case 'checked_in':
                     return 'Checked In';
                 case 'booked':
                     return 'Booked';
-                case 'boarded':
-                    return 'Boarded';
-                case 'completed':
-                    return 'Completed';
                 case 'cancelled':
                     return 'Cancelled';
                 default:
@@ -1039,22 +1051,6 @@
                     month: '2-digit',
                     year: 'numeric'
                 });
-        }
-
-        function calculateBoardingTime(tanggal, waktuBerangkat) {
-            if (!tanggal || !waktuBerangkat) return '-';
-
-            try {
-                const departureDateTime = new Date(`${tanggal} ${waktuBerangkat}`);
-                const boardingDateTime = new Date(departureDateTime.getTime() - (30 * 60 * 1000)); // 30 minutes before
-
-                return boardingDateTime.toLocaleTimeString('id-ID', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            } catch (error) {
-                return '-';
-            }
         }
 
         function showLoading() {

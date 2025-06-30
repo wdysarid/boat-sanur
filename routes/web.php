@@ -156,6 +156,7 @@ Route::middleware(['auth.role:admin'])
         Route::get('/payments/data', [AdminController::class, 'getPaymentData'])->name('payments.data');
 
         Route::get('/passengers', [AdminController::class, 'indexPassengers'])->name('passengers');
+        // FIXED: Add the missing passengers data route
         Route::get('/passengers/data', [AdminController::class, 'getPassengerData'])->name('passengers.data');
         Route::get('/passengers/{id}', [AdminController::class, 'showPassenger'])->name('passengers.show');
         Route::get('/passengers/{id}/detail', [AdminController::class, 'getPassengerDetail'])->name('passengers.detail');

@@ -30,7 +30,7 @@ return new class extends Migration
             $table->enum('jenis_kelamin', ['laki-laki', 'perempuan']);
             $table->boolean('is_pemesan')->default(false); // Flag untuk menandai pemesan utama
 
-            $table->enum('status', ['booked', 'checked_in', 'boarded', 'completed', 'cancelled'])->default('booked');
+            $table->enum('status', ['booked', 'checked_in', 'cancelled'])->default('booked');
             $table->timestamp('checked_in_at')->nullable();
 
             $table->timestamps();

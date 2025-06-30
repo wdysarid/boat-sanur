@@ -166,14 +166,14 @@ class PenumpangController extends Controller
     }
 
     /**
-     * Get all passengers with filters (for admin)
+     * FIXED: Get all passengers with filters (for admin) - Fixed filtering issues
      */
     public function getAllPenumpang(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'search' => 'nullable|string',
-                'status' => 'nullable|in:booked,checked_in,boarded,completed,cancelled',
+                'search' => 'nullable|string|max:255',
+                'status' => 'nullable|in:booked,checked_in,cancelled', // SIMPLIFIED: Only 3 statuses
                 'jadwal_id' => 'nullable|exists:jadwal,id',
                 'date' => 'nullable|date',
                 'page' => 'nullable|integer|min:1',
@@ -190,6 +190,7 @@ class PenumpangController extends Controller
                 );
             }
 
+            // FIXED: Improved query with proper eager loading
             $query = Penumpang::with([
                 'tiket' => function ($q) {
                     $q->select('id', 'kode_pemesanan', 'jadwal_id', 'user_id', 'status', 'jumlah_penumpang', 'total_harga');
@@ -203,47 +204,45 @@ class PenumpangController extends Controller
                 'user' => function ($q) {
                     $q->select('id', 'nama', 'email');
                 },
-            ]);;
+            ]);
 
-            // Apply filters
-            if ($request->has('search') && !empty($request->search)) {
-                $search = $request->search;
+            // FIXED: Apply filters with proper null checks
+            if ($request->filled('search')) {
+                $search = trim($request->search);
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_lengkap', 'like', "%{$search}%")
                         ->orWhere('no_identitas', 'like', "%{$search}%")
-                        ->orWhereHas('tiket', function ($q) use ($search) {
-                            $q->where('kode_pemesanan', 'like', "%{$search}%");
+                        ->orWhereHas('tiket', function ($subQ) use ($search) {
+                            $subQ->where('kode_pemesanan', 'like', "%{$search}%");
                         });
                 });
             }
 
-            if ($request->has('status') && $request->status !== 'all' && !empty($request->status)) {
+            if ($request->filled('status') && $request->status !== 'all') {
                 $query->where('status', $request->status);
             }
 
-            if ($request->has('jadwal_id') && !empty($request->jadwal_id)) {
+            if ($request->filled('jadwal_id')) {
                 $query->whereHas('tiket', function ($q) use ($request) {
                     $q->where('jadwal_id', $request->jadwal_id);
                 });
             }
 
-            if ($request->has('date') && !empty($request->date)) {
+            if ($request->filled('date')) {
                 $query->whereHas('tiket.jadwal', function ($q) use ($request) {
                     $q->whereDate('tanggal', $request->date);
                 });
             }
 
-            // Pagination
+            // FIXED: Pagination with proper error handling
             $perPage = 15;
             $penumpang = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-            // Get stats for dashboard
+            // SIMPLIFIED: Stats calculation for only 3 statuses
             $stats = [
                 'total' => Penumpang::count(),
                 'booked' => Penumpang::where('status', 'booked')->count(),
                 'checked_in' => Penumpang::where('status', 'checked_in')->count(),
-                'boarded' => Penumpang::where('status', 'boarded')->count(),
-                'completed' => Penumpang::where('status', 'completed')->count(),
                 'cancelled' => Penumpang::where('status', 'cancelled')->count(),
             ];
 
@@ -253,11 +252,15 @@ class PenumpangController extends Controller
                 'stats' => $stats,
             ]);
         } catch (\Exception $e) {
-            Log::error('Error loading passengers data: ' . $e->getMessage());
+            Log::error('Error loading passengers data: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Gagal memuat data penumpang',
+                    'message' => 'Gagal memuat data penumpang: ' . $e->getMessage(),
                     'error' => config('app.debug') ? $e->getMessage() : null,
                 ],
                 500,
@@ -266,7 +269,7 @@ class PenumpangController extends Controller
     }
 
     /**
-     * PERBAIKAN: Check-in passenger by QR code or ID dengan format sederhana
+     * IMPROVED: Check-in passenger by QR code or ID with toast notification support
      */
     public function checkInPenumpang(Request $request)
     {
@@ -287,17 +290,14 @@ class PenumpangController extends Controller
                 );
             }
 
-            // PERBAIKAN: Cari tiket berdasarkan ID atau QR code sederhana
+            // Find ticket by ID or QR code
             if ($request->has('tiket_id')) {
                 $tiket = Tiket::find($request->tiket_id);
             } else {
                 $qrCode = $request->qr_code;
-
-                // PERBAIKAN: Format QR code sederhana - langsung kode pemesanan
-                // QR Code bisa berupa "TKT-ABC123" atau "ABC123"
                 $kodePemesanan = $qrCode;
 
-                // Jika tidak ada prefix TKT-, tambahkan
+                // If no TKT- prefix, add it
                 if (strpos($qrCode, 'TKT-') !== 0) {
                     $kodePemesanan = 'TKT-' . $qrCode;
                 }
@@ -319,21 +319,37 @@ class PenumpangController extends Controller
                 return response()->json(
                     [
                         'success' => false,
-                        'message' => 'Tiket tidak ditemukan',
+                        'message' => 'Tiket tidak ditemukan atau kode QR tidak valid',
                     ],
                     404,
                 );
             }
 
+            // Check if ticket is cancelled
+            if ($tiket->status === 'dibatalkan') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tiket telah dibatalkan dan tidak dapat di-check-in',
+                ], 400);
+            }
+
             DB::beginTransaction();
 
-            // Update status penumpang
+            // Update passenger status from booked to checked_in only
             $updated = Penumpang::where('tiket_id', $tiket->id)
                 ->where('status', 'booked')
                 ->update([
                     'status' => 'checked_in',
                     'checked_in_at' => now(),
                 ]);
+
+            if ($updated === 0) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada penumpang yang dapat di-check-in. Mungkin sudah check-in sebelumnya.',
+                ], 400);
+            }
 
             DB::commit();
 
@@ -345,9 +361,10 @@ class PenumpangController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Penumpang berhasil check-in',
+                'message' => "Berhasil check-in {$updated} penumpang untuk tiket {$tiket->kode_pemesanan}",
                 'data' => [
                     'tiket_id' => $tiket->id,
+                    'kode_pemesanan' => $tiket->kode_pemesanan,
                     'passengers_checked_in' => $updated,
                 ],
             ]);
@@ -363,7 +380,7 @@ class PenumpangController extends Controller
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Gagal melakukan check-in',
+                    'message' => 'Gagal melakukan check-in: ' . $e->getMessage(),
                 ],
                 500,
             );
@@ -390,6 +407,49 @@ class PenumpangController extends Controller
                 ],
                 404,
             );
+        }
+    }
+
+    /**
+     * NEW: Auto-cancel passengers when ticket and payment are cancelled
+     */
+    public function autoCancelPassengers($tiketId)
+    {
+        try {
+            $tiket = Tiket::with('pembayaran')->find($tiketId);
+
+            if (!$tiket) {
+                return false;
+            }
+
+            // Check if both ticket and payment are cancelled
+            $ticketCancelled = $tiket->status === 'dibatalkan';
+            $paymentCancelled = $tiket->pembayaran && $tiket->pembayaran->status === 'dibatalkan';
+
+            if ($ticketCancelled && $paymentCancelled) {
+                // Update all passengers for this ticket to cancelled
+                $updated = Penumpang::where('tiket_id', $tiketId)
+                    ->whereIn('status', ['booked', 'checked_in'])
+                    ->update([
+                        'status' => 'cancelled',
+                        'updated_at' => now(),
+                    ]);
+
+                Log::info('Auto-cancelled passengers', [
+                    'tiket_id' => $tiketId,
+                    'passengers_cancelled' => $updated,
+                ]);
+
+                return $updated;
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            Log::error('Error auto-cancelling passengers', [
+                'tiket_id' => $tiketId,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
         }
     }
 }

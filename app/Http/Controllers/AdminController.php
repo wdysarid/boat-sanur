@@ -59,7 +59,7 @@ class AdminController extends Controller
             ->whereDate('created_at', today())
             ->sum('jumlah_bayar');
 
-        // Status penumpang
+        // SIMPLIFIED: Status penumpang - only 3 statuses
         $passengerStatuses = [
             'booked' => Penumpang::where('status', 'booked')->count(),
             'checked_in' => Penumpang::where('status', 'checked_in')->count(),
@@ -222,29 +222,35 @@ class AdminController extends Controller
         return view('admin.passengers');
     }
 
-    public function getPassengersData(Request $request)
+    /**
+     * FIXED: Get passenger data with proper validation and error handling
+     */
+    public function getPassengerData(Request $request)
     {
         try {
+            // FIXED: More lenient validation - allow empty strings
             $validator = Validator::make($request->all(), [
                 'search' => 'nullable|string|max:255',
-                'status' => 'nullable|in:booked,checked_in,boarded,completed,cancelled',
-                'jadwal_id' => 'nullable|exists:jadwal,id',
+                'status' => 'nullable|string|in:,all,booked,checked_in,cancelled', // Allow empty string and 'all'
+                'jadwal_id' => 'nullable|string', // Allow empty string, will validate exists only if not empty
                 'date' => 'nullable|date',
                 'page' => 'nullable|integer|min:1',
             ]);
 
             if ($validator->fails()) {
-                return response()->json(
-                    [
-                        'success' => false,
-                        'message' => 'Validasi gagal',
-                        'errors' => $validator->errors(),
-                    ],
-                    422,
-                );
+                Log::error('Validation failed in getPassengerData', [
+                    'errors' => $validator->errors()->toArray(),
+                    'request_data' => $request->all()
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal: ' . $validator->errors()->first(),
+                    'errors' => $validator->errors(),
+                ], 422);
             }
 
-            // FIXED: Query yang lebih sederhana dan aman
+            // FIXED: Build query with proper null checks
             $query = Penumpang::with([
                 'tiket' => function ($q) {
                     $q->select('id', 'kode_pemesanan', 'jadwal_id', 'user_id', 'status', 'jumlah_penumpang', 'total_harga');
@@ -262,7 +268,7 @@ class AdminController extends Controller
 
             // Apply search filter
             if ($request->filled('search')) {
-                $search = $request->search;
+                $search = trim($request->search);
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_lengkap', 'like', "%{$search}%")
                         ->orWhere('no_identitas', 'like', "%{$search}%")
@@ -272,13 +278,21 @@ class AdminController extends Controller
                 });
             }
 
-            // Apply status filter
-            if ($request->filled('status') && $request->status !== 'all') {
+            // Apply status filter - FIXED: Handle empty strings and 'all'
+            if ($request->filled('status') && $request->status !== 'all' && $request->status !== '') {
                 $query->where('status', $request->status);
             }
 
-            // Apply schedule filter
-            if ($request->filled('jadwal_id')) {
+            // Apply jadwal filter - FIXED: Validate exists only if not empty
+            if ($request->filled('jadwal_id') && $request->jadwal_id !== '') {
+                // Check if jadwal exists
+                if (!\App\Models\Jadwal::where('id', $request->jadwal_id)->exists()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Jadwal tidak ditemukan',
+                    ], 422);
+                }
+
                 $query->whereHas('tiket', function ($q) use ($request) {
                     $q->where('jadwal_id', $request->jadwal_id);
                 });
@@ -291,85 +305,36 @@ class AdminController extends Controller
                 });
             }
 
-            // Get total count before pagination
-            $totalCount = $query->count();
-
-            // Pagination
+            // Get paginated results
             $perPage = 15;
-            $page = $request->get('page', 1);
+            $penumpang = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-            $penumpang = $query
-                ->orderBy('created_at', 'desc')
-                ->skip(($page - 1) * $perPage)
-                ->take($perPage)
-                ->get();
-
-            // FIXED: Stats calculation yang lebih aman
-            $stats = $this->calculatePassengerStats();
-
-            // Manual pagination data
-            $paginationData = [
-                'current_page' => (int) $page,
-                'data' => $penumpang,
-                'first_page_url' => '?page=1',
-                'from' => ($page - 1) * $perPage + 1,
-                'last_page' => (int) ceil($totalCount / $perPage),
-                'last_page_url' => '?page=' . ceil($totalCount / $perPage),
-                'next_page_url' => $page < ceil($totalCount / $perPage) ? '?page=' . ($page + 1) : null,
-                'path' => $request->url(),
-                'per_page' => $perPage,
-                'prev_page_url' => $page > 1 ? '?page=' . ($page - 1) : null,
-                'to' => min($page * $perPage, $totalCount),
-                'total' => $totalCount,
-            ];
-
-            return response()->json([
-                'success' => true,
-                'data' => $paginationData,
-                'stats' => $stats,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error getting passengers data', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'filters' => $request->all(),
-            ]);
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Gagal memuat data penumpang: ' . $e->getMessage(),
-                    'error' => config('app.debug') ? $e->getTraceAsString() : null,
-                ],
-                500,
-            );
-        }
-    }
-
-    private function calculatePassengerStats()
-    {
-        try {
+            // Calculate stats
             $stats = [
                 'total' => Penumpang::count(),
                 'booked' => Penumpang::where('status', 'booked')->count(),
                 'checked_in' => Penumpang::where('status', 'checked_in')->count(),
-                'boarded' => Penumpang::where('status', 'boarded')->count(),
-                'completed' => Penumpang::where('status', 'completed')->count(),
                 'cancelled' => Penumpang::where('status', 'cancelled')->count(),
             ];
 
-            return $stats;
-        } catch (\Exception $e) {
-            Log::error('Error calculating passenger stats: ' . $e->getMessage());
+            return response()->json([
+                'success' => true,
+                'data' => $penumpang,
+                'stats' => $stats,
+            ]);
 
-            return [
-                'total' => 0,
-                'booked' => 0,
-                'checked_in' => 0,
-                'boarded' => 0,
-                'completed' => 0,
-                'cancelled' => 0,
-            ];
+        } catch (\Exception $e) {
+            Log::error('Error in getPassengerData', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data penumpang: ' . $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
         }
     }
 
@@ -414,15 +379,14 @@ class AdminController extends Controller
                 );
             }
 
-            // FIXED: Generate QR Code sederhana jika tiket valid
+            // Generate QR Code if ticket is valid
             $qrCodeData = null;
             if ($passenger->tiket && $passenger->tiket->kode_pemesanan) {
                 try {
-                    // FIXED: QR Code sederhana hanya berisi kode pemesanan
-                    $qrData = $passenger->tiket->kode_pemesanan; // Format: "TKT-ABC123"
+                    $qrData = $passenger->tiket->kode_pemesanan;
                     $qrCodeData = $this->qrCodeService->generateQrCode($qrData, 200);
 
-                    Log::info('Simple QR Code generated for passenger detail', [
+                    Log::info('QR Code generated for passenger detail', [
                         'passenger_id' => $id,
                         'ticket_id' => $passenger->tiket->id,
                         'qr_data' => $qrData,
@@ -535,15 +499,14 @@ class AdminController extends Controller
         }
 
         try {
-            // FIXED: Generate QR Code sederhana
             $qrData = $request->data;
 
-            // Normalisasi format
+            // Normalize format
             if (!str_starts_with($qrData, 'TKT-') && preg_match('/^[A-Z0-9]+$/', $qrData)) {
                 $qrData = 'TKT-' . $qrData;
             }
 
-            Log::info('Admin generating simple QR Code', [
+            Log::info('Admin generating QR Code', [
                 'original_data' => $request->data,
                 'normalized_data' => $qrData,
             ]);
