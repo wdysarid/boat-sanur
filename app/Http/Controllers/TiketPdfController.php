@@ -83,7 +83,7 @@ class TiketPdfController extends Controller
                     'today' => $today,
                 ]);
 
-                $pdf->setPaper('A4', 'portrait');
+                $pdf->setPaper([0, 0, 595, 842], 'portrait');
 
                 // Set options untuk better rendering
                 $pdf->setOptions([
@@ -91,7 +91,7 @@ class TiketPdfController extends Controller
                     'isPhpEnabled' => true,
                     'defaultFont' => 'sans-serif',
                     'dpi' => 150,
-                    'defaultPaperSize' => 'A4',
+                    'defaultPaperSize' => 'custom',
                     'chroot' => public_path(),
                 ]);
 
@@ -183,7 +183,7 @@ class TiketPdfController extends Controller
                 'today' => $today,
             ]);
 
-            $pdf->setPaper('A4', 'portrait');
+            $pdf->setPaper([0, 0, 595, 842], 'portrait');
 
             $filename = 'admin-tiket-' . $tiket->kode_pemesanan . '.pdf';
 

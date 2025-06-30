@@ -55,6 +55,7 @@ Route::get('/register', function (Illuminate\Http\Request $request) {
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
 
 // Auth actions
 Route::post('/login', [AuthController::class, 'webLogin'])->name('login.post');

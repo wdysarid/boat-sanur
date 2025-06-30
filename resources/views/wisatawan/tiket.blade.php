@@ -155,7 +155,7 @@
                 <h3 class="mt-4 text-lg font-medium text-gray-900">Tidak ada tiket ditemukan</h3>
                 <p class="mt-2 text-gray-500">Tiket dengan filter yang dipilih tidak tersedia.</p>
                 <div class="mt-6">
-                    <a href="{{ route('wisatawan.dashboard') }}"
+                    <a href="{{ route('wisatawan.pemesanan') }}"
                         class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
                         Pesan Tiket Baru
                     </a>
