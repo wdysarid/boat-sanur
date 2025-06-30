@@ -266,11 +266,6 @@
                     <p id="qr-code-value" class="text-sm text-blue-900 font-mono break-all">--</p>
                 </div>
 
-                <div class="text-xs text-gray-500 mb-4">
-                    <p>✓ QR Code sederhana untuk scan cepat</p>
-                    <p>✓ Kompatibel dengan semua scanner</p>
-                </div>
-
                 <div class="flex space-x-2">
                     <button onclick="downloadQrCode()"
                         class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
