@@ -164,7 +164,7 @@ class DatabaseSeeder extends Seeder
             if (in_array($tiket->status, ['menunggu', 'sukses'])) {
                 Pembayaran::create([
                     'tiket_id' => $tiket->id,
-                    'metode_bayar' => ['BCA', 'BRI', 'Mandiri', 'BNI', 'QRIS', 'DANA', 'OVO', 'Gopay'][array_rand([0, 1, 2, 3, 4, 5, 6, 7])],
+                    'metode_bayar' => ['transfer', 'qris'][array_rand([0, 1])],
                     'jumlah_bayar' => $tiket->total_harga,
                     'bukti_transfer' => null,
                     'status' => $tiket->status === 'sukses' ? 'terverifikasi' : 'menunggu',
