@@ -22,7 +22,7 @@ class TiketFactory extends Factory
         $jumlah = $this->faker->numberBetween(1, 5);
 
         // Format kode pemesanan: TKT + tanggal (ddmmyy) + random 4 digit
-        $kode = 'TKT' . now()->format('dmy') . strtoupper(Str::random(4));
+        $kode = 'TKT-' . now()->format('dmy') . strtoupper(Str::random(7));
 
         return [
             'user_id' => User::factory(),

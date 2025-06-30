@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Tiket;
 use App\Models\Jadwal;
 use App\Models\Feedback;
@@ -25,6 +24,195 @@ class UserController extends Controller
 {
     private $apiUrl;
     protected $qrCodeService;
+
+    public function dashboard()
+    {
+        $user = auth()->user();
+
+        // Hitung tiket aktif (belum lewat tanggal keberangkatan)
+        $activeTickets = Tiket::where('user_id', $user->id)
+            ->whereHas('jadwal', function ($query) {
+                $query->where('tanggal', '>=', now()->format('Y-m-d'));
+            })
+            ->where('status', 'sukses')
+            ->count();
+
+        // Hitung perjalanan selesai (sudah lewat tanggal keberangkatan)
+        $completedTrips = Tiket::where('user_id', $user->id)
+            ->whereHas('jadwal', function ($query) {
+                $query->where('tanggal', '<', now()->format('Y-m-d'));
+            })
+            ->where('status', 'sukses')
+            ->count();
+
+        // Hitung pembayaran pending
+        $pendingPayments = Pembayaran::whereHas('tiket', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+            ->where('status', 'menunggu')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->count();
+
+        // Hitung total pengeluaran
+        $totalSpent = Pembayaran::whereHas('tiket', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+            ->where('status', 'terverifikasi')
+            ->sum('jumlah_bayar');
+
+        // Ambil 3 tiket terbaru
+        $recentTickets = Tiket::with(['jadwal.kapal', 'pembayaran'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function ($ticket) {
+                return $this->formatTicketForDashboard($ticket);
+            });
+
+        // Ambil 5 aktivitas terbaru
+        $recentActivities = $this->getRecentActivities($user);
+
+        // Ambil 2 perjalanan mendatang
+        $upcomingTrips = Tiket::with(['jadwal.kapal', 'pembayaran'])
+            ->where('user_id', $user->id)
+            ->whereHas('jadwal', function ($query) {
+                $query->where('tanggal', '>=', now()->format('Y-m-d'));
+            })
+            ->where('status', 'sukses')
+            ->orderBy('created_at', 'desc')
+            ->take(2)
+            ->get()
+            ->map(function ($ticket) {
+                return $this->formatTicketForDashboard($ticket);
+            });
+
+        return view('wisatawan.dashboard', [
+            'activeTickets' => $activeTickets,
+            'completedTrips' => $completedTrips,
+            'pendingPayments' => $pendingPayments,
+            'totalSpent' => $totalSpent,
+            'recentTickets' => $recentTickets,
+            'recentActivities' => $recentActivities,
+            'upcomingTrips' => $upcomingTrips,
+        ]);
+    }
+
+    private function formatTicketForDashboard($ticket)
+    {
+        $status = '';
+        $badgeClass = '';
+
+        if ($ticket->status === 'sukses') {
+            if ($ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
+                $status = 'Lunas';
+                $badgeClass = 'bg-green-100 text-green-800';
+            } else {
+                $status = 'Menunggu Konfirmasi';
+                $badgeClass = 'bg-yellow-100 text-yellow-800';
+            }
+        } elseif ($ticket->status === 'diproses') {
+            $status = 'Sedang Diproses';
+            $badgeClass = 'bg-blue-100 text-blue-800';
+        } elseif ($ticket->status === 'menunggu') {
+            $status = 'Menunggu Pembayaran';
+            $badgeClass = 'bg-yellow-100 text-yellow-800';
+        } elseif ($ticket->status === 'dibatalkan') {
+            $status = 'Dibatalkan';
+            $badgeClass = 'bg-red-100 text-red-800';
+        }
+
+        return [
+            'id' => $ticket->id,
+            'kode_pemesanan' => $ticket->kode_pemesanan,
+            'rute_asal' => $ticket->jadwal->rute_asal,
+            'rute_tujuan' => $ticket->jadwal->rute_tujuan,
+            'tanggal' => $ticket->jadwal->tanggal,
+            'waktu_berangkat' => $ticket->jadwal->waktu_berangkat,
+            'jumlah_penumpang' => $ticket->jumlah_penumpang,
+            'status' => $status,
+            'badge_class' => $badgeClass,
+            'nama_kapal' => $ticket->jadwal->kapal->nama_kapal,
+            'total_harga' => $ticket->total_harga,
+            'pembayaran_status' => $ticket->pembayaran ? $ticket->pembayaran->status : null,
+            'created_at' => $ticket->created_at,
+        ];
+    }
+
+    private function getRecentActivities($user)
+    {
+        $activities = [];
+
+        // Ambil aktivitas dari tiket
+        $ticketActivities = Tiket::with(['jadwal', 'pembayaran'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get()
+            ->map(function ($ticket) {
+                return [
+                    'type' => 'tiket',
+                    'title' => $this->getTicketActivityTitle($ticket),
+                    'date' => $ticket->created_at,
+                    'icon' => $this->getTicketActivityIcon($ticket),
+                    'color' => $this->getTicketActivityColor($ticket),
+                ];
+            });
+
+        // Gabungkan semua aktivitas
+        $activities = $ticketActivities->toArray();
+
+        // Urutkan berdasarkan tanggal terbaru
+        usort($activities, function ($a, $b) {
+            return $b['date'] <=> $a['date'];
+        });
+
+        // Ambil hanya 5 terbaru
+        return array_slice($activities, 0, 5);
+    }
+
+    private function getTicketActivityTitle($ticket)
+    {
+        if ($ticket->status === 'sukses' && $ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
+            return "Tiket {$ticket->kode_pemesanan} berhasil diverifikasi";
+        } elseif ($ticket->status === 'diproses') {
+            return "Tiket {$ticket->kode_pemesanan} sedang diproses";
+        } elseif ($ticket->status === 'menunggu') {
+            return "Tiket {$ticket->kode_pemesanan} berhasil dipesan";
+        } elseif ($ticket->status === 'dibatalkan') {
+            return "Tiket {$ticket->kode_pemesanan} telah dibatalkan";
+        } else {
+            return "Update tiket {$ticket->kode_pemesanan}";
+        }
+    }
+
+    private function getTicketActivityIcon($ticket)
+    {
+        if ($ticket->status === 'sukses' && $ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
+            return 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z';
+        } elseif ($ticket->status === 'diproses') {
+            return 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z';
+        } elseif ($ticket->status === 'menunggu') {
+            return 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z';
+        } else {
+            return 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z';
+        }
+    }
+
+    private function getTicketActivityColor($ticket)
+    {
+        if ($ticket->status === 'sukses' && $ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
+            return 'green';
+        } elseif ($ticket->status === 'diproses') {
+            return 'blue';
+        } elseif ($ticket->status === 'menunggu') {
+            return 'yellow';
+        } else {
+            return 'red';
+        }
+    }
 
     public function __construct(QrCodeService $qrCodeService)
     {
@@ -951,7 +1139,7 @@ class UserController extends Controller
 
                     Log::info('Simple QR Code generated successfully for modal', [
                         'ticket_id' => $id,
-                        'qr_data' => $qrData
+                        'qr_data' => $qrData,
                     ]);
                 }
             } catch (\Exception $qrError) {

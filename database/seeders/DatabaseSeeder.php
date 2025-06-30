@@ -96,7 +96,7 @@ class DatabaseSeeder extends Seeder
 
         // Buat 30 tiket menggunakan jadwal yang sudah ada
         $tikets = new Collection();
-        for ($i = 0; $i < 300; $i++) {
+        for ($i = 0; $i < 200; $i++) {
             $jadwal = $jadwals->random();
             $kapal = $kapals->find($jadwal->kapal_id);
             $tiketTerjual = $jadwal->tiket()->where('status', 'sukses')->sum('jumlah_penumpang');

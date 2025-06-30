@@ -191,9 +191,7 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
     ->prefix('wisatawan')
     ->name('wisatawan.')
     ->group(function () {
-        Route::get('/dashboard', function () {
-            return view('wisatawan.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/pemesanan', [UserController::class, 'pemesanan'])->name('pemesanan');
         Route::post('/pemesanan/proses', [UserController::class, 'prosesPemesanan'])->name('pemesanan.proses');
