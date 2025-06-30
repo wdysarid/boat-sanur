@@ -118,10 +118,10 @@
 
                     <!-- Actions -->
                     <div class="flex items-end space-x-2">
-                        <button id="apply-filter"
+                        {{-- <button id="apply-filter"
                             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             Filter
-                        </button>
+                        </button> --}}
                         <button id="reset-filter"
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
                             Reset
@@ -378,14 +378,7 @@
             loadPassengerData();
             loadJadwalOptions();
 
-            // Setup event listeners
-            document.getElementById('search-passenger').addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') {
-                    loadPassengerData();
-                }
-            });
-
-            // Debounce search input
+            // Search input dengan debounce
             let searchTimeout;
             document.getElementById('search-passenger').addEventListener('input', function() {
                 clearTimeout(searchTimeout);
@@ -394,13 +387,19 @@
                 }, 500);
             });
 
-            // Filter event listeners
-            document.getElementById('status-filter').addEventListener('change', loadPassengerData);
-            document.getElementById('jadwal-filter').addEventListener('change', loadPassengerData);
-            document.getElementById('date-filter').addEventListener('change', loadPassengerData);
+            // Filter otomatis saat berubah
+            document.getElementById('status-filter').addEventListener('change', function() {
+                loadPassengerData();
+            });
 
-            // Button event listeners
-            document.getElementById('apply-filter').addEventListener('click', loadPassengerData);
+            document.getElementById('jadwal-filter').addEventListener('change', function() {
+                loadPassengerData();
+            });
+
+            document.getElementById('date-filter').addEventListener('change', function() {
+                loadPassengerData();
+            });
+
             document.getElementById('reset-filter').addEventListener('click', resetFilters);
         });
 
@@ -537,44 +536,41 @@
 
             showLoading();
 
-            const params = new URLSearchParams();
-            if (status) params.append('status', status);
-            if (search) params.append('search', search);
-            if (jadwalId) params.append('jadwal_id', jadwalId);
-            if (date) params.append('date', date);
-            params.append('page', page);
+            // Buat parameter URL
+            let url = `/admin/passengers/data?page=${page}`;
+            if (status) url += `&status=${status}`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            if (jadwalId) url += `&jadwal_id=${jadwalId}`;
+            if (date) url += `&date=${date}`;
 
-            // FIXED: Use correct endpoint
-            fetch(`/admin/passengers/data?${params}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        updatePassengerTable(data.data.data || []);
-                        updatePagination(data.data);
-                        updateStats(data.stats || {});
-                        currentPage = page;
-                    } else {
-                        showAlert('Error', data.message || 'Gagal memuat data penumpang', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading passenger data:', error);
-                    showAlert('Error', 'Terjadi kesalahan saat memuat data penumpang: ' + error.message, 'error');
-                })
-                .finally(() => {
-                    hideLoading();
-                });
+            fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    updatePassengerTable(data.data.data || []);
+                    updatePagination(data.data);
+                    updateStats(data.stats || {});
+                    currentPage = page;
+                } else {
+                    showAlert('Error', data.message || 'Gagal memuat data penumpang', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading passenger data:', error);
+                showAlert('Error', 'Terjadi kesalahan saat memuat data penumpang', 'error');
+            })
+            .finally(() => {
+                hideLoading();
+            });
         }
 
         function updatePassengerTable(passengers) {
