@@ -218,7 +218,7 @@
                             <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
                                 <div class="flex items-center justify-between mb-3">
                                     <span class="text-sm font-medium text-blue-600">{{ $trip['kode_pemesanan'] }}</span>
-                                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Lunas</span>
+                                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Terverifikasi</span>
                                 </div>
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-lg font-semibold text-gray-900">{{ $trip['rute_asal'] }}</span>

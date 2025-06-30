@@ -243,6 +243,7 @@
                                 <li>• Tiket yang dibatalkan tidak dapat dikembalikan</li>
                                 <li>• Pembayaran yang sudah dilakukan akan diproses sesuai kebijakan</li>
                                 <li>• Aksi ini tidak dapat dibatalkan</li>
+                                <li>• Jika butuh bantuan, hubungi Customer Service: <strong>+62 361 3377890</strong></li>
                             </ul>
                         </div>
                     </div>

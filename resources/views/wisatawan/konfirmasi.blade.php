@@ -104,20 +104,20 @@
                 </div>
 
                 <!-- Success Message -->
-                    <div class="bg-green-500 rounded-2xl p-8 text-white text-center mb-8">
-                        <div class="w-16 h-16 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <h1 class="text-2xl font-bold mb-2">Pemesanan Berhasil!</h1>
-                        <p class="text-green-100 mb-6">Terima kasih telah memesan tiket dengan kami</p>
-
-                        <div class="bg-white rounded-xl p-4 inline-block">
-                            <p class="text-sm text-gray-600 mb-1">Kode Pemesanan Anda:</p>
-                            <p class="text-xl font-bold text-gray-900">{{ $tiket->kode_pemesanan }}</p>
-                        </div>
+                <div class="bg-green-500 rounded-2xl p-8 text-white text-center mb-8">
+                    <div class="w-16 h-16 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
                     </div>
+                    <h1 class="text-2xl font-bold mb-2">Pemesanan Berhasil!</h1>
+                    <p class="text-green-100 mb-6">Terima kasih telah memesan tiket dengan kami</p>
+
+                    <div class="bg-white rounded-xl p-4 inline-block">
+                        <p class="text-sm text-gray-600 mb-1">Kode Pemesanan Anda:</p>
+                        <p class="text-xl font-bold text-gray-900">{{ $tiket->kode_pemesanan }}</p>
+                    </div>
+                </div>
 
                 <!-- Status Timeline -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
@@ -401,7 +401,26 @@
                                     </p>
                                 </div>
                             @endif
+
+                            @if ($tiket->status === 'menunggu' || ($tiket->pembayaran && $tiket->pembayaran->status === 'menunggu'))
+                                <div class="mt-4 flex justify-between items-center">
+                                    <div class="flex space-x-3">
+                                        {{-- <button onclick="viewTicketDetails('{{ $tiket->id }}')"
+                                            class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-medium transition-colors">
+                                            Lihat Detail
+                                        </button> --}}
+                                        @if ($tiket->status === 'menunggu' || $tiket->status === 'diproses')
+                                            <button onclick="cancelTicket('{{ $tiket->id }}')"
+                                                class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">
+                                                Batalkan
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
                         </div>
+
+
                     </div>
                 </div>
 
@@ -419,6 +438,97 @@
             @endif
         </div>
     </div>
+
+    <!-- Modal Konfirmasi Pembatalan Tiket -->
+    <div id="cancelTicketModal"
+        class="fixed inset-0 z-50 flex items-center justify-center hidden backdrop-blur-sm bg-black/30">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Konfirmasi Pembatalan
+                    </h3>
+                    <button id="closeCancelTicketModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="px-6 py-6">
+                <!-- Warning Icon -->
+                <div class="flex items-center justify-center mb-4">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Ticket Info -->
+                <div id="cancelTicketInfo" class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-medium text-gray-900 mb-2">Detail Tiket yang akan dibatalkan:</h4>
+                    <div class="space-y-1 text-sm text-gray-600">
+                        <p><span class="font-medium">Kode:</span> <span id="cancelTicketCode">-</span></p>
+                        <p><span class="font-medium">Rute:</span> <span id="cancelTicketRoute">-</span></p>
+                        <p><span class="font-medium">Tanggal:</span> <span id="cancelTicketDate">-</span></p>
+                        <p><span class="font-medium">Penumpang:</span> <span id="cancelTicketPassengers">-</span></p>
+                    </div>
+                </div>
+
+                <!-- Warning Message -->
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div class="flex">
+                        <svg class="w-5 h-5 text-red-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <h4 class="text-sm font-medium text-red-800 mb-1">Peringatan Penting!</h4>
+                            <ul class="text-sm text-red-700 space-y-1">
+                                <li>• Tiket yang dibatalkan tidak dapat dikembalikan</li>
+                                <li>• Pembayaran yang sudah dilakukan akan diproses sesuai kebijakan</li>
+                                <li>• Aksi ini tidak dapat dibatalkan</li>
+                                <li>• Jika butuh bantuan, hubungi Customer Service: <strong>+62 361 3377890</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation Question -->
+                <p class="text-center text-gray-700 font-medium mb-6">
+                    Apakah Anda yakin ingin membatalkan tiket ini?
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelCancelTicket"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                    Tidak, Batalkan
+                </button>
+                <button id="confirmCancelTicket"
+                    class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Ya, Batalkan Tiket
+                </button>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -428,17 +538,249 @@
             window.location.href = `/wisatawan/tiket/${ticketId}/pdf`;
         }
 
+        let currentTicketToCancel = null;
+
+        // Fungsi untuk membatalkan tiket dengan modal konfirmasi
+        function cancelTicket(ticketId) {
+            fetchTicketDataForCancellation(ticketId);
+        }
+
+        // Fetch ticket data untuk modal konfirmasi
+        function fetchTicketDataForCancellation(ticketId) {
+            showLoading();
+
+            fetch(`/wisatawan/tiket/${ticketId}/detail`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Gagal memuat data tiket');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showCancelTicketModal(data.data);
+                    } else {
+                        throw new Error(data.message || 'Gagal memuat data tiket');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Gagal memuat data tiket: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    hideLoading();
+                });
+        }
+
+        // Tampilkan modal konfirmasi pembatalan dengan data tiket
+        function showCancelTicketModal(ticket) {
+            currentTicketToCancel = ticket;
+
+            // Populate modal dengan data tiket
+            document.getElementById('cancelTicketCode').textContent = ticket.kode_pemesanan;
+            document.getElementById('cancelTicketRoute').textContent =
+                `${ticket.jadwal.rute_asal} → ${ticket.jadwal.rute_tujuan}`;
+
+            // Format tanggal
+            const ticketDate = new Date(ticket.jadwal.tanggal);
+            document.getElementById('cancelTicketDate').textContent =
+                ticketDate.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+            document.getElementById('cancelTicketPassengers').textContent =
+                `${ticket.jumlah_penumpang} orang`;
+
+            // Tampilkan modal
+            const modal = document.getElementById('cancelTicketModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Focus pada tombol batal untuk accessibility
+            setTimeout(() => {
+                document.getElementById('cancelCancelTicket').focus();
+            }, 100);
+        }
+
+        // Tutup modal konfirmasi
+        function closeCancelTicketModal() {
+            const modal = document.getElementById('cancelTicketModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentTicketToCancel = null;
+        }
+
+        // Konfirmasi pembatalan tiket
+        function confirmTicketCancellation() {
+            if (!currentTicketToCancel) {
+                showToast('Data tiket tidak valid', 'error');
+                return;
+            }
+
+            const confirmBtn = document.getElementById('confirmCancelTicket');
+            const originalText = confirmBtn.innerHTML;
+
+            // Disable button dan show loading
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `
+                <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Membatalkan...
+            `;
+
+            fetch(`/api/tiket/${currentTicketToCancel.id}/batal`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Gagal membatalkan tiket');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        closeCancelTicketModal();
+                        showToast('Tiket berhasil dibatalkan', 'success');
+                        // Refresh halaman untuk update status
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        throw new Error(data.message || 'Gagal membatalkan tiket');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast(error.message || 'Terjadi kesalahan saat membatalkan tiket', 'error');
+                })
+                .finally(() => {
+                    // Restore button
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = originalText;
+                });
+        }
+
+        function viewTicketDetails(ticketId) {
+            fetch(`/wisatawan/tiket/${ticketId}/detail`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw err;
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showTicketDetailModal(data.data, data.qr_code);
+                    } else {
+                        showToast(data.message || 'Gagal memuat detail tiket', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Terjadi kesalahan saat memuat detail tiket', 'error');
+                });
+        }
+
+        function showLoading() {
+            const loader = document.createElement('div');
+            loader.id = 'loading-overlay';
+            loader.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            loader.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex justify-center">
+                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                    </div>
+                    <p class="mt-4 text-center">Memuat data...</p>
+                </div>
+            `;
+            document.body.appendChild(loader);
+        }
+
+        function hideLoading() {
+            const loader = document.getElementById('loading-overlay');
+            if (loader) {
+                loader.remove();
+            }
+        }
+
         // Simple toast notification
-        function showToast(message) {
+        function showToast(message, type = 'info') {
+            const container = document.createElement('div');
+            container.className = 'fixed top-4 right-4 z-50';
+
             const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg z-50';
-            toast.textContent = message;
-            document.body.appendChild(toast);
+            toast.className = `flex items-center w-full max-w-sm p-4 mb-4 text-gray-500 bg-white rounded-lg shadow-lg transform transition-all duration-300 ease-in-out translate-x-full opacity-0`;
+
+            let icon = '';
+            let colorClass = '';
+
+            switch (type) {
+                case 'success':
+                    colorClass = 'text-green-500';
+                    icon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>`;
+                    break;
+                case 'error':
+                    colorClass = 'text-red-500';
+                    icon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>`;
+                    break;
+                default:
+                    colorClass = 'text-blue-500';
+                    icon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>`;
+            }
+
+            toast.innerHTML = `
+                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 ${colorClass} bg-opacity-20 rounded-lg">
+                    ${icon}
+                </div>
+                <div class="ml-3 text-sm font-medium text-gray-900">${message}</div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8" onclick="this.parentElement.remove()">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            `;
+
+            container.appendChild(toast);
+            document.body.appendChild(container);
 
             setTimeout(() => {
-                toast.remove();
-            }, 3000);
+                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    container.remove();
+                }, 300);
+            }, 4000);
         }
+
 
         // Show modal if no active ticket
         document.addEventListener('DOMContentLoaded', function() {
@@ -453,6 +795,36 @@
                     });
                 }
             @endif
+
+            // Close modal buttons
+            document.getElementById('closeCancelTicketModal')?.addEventListener('click', closeCancelTicketModal);
+            document.getElementById('cancelCancelTicket')?.addEventListener('click', closeCancelTicketModal);
+
+            // Confirm cancellation button
+            document.getElementById('confirmCancelTicket')?.addEventListener('click', confirmTicketCancellation);
+
+            // Close modal when clicking outside
+            document.getElementById('cancelTicketModal')?.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCancelTicketModal();
+                }
+            });
+
+            // Close modal with ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('cancelTicketModal');
+                    if (modal && !modal.classList.contains('hidden')) {
+                        closeCancelTicketModal();
+                    }
+
+                    const detailModal = document.getElementById('ticketDetailModal');
+                    if (detailModal) {
+                        detailModal.remove();
+                        document.body.style.overflow = 'auto';
+                    }
+                }
+            });
         });
     </script>
 @endpush

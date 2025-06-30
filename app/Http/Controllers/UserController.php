@@ -107,7 +107,7 @@ class UserController extends Controller
 
         if ($ticket->status === 'sukses') {
             if ($ticket->pembayaran && $ticket->pembayaran->status === 'terverifikasi') {
-                $status = 'Lunas';
+                $status = 'Terverifikasi';
                 $badgeClass = 'bg-green-100 text-green-800';
             } else {
                 $status = 'Menunggu Konfirmasi';
