@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kapal;
+use App\Models\Tiket;
 use App\Models\Jadwal;
 use App\Models\Feedback;
 use App\Models\Penumpang;
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
+use App\Services\QrCodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
-use App\Services\QrCodeService;
 
 class AdminController extends Controller
 {
@@ -22,6 +24,60 @@ class AdminController extends Controller
     {
         $this->apiUrl = env('APP_API_URL', 'http://localhost:8000/api');
         $this->qrCodeService = $qrCodeService;
+    }
+
+    public function dashboard()
+    {
+        // Kapal aktif
+        $activeBoatsCount = Kapal::where('status', 'aktif')->count();
+        $totalBoatsCount = Kapal::count();
+
+        // Pendapatan bulan ini
+        $monthlyRevenue = Pembayaran::where('status', 'terverifikasi')
+            ->whereMonth('created_at', now()->month)
+            ->sum('jumlah_bayar');
+
+        // Total penumpang
+        $totalPassengers = Penumpang::count();
+
+        // Jadwal hari ini
+        $todaySchedules = Jadwal::with(['kapal'])
+            ->whereDate('tanggal', today())
+            ->orderBy('waktu_berangkat')
+            ->get()
+            ->map(function($schedule) {
+                $schedule->tiket_terjual = $schedule->tiket()->where('status', 'sukses')->sum('jumlah_penumpang');
+                return $schedule;
+            });
+
+        $todaySchedulesCount = $todaySchedules->count();
+
+        // Aktivitas hari ini
+        $todayPassengers = Penumpang::whereDate('created_at', today())->count();
+        $todayBookings = Tiket::whereDate('created_at', today())->count();
+        $todayRevenue = Pembayaran::where('status', 'terverifikasi')
+            ->whereDate('created_at', today())
+            ->sum('jumlah_bayar');
+
+        // Status penumpang
+        $passengerStatuses = [
+            'booked' => Penumpang::where('status', 'booked')->count(),
+            'checked_in' => Penumpang::where('status', 'checked_in')->count(),
+            'cancelled' => Penumpang::where('status', 'cancelled')->count(),
+        ];
+
+        return view('admin.dashboard', [
+            'activeBoatsCount' => $activeBoatsCount,
+            'totalBoatsCount' => $totalBoatsCount,
+            'monthlyRevenue' => $monthlyRevenue,
+            'totalPassengers' => $totalPassengers,
+            'todaySchedules' => $todaySchedules,
+            'todaySchedulesCount' => $todaySchedulesCount,
+            'todayPassengers' => $todayPassengers,
+            'todayBookings' => $todayBookings,
+            'todayRevenue' => $todayRevenue,
+            'passengerStatuses' => $passengerStatuses,
+        ]);
     }
 
     public function indexKapal()

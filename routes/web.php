@@ -61,19 +61,16 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
 Route::get('/reset-password/{token}', function ($token) {
     $email = request()->query('email');
-    $user = User::where('email', $email)
-                ->where('reset_token', $token)
-                ->first();
+    $user = User::where('email', $email)->where('reset_token', $token)->first();
 
     if (!$user) {
-        return redirect()->route('password.request')
-                         ->with('error', 'Token tidak valid atau sudah kadaluarsa');
+        return redirect()->route('password.request')->with('error', 'Token tidak valid atau sudah kadaluarsa');
     }
 
     return view('auth.reset-password', [
         'token' => $token,
         'email' => $email,
-        'user' => $user // Pastikan user dikirim ke view
+        'user' => $user, // Pastikan user dikirim ke view
     ]);
 })->name('password.reset');
 
@@ -149,9 +146,7 @@ Route::middleware(['auth.role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/schedule', [AdminController::class, 'indexSchedule'])->name('schedule');
         Route::get('/boats', [AdminController::class, 'indexKapal'])->name('boats');

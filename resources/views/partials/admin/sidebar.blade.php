@@ -89,7 +89,7 @@
                </div>
                <div class="ml-3">
                    <p class="text-sm font-medium text-gray-700">Admin</p>
-                   <p class="text-xs font-medium text-gray-500">Sanur Ferry Pass</p>
+                   <p class="text-xs font-medium text-gray-500">SanurBoat</p>
                </div>
            </div>
        </div>
