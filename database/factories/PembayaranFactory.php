@@ -18,7 +18,7 @@ class PembayaranFactory extends Factory
     public function definition(): array
     {
         $metode = $this->faker->randomElement([
-            'BCA', 'BRI', 'Mandiri', 'BNI', 'QRIS', 'DANA', 'OVO', 'Gopay'
+            'transfer', 'qris'
         ]);
 
         return [
