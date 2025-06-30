@@ -214,6 +214,28 @@ class UserController extends Controller
         }
     }
 
+    public function getRecentActivitiesForNotifications()
+    {
+        $user = auth()->user();
+        $activities = $this->getRecentActivities($user);
+
+        // Cek last read time dari localStorage (simulasi)
+        $lastRead = request()->header('X-Last-Read') ?: null;
+
+        // Hitung yang belum dibaca
+        $unreadCount = 0;
+        foreach ($activities as &$activity) {
+            $activity['read'] = $lastRead && $activity['date'] <= $lastRead;
+            if (!$activity['read']) {
+                $unreadCount++;
+            }
+        }
+
+        return response()->json([
+            'activities' => $activities,
+            'unreadCount' => $unreadCount
+        ]);
+    }
     public function __construct(QrCodeService $qrCodeService)
     {
         $this->apiUrl = env('APP_API_URL', 'http://localhost:8000/api');

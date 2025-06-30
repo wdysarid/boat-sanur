@@ -39,56 +39,166 @@
                 </a>
 
                 <!-- Notification Bell -->
-                <div class="relative" x-data="{ notificationOpen: false }">
-                    <button @click="notificationOpen = !notificationOpen" class="p-2 text-gray-600 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors relative">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM11 19H6.5A2.5 2.5 0 014 16.5v-9A2.5 2.5 0 016.5 5h11A2.5 2.5 0 0120 7.5v3.5" />
-                        </svg>
-                        <!-- Notification Badge -->
-                        <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                            {{ $unreadNotifications ?? 2 }}
-                        </span>
-                    </button>
+                <div class="relative" x-data="{
+    notificationOpen: false,
+    showAll: false,
+    activities: [],
+    unreadCount: 0,
+    loading: false,
+    init() {
+        this.fetchActivities();
+    },
+    async fetchActivities() {
+        this.loading = true;
+        try {
+            const response = await fetch('/api/activities/notifications');
+            const data = await response.json();
+            this.activities = data.activities;
+            this.unreadCount = data.unreadCount;
+        } catch (error) {
+            console.error('Error fetching activities:', error);
+        }
+        this.loading = false;
+    },
+    async markAsRead(id = null) {
+        try {
+            // Simulasi mark as read - bisa disimpan di localStorage
+            if (id) {
+                this.activities = this.activities.map(activity =>
+                    activity.id === id ? { ...activity, read: true } : activity
+                );
+                this.unreadCount = Math.max(0, this.unreadCount - 1);
+            } else {
+                this.activities = this.activities.map(activity =>
+                    ({ ...activity, read: true })
+                );
+                this.unreadCount = 0;
 
-                    <!-- Notification Dropdown -->
-                    <div x-show="notificationOpen"
-                         @click.away="notificationOpen = false"
-                         x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 scale-95"
-                         x-transition:enter-end="opacity-100 scale-100"
-                         x-transition:leave="transition ease-in duration-75"
-                         x-transition:leave-start="opacity-100 scale-100"
-                         x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-2 border border-gray-100 max-h-96 overflow-y-auto">
-                        <div class="px-4 py-2 border-b border-gray-100">
-                            <h3 class="text-sm font-semibold text-gray-900">Notifikasi</h3>
+                // Simpan status read di localStorage
+                localStorage.setItem('activitiesRead', new Date().toISOString());
+            }
+        } catch (error) {
+            console.error('Error marking activity as read:', error);
+        }
+    },
+    getRecentActivities() {
+        return this.activities.slice(0, 2);
+    }
+}">
+    <button
+        @click="notificationOpen = !notificationOpen; if (notificationOpen) markAsRead()"
+        class="p-2 text-gray-600 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors relative"
+    >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM11 19H6.5A2.5 2.5 0 014 16.5v-9A2.5 2.5 0 016.5 5h11A2.5 2.5 0 0120 7.5v3.5" />
+        </svg>
+        <!-- Notification Badge -->
+        <span
+            x-show="unreadCount > 0"
+            class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+            x-text="unreadCount"
+        ></span>
+    </button>
+
+    <!-- Notification Dropdown -->
+    <div
+        x-show="notificationOpen"
+        @click.away="notificationOpen = false"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-75"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+        class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-2 border border-gray-100 max-h-96 overflow-y-auto"
+    >
+        <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-sm font-semibold text-gray-900">Aktivitas Terbaru</h3>
+            <button
+                @click="markAsRead()"
+                class="text-xs text-blue-600 hover:text-blue-800"
+                x-show="unreadCount > 0"
+            >
+                Tandai sudah dibaca
+            </button>
+        </div>
+
+        <template x-if="loading">
+            <div class="px-4 py-6 flex justify-center">
+                <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </template>
+
+        <template x-if="!loading && activities.length === 0">
+            <div class="px-4 py-6 text-center text-sm text-gray-500">
+                Tidak ada aktivitas terbaru
+            </div>
+        </template>
+
+        <div class="divide-y divide-gray-100" x-show="!loading && activities.length > 0">
+            <template x-for="activity in (showAll ? activities : getRecentActivities())" :key="activity.id">
+                <a
+                    :href="activity.url"
+                    class="block px-4 py-3 hover:bg-gray-50 cursor-pointer"
+                    @click="markAsRead(activity.id)"
+                >
+                    <div class="flex items-start space-x-3">
+                        <div
+                            class="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                            :class="{
+                                'bg-blue-500': !activity.read,
+                                'bg-gray-300': activity.read
+                            }"
+                        ></div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-sm"
+                                :class="{
+                                    'text-gray-900': !activity.read,
+                                    'text-gray-500': activity.read
+                                }"
+                                x-text="activity.title"
+                            ></p>
+                            <p class="text-xs text-gray-500 mt-1" x-text="timeAgo(activity.date)"></p>
                         </div>
-                        <!-- Sample Notifications -->
-                        <div class="divide-y divide-gray-100">
-                            <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm text-gray-900">Pembayaran tiket TKT-12345 telah diverifikasi</p>
-                                        <p class="text-xs text-gray-500 mt-1">2 jam yang lalu</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm text-gray-900">Reminder: Keberangkatan besok pukul 08:30</p>
-                                        <p class="text-xs text-gray-500 mt-1">1 hari yang lalu</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="px-4 py-2 border-t border-gray-100">
-                            <a href="#" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Lihat semua notifikasi</a>
+                        <div class="flex-shrink-0">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
                         </div>
                     </div>
-                </div>
+                </a>
+            </template>
+        </div>
+
+        <div
+            class="px-4 py-2 border-t border-gray-100"
+            x-show="activities.length > 2 && !showAll"
+        >
+            <button
+                @click="showAll = true"
+                class="text-sm text-blue-600 hover:text-blue-800 font-medium w-full text-left"
+            >
+                Lihat semua aktivitas
+            </button>
+        </div>
+
+        <div
+            class="px-4 py-2 border-t border-gray-100"
+            x-show="showAll"
+        >
+            <button
+                @click="showAll = false"
+                class="text-sm text-blue-600 hover:text-blue-800 font-medium w-full text-left"
+            >
+                Sembunyikan
+            </button>
+        </div>
+    </div>
+</div>
 
                 <!-- Profile Dropdown -->
                 <div class="relative">
@@ -392,3 +502,30 @@
         </div>
     </div>
 </nav>
+
+<script>
+    function timeAgo(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+
+        const intervals = {
+            tahun: 31536000,
+            bulan: 2592000,
+            minggu: 604800,
+            hari: 86400,
+            jam: 3600,
+            menit: 60,
+            detik: 1
+        };
+
+        for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+            const interval = Math.floor(seconds / secondsInUnit);
+            if (interval >= 1) {
+                return interval === 1 ? `1 ${unit} yang lalu` : `${interval} ${unit} yang lalu`;
+            }
+        }
+
+        return 'Baru saja';
+    }
+</script>

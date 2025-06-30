@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\KapalController;
 use App\Http\Controllers\Api\TiketController;
 use App\Http\Controllers\api\JadwalController;
@@ -113,3 +114,5 @@ Route::prefix('feedback')->group(function () {
         ->name('feedback.handle-status');
     Route::delete('/admin/{id}', [FeedbackController::class, 'hapusFeedback']);
 });
+
+Route::get('/activities/notifications', [UserController::class, 'getRecentActivitiesForNotifications']);
