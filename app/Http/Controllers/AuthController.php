@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ResetPasswordMail;
 
 class AuthController extends Controller
 {
@@ -44,10 +46,13 @@ class AuthController extends Controller
         // Trigger email verification untuk API register juga
         event(new Registered($user));
 
-        return response()->json([
-            'data' => $user,
-            'message' => 'Registrasi berhasil! Silakan cek email untuk verifikasi.'
-        ], 201);
+        return response()->json(
+            [
+                'data' => $user,
+                'message' => 'Registrasi berhasil! Silakan cek email untuk verifikasi.',
+            ],
+            201,
+        );
     }
 
     // EXISTING FUNCTION - tidak diubah
@@ -69,10 +74,13 @@ class AuthController extends Controller
         // Check email verification untuk API login juga
         if (is_null($user->email_verified_at)) {
             Auth::logout();
-            return response()->json([
-                'message' => 'Email belum diverifikasi. Silakan cek email Anda.',
-                'email_verified' => false
-            ], 403);
+            return response()->json(
+                [
+                    'message' => 'Email belum diverifikasi. Silakan cek email Anda.',
+                    'email_verified' => false,
+                ],
+                403,
+            );
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
@@ -184,41 +192,54 @@ class AuthController extends Controller
         $request->validate(['email' => 'required|email']);
 
         $user = User::where('email', $request->email)->first();
+
         if (!$user) {
-            return response()->json(['message' => 'Email tidak terdaftar'], 404);
+            return back()->with('error', 'Email tidak terdaftar pada sistem kami.');
         }
 
-        // Generate token reset (contoh sederhana)
+        // Cek jika akun Google
+        if ($user->google_id) {
+            return back()->with('error', 'Akun ini terdaftar melalui Google. Silakan gunakan fitur login dengan Google.');
+        }
+
         $token = Str::random(60);
         $user->update(['reset_token' => $token]);
 
-        return response()->json([
-            'message' => 'Token reset telah dikirim',
-            'reset_token' => $token, // Untuk testing, di production kirim via email
-        ]);
+        try {
+            Mail::to($user->email)->send(new ResetPasswordMail($user, $token));
+            return back()->with('status', 'Link reset password telah dikirim ke email Anda. Silakan cek inbox atau folder spam.');
+        } catch (\Exception $e) {
+            Log::error('Failed to send reset password email: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengirim email reset password. Silakan coba lagi.');
+        }
     }
 
-    // EXISTING FUNCTION - tidak diubah
     public function resetPassword(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'token' => 'required',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         $user = User::where('email', $request->email)->where('reset_token', $request->token)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'Token tidak valid'], 400);
+            return back()->with('error', 'Token tidak valid atau sudah kadaluarsa');
+        }
+
+        // Pengecekan akun Google
+        if ($user->google_id) {
+            return back()->with('error', 'Akun Google tidak dapat diubah password melalui sistem ini. Silakan ubah password melalui akun Google Anda.');
         }
 
         $user->update([
             'password' => Hash::make($request->password),
             'reset_token' => null,
+            'password_changed_at' => now(),
         ]);
 
-        return response()->json(['message' => 'Password berhasil direset']);
+        return redirect()->route('login')->with('success', 'Password berhasil direset! Silakan login dengan password baru.');
     }
 
     // ========== WEB AUTHENTICATION METHODS ==========
@@ -260,9 +281,7 @@ class AuthController extends Controller
             // Auto login setelah registrasi
             Auth::login($user);
 
-            return redirect()->route('verification.notice')
-                ->with('success', 'Registrasi berhasil! Silakan cek email Anda untuk verifikasi akun.');
-
+            return redirect()->route('verification.notice')->with('success', 'Registrasi berhasil! Silakan cek email Anda untuk verifikasi akun.');
         } catch (Exception $e) {
             Log::error('Registration failed', ['error' => $e->getMessage()]);
             return back()->with('error', 'Registrasi gagal. Silakan coba lagi.')->withInput();
@@ -299,8 +318,7 @@ class AuthController extends Controller
 
         // Check if email is verified
         if (is_null($user->email_verified_at)) {
-            return redirect()->route('verification.notice')
-                ->with('warning', 'Silakan verifikasi email Anda terlebih dahulu sebelum mengakses dashboard.');
+            return redirect()->route('verification.notice')->with('warning', 'Silakan verifikasi email Anda terlebih dahulu sebelum mengakses dashboard.');
         }
 
         Log::info('Login successful', [
@@ -404,7 +422,6 @@ class AuthController extends Controller
 
             // PERUBAHAN: Gunakan method baru untuk handle redirect
             return $this->handleIntendedRedirect($newUser);
-
         } catch (Exception $e) {
             Log::error('Google OAuth Error: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -448,8 +465,7 @@ class AuthController extends Controller
                 if ($bookingIntent) {
                     // Clear session setelah digunakan
                     session()->forget(['booking_intent', 'url.intended']);
-                    return redirect()->route('wisatawan.pemesanan', $bookingIntent)
-                        ->with('success', 'Login berhasil! Silakan lanjutkan pemesanan Anda.');
+                    return redirect()->route('wisatawan.pemesanan', $bookingIntent)->with('success', 'Login berhasil! Silakan lanjutkan pemesanan Anda.');
                 }
             }
 

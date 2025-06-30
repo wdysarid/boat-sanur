@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -55,6 +56,27 @@ Route::get('/register', function (Illuminate\Http\Request $request) {
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
+
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
+Route::get('/reset-password/{token}', function ($token) {
+    $email = request()->query('email');
+    $user = User::where('email', $email)
+                ->where('reset_token', $token)
+                ->first();
+
+    if (!$user) {
+        return redirect()->route('password.request')
+                         ->with('error', 'Token tidak valid atau sudah kadaluarsa');
+    }
+
+    return view('auth.reset-password', [
+        'token' => $token,
+        'email' => $email,
+        'user' => $user // Pastikan user dikirim ke view
+    ]);
+})->name('password.reset');
+
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
 // Auth actions
 Route::post('/login', [AuthController::class, 'webLogin'])->name('login.post');
