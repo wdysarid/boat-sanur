@@ -34,7 +34,7 @@
 
                     <!-- My Tickets Link - UPDATED: Mengarah ke pemesanan tiket -->
                     @auth
-                        <a href="{{ route('wisatawan.pemesanan') }}"
+                        <a href="{{ route('wisatawan.tiket') }}"
                            class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-200"
                            data-aos="fade-down" data-aos-delay="400" data-aos-duration="600">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@
                             My Tickets
                         </a>
                     @else
-                        <a href="{{ route('login') }}?intended={{ urlencode(route('wisatawan.pemesanan')) }}"
+                        <a href="{{ route('login') }}?intended={{ urlencode(route('wisatawan.tiket')) }}"
                            class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-200"
                            data-aos="fade-down" data-aos-delay="400" data-aos-duration="600">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +168,7 @@
 
             <!-- Mobile My Tickets Link - UPDATED: Mengarah ke pemesanan tiket -->
             @auth
-                <a href="{{ route('wisatawan.pemesanan') }}"
+                <a href="{{ route('wisatawan.tiket') }}"
                    class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-all duration-200"
                    data-aos="fade-right" data-aos-delay="300" data-aos-duration="400" data-aos-anchor="#mobile-menu">
                     <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,7 +177,7 @@
                     My Tickets
                 </a>
             @else
-                <a href="{{ route('login') }}?intended={{ urlencode(route('wisatawan.pemesanan')) }}"
+                <a href="{{ route('login') }}?intended={{ urlencode(route('wisatawan.tiket')) }}"
                    class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-all duration-200"
                    data-aos="fade-right" data-aos-delay="300" data-aos-duration="400" data-aos-anchor="#mobile-menu">
                     <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
