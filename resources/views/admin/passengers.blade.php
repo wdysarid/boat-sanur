@@ -320,8 +320,10 @@
                 <div id="toast-container" class="mb-4 hidden">
                     <div id="toast-message" class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div class="flex items-center">
-                            <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                                </path>
                             </svg>
                             <span id="toast-text" class="text-green-800 font-medium"></span>
                         </div>
@@ -355,8 +357,12 @@
                     <h3 id="alertTitle" class="text-lg font-medium text-gray-900"></h3>
                 </div>
                 <p id="alertMessage" class="text-sm text-gray-500 mb-4"></p>
-                <div class="flex justify-end">
-                    <button onclick="closeAlert()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <div class="flex justify-end space-x-2">
+                    <button onclick="closeAlert()"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                        Batal
+                    </button>
+                    <button id="alertButton" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                         OK
                     </button>
                 </div>
@@ -544,33 +550,33 @@
             if (date) url += `&date=${date}`;
 
             fetch(url, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    updatePassengerTable(data.data.data || []);
-                    updatePagination(data.data);
-                    updateStats(data.stats || {});
-                    currentPage = page;
-                } else {
-                    showAlert('Error', data.message || 'Gagal memuat data penumpang', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error loading passenger data:', error);
-                showAlert('Error', 'Terjadi kesalahan saat memuat data penumpang', 'error');
-            })
-            .finally(() => {
-                hideLoading();
-            });
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        updatePassengerTable(data.data.data || []);
+                        updatePagination(data.data);
+                        updateStats(data.stats || {});
+                        currentPage = page;
+                    } else {
+                        showAlert('Error', data.message || 'Gagal memuat data penumpang', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading passenger data:', error);
+                    showAlert('Error', 'Terjadi kesalahan saat memuat data penumpang', 'error');
+                })
+                .finally(() => {
+                    hideLoading();
+                });
         }
 
         function updatePassengerTable(passengers) {
@@ -730,7 +736,7 @@
                 return;
             }
 
-            if (confirm('Apakah Anda yakin ingin melakukan check-in penumpang ini?')) {
+            showAlert('Konfirmasi', 'Apakah Anda yakin ingin melakukan check-in penumpang ini?', 'confirm', function() {
                 showLoading();
 
                 fetch(`/api/penumpang/checkin`, {
@@ -747,10 +753,10 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            showAlert('Success', 'Penumpang berhasil check-in', 'success');
+                            showAlert('Berhasil', 'Penumpang berhasil check-in', 'success');
                             loadPassengerData(currentPage);
                         } else {
-                            showAlert('Error', data.message || 'Gagal melakukan check-in', 'error');
+                            showAlert('Gagal', data.message || 'Gagal melakukan check-in', 'error');
                         }
                     })
                     .catch(error => {
@@ -760,7 +766,7 @@
                     .finally(() => {
                         hideLoading();
                     });
-            }
+            });
         }
 
         function loadJadwalOptions() {
@@ -971,7 +977,8 @@
                 textEl.className = 'text-green-800 font-medium';
             } else {
                 messageEl.className = 'bg-red-50 border border-red-200 rounded-lg p-4';
-                messageEl.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+                messageEl.querySelector('svg').innerHTML =
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
                 messageEl.querySelector('svg').className = 'w-5 h-5 text-red-600 mr-3';
                 textEl.className = 'text-red-800 font-medium';
             }
@@ -1057,11 +1064,12 @@
             document.getElementById('loading-indicator').classList.add('hidden');
         }
 
-        function showAlert(title, message, type = 'info') {
+        function showAlert(title, message, type = 'info', callback = null) {
             const modal = document.getElementById('alertModal');
             const titleEl = document.getElementById('alertTitle');
             const messageEl = document.getElementById('alertMessage');
             const iconEl = document.getElementById('alertIcon');
+            const buttonEl = document.getElementById('alertButton');
 
             titleEl.textContent = title;
             messageEl.textContent = message;
@@ -1074,30 +1082,54 @@
                 case 'success':
                     iconClass = 'bg-green-100';
                     iconHTML = `
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    `;
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            `;
+                    buttonEl.textContent = 'OK';
+                    buttonEl.className = 'px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700';
                     break;
                 case 'error':
                     iconClass = 'bg-red-100';
                     iconHTML = `
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    `;
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            `;
+                    buttonEl.textContent = 'OK';
+                    buttonEl.className = 'px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700';
+                    break;
+                case 'confirm':
+                    iconClass = 'bg-yellow-100';
+                    iconHTML = `
+                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+            `;
+                    buttonEl.textContent = 'Ya, Lanjutkan';
+                    buttonEl.className = 'px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700';
                     break;
                 default:
                     iconClass = 'bg-blue-100';
                     iconHTML = `
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    `;
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            `;
+                    buttonEl.textContent = 'OK';
+                    buttonEl.className = 'px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700';
             }
 
             iconEl.className = `flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center mr-3 ${iconClass}`;
             iconEl.innerHTML = iconHTML;
+
+            // Handle button click
+            buttonEl.onclick = function() {
+                closeAlert();
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            };
 
             modal.classList.remove('hidden');
         }

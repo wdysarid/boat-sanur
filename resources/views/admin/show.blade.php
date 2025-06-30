@@ -222,28 +222,12 @@
                             <!-- Action buttons will be populated here -->
                         </div>
                     </div>
-
-                    <!-- Notes Section -->
-                    {{-- <div class="bg-white rounded-lg shadow mt-6">
-                        <div class="p-6 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">Catatan Admin</h3>
-                        </div>
-                        <div class="p-6">
-                            <textarea id="notesTextarea" rows="4"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                placeholder="Tambahkan catatan khusus untuk penumpang ini..."></textarea>
-                            <button onclick="saveNotes()"
-                                class="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                Simpan Catatan
-                            </button>
-                        </div>
-                    </div> --}}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- QR Code Modal - IMPROVED: Optimized for simple QR codes -->
+    <!-- QR Code Modal -->
     <div id="qrCodeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg max-w-sm w-full p-6 text-center">
@@ -301,6 +285,96 @@
         </div>
     </div>
 
+    <!-- Check-in Confirmation Modal -->
+    <div id="checkinConfirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Konfirmasi Check-in
+                        </h3>
+                        <button id="closeCheckinConfirmModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="px-6 py-6">
+                    <!-- Success Icon -->
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Passenger Info -->
+                    <div id="checkinPassengerInfo" class="bg-gray-50 rounded-lg p-4 mb-6">
+                        <h4 class="font-medium text-gray-900 mb-2">Detail Penumpang:</h4>
+                        <div class="space-y-1 text-sm text-gray-600">
+                            <p><span class="font-medium">Nama:</span> <span id="checkinPassengerName">-</span></p>
+                            <p><span class="font-medium">Kode Tiket:</span> <span id="checkinTicketCode">-</span></p>
+                            <p><span class="font-medium">Rute:</span> <span id="checkinRoute">-</span></p>
+                            <p><span class="font-medium">Tanggal:</span> <span id="checkinDate">-</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Message -->
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                        <div class="flex">
+                            <svg class="w-5 h-5 text-green-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <h4 class="text-sm font-medium text-green-800 mb-1">Siap untuk Check-in!</h4>
+                                <ul class="text-sm text-green-700 space-y-1">
+                                    <li>• Penumpang akan terdaftar sebagai checked-in</li>
+                                    <li>• Status tiket akan diperbarui secara otomatis</li>
+                                    <li>• Penumpang dapat melanjutkan ke proses boarding</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Question -->
+                    <p class="text-center text-gray-700 font-medium mb-6">
+                        Apakah Anda yakin ingin melakukan check-in untuk penumpang ini?
+                    </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                    <button id="cancelCheckinConfirm"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        Batal
+                    </button>
+                    <button id="confirmCheckin"
+                        class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Ya, Check-in Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Alert Modal -->
     <div id="alertModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
@@ -323,9 +397,34 @@
     </div>
 
     <script>
+        let currentPassengerData = null;
+        let currentTicketId = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             const passengerId = window.location.pathname.split('/').pop();
             loadPassengerDetail(passengerId);
+
+            // Check-in confirmation modal event listeners
+            document.getElementById('closeCheckinConfirmModal').addEventListener('click', closeCheckinConfirmModal);
+            document.getElementById('cancelCheckinConfirm').addEventListener('click', closeCheckinConfirmModal);
+            document.getElementById('confirmCheckin').addEventListener('click', executeCheckin);
+
+            // Close modal when clicking outside
+            document.getElementById('checkinConfirmModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCheckinConfirmModal();
+                }
+            });
+
+            // Close modal with ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('checkinConfirmModal');
+                    if (!modal.classList.contains('hidden')) {
+                        closeCheckinConfirmModal();
+                    }
+                }
+            });
         });
 
         function loadPassengerDetail(passengerId) {
@@ -361,6 +460,10 @@
         }
 
         function renderPassengerDetail(passenger) {
+            // Store passenger data globally
+            currentPassengerData = passenger;
+            currentTicketId = passenger.tiket?.id;
+
             // Show content
             document.getElementById('passenger-detail-content').classList.remove('hidden');
 
@@ -383,7 +486,6 @@
 
             // Render ticket info
             document.getElementById('ticket-code').textContent = passenger.tiket?.kode_pemesanan || '-';
-            // IMPROVED: Show simple QR data format
             document.getElementById('ticket-qr').textContent = passenger.tiket?.kode_pemesanan || '-';
             document.getElementById('booking-date').textContent = passenger.tiket?.created_at ?
                 formatDateTime(passenger.tiket.created_at) : '-';
@@ -442,7 +544,7 @@
 
             if (passenger.status === 'booked') {
                 actionButtons.innerHTML = `
-            <button onclick="checkInPassenger(${passenger.tiket?.id})"
+            <button onclick="showCheckinConfirmModal()"
                 class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -566,68 +668,103 @@
             timeline.innerHTML = timelineHTML;
         }
 
-        function checkInPassenger(tiketId) {
-            if (!tiketId) {
+        // Check-in confirmation modal functions
+        function showCheckinConfirmModal() {
+            if (!currentPassengerData || !currentTicketId) {
+                showAlert('Error', 'Data penumpang tidak valid', 'error');
+                return;
+            }
+
+            // Populate modal dengan data penumpang
+            document.getElementById('checkinPassengerName').textContent = currentPassengerData.nama_lengkap;
+            document.getElementById('checkinTicketCode').textContent = currentPassengerData.tiket?.kode_pemesanan || '-';
+            document.getElementById('checkinRoute').textContent =
+                `${currentPassengerData.tiket?.jadwal?.rute_asal || '-'} → ${currentPassengerData.tiket?.jadwal?.rute_tujuan || '-'}`;
+
+            // Format tanggal
+            if (currentPassengerData.tiket?.jadwal?.tanggal) {
+                const ticketDate = new Date(currentPassengerData.tiket.jadwal.tanggal);
+                document.getElementById('checkinDate').textContent = ticketDate.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            } else {
+                document.getElementById('checkinDate').textContent = '-';
+            }
+
+            // Tampilkan modal
+            const modal = document.getElementById('checkinConfirmModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Focus pada tombol batal untuk accessibility
+            setTimeout(() => {
+                document.getElementById('cancelCheckinConfirm').focus();
+            }, 100);
+        }
+
+        function closeCheckinConfirmModal() {
+            const modal = document.getElementById('checkinConfirmModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function executeCheckin() {
+            if (!currentTicketId) {
                 showAlert('Error', 'ID tiket tidak valid', 'error');
                 return;
             }
 
-            if (confirm('Apakah Anda yakin ingin melakukan check-in penumpang ini?')) {
-                showLoading();
+            const confirmBtn = document.getElementById('confirmCheckin');
+            const originalText = confirmBtn.innerHTML;
 
-                fetch(`/api/penumpang/checkin`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({
-                            tiket_id: tiketId
-                        })
+            // Disable button dan show loading
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `
+                <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Memproses...
+            `;
+
+            fetch(`/api/penumpang/checkin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        tiket_id: currentTicketId
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showAlert('Success', 'Penumpang berhasil check-in', 'success');
-                            // Reload page data
-                            const currentPassengerId = window.location.pathname.split('/').pop();
-                            loadPassengerDetail(currentPassengerId);
-                        } else {
-                            showAlert('Error', data.message || 'Gagal melakukan check-in', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showAlert('Error', 'Terjadi kesalahan saat melakukan check-in', 'error');
-                    })
-                    .finally(() => {
-                        hideLoading();
-                    });
-            }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeCheckinConfirmModal();
+                        showAlert('Success', 'Penumpang berhasil check-in', 'success');
+                        // Reload page data
+                        const currentPassengerId = window.location.pathname.split('/').pop();
+                        loadPassengerDetail(currentPassengerId);
+                    } else {
+                        showAlert('Error', data.message || 'Gagal melakukan check-in', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Error', 'Terjadi kesalahan saat melakukan check-in', 'error');
+                })
+                .finally(() => {
+                    // Restore button
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = originalText;
+                });
         }
 
-        function updateStatus(status) {
-            const notes = document.getElementById('notesTextarea').value;
-
-            if (confirm(`Apakah Anda yakin ingin mengubah status penumpang menjadi "${status}"?`)) {
-                showAlert('Info', `Status berhasil diubah ke: ${status.toUpperCase()}`, 'success');
-                // In real implementation, you would make an AJAX call here
-                // location.reload();
-            }
-        }
-
-        function saveNotes() {
-            const notes = document.getElementById('notesTextarea').value;
-            if (notes.trim()) {
-                showAlert('Success', 'Catatan berhasil disimpan', 'success');
-                // In real implementation, make AJAX call to save notes
-            } else {
-                showAlert('Warning', 'Catatan kosong', 'error');
-            }
-        }
-
-        // IMPROVED: Show QR Code with simple format
+        // Show QR Code with simple format
         function showQrCode(kodePemesanan) {
             const modal = document.getElementById('qrCodeModal');
             const qrImage = document.getElementById('qr-code-image');
@@ -690,10 +827,9 @@
                 return;
             }
 
-            if (confirm('Apakah Anda ingin mencetak tiket penumpang?')) {
-                showAlert('Info', 'Memproses PDF tiket...', 'info');
-                window.open(`/wisatawan/tiket/${tiketId}/pdf`, '_blank');
-            }
+            showAlert('Info', 'Memproses PDF tiket...', 'info');
+            // FIXED: Use admin PDF route instead of wisatawan route
+            window.open(`/admin/tiket/${tiketId}/pdf`, '_blank');
         }
 
         // Helper functions
@@ -879,14 +1015,5 @@
         function closeAlert() {
             document.getElementById('alertModal').classList.add('hidden');
         }
-
-        // Auto-save notes every 30 seconds
-        setInterval(function() {
-            const notes = document.getElementById('notesTextarea').value;
-            if (notes.trim()) {
-                // Auto-save notes silently
-                console.log('Auto-saving notes...');
-            }
-        }, 30000);
     </script>
 @endsection
