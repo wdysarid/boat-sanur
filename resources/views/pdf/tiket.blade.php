@@ -34,38 +34,25 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        /* Header Section */
-        .header {
-            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
-            color: white;
-            padding: 2px;
+        /* Simple Header */
+        .simple-header {
+            padding: 20px;
             text-align: center;
-            position: relative;
+            border-bottom: 2px solid #0066cc;
+            background: white;
         }
 
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 10px solid #004499;
-        }
-
-        .airline-name {
-            font-size: 28px;
+        .main-title {
+            font-size: 32px;
             font-weight: bold;
-            margin: 0 0 5px 0;
-            letter-spacing: 1px;
+            color: #0066cc;
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
         }
 
         .print-date {
             font-size: 14px;
-            opacity: 0.9;
+            color: #666;
             margin: 0;
         }
 
@@ -329,9 +316,9 @@
 
 <body>
     <div class="boarding-pass">
-        <!-- Header -->
-        <div class="header">
-            <h1 class="airline-name">SANURBOAT</h1>
+        <!-- Simple Header -->
+        <div class="simple-header">
+            <h1 class="main-title">SANUR BOAT</h1>
             <p class="print-date">Tanggal Cetak: {{ $today }}</p>
         </div>
 
@@ -352,28 +339,28 @@
                         <h3 class="section-title">INFORMASI PERJALANAN</h3>
                         <div class="info-grid">
                             <div class="info-row">
-                                <div class="info-label">Kapal:</div>
-                                <div class="info-value">{{ $tiket->jadwal->kapal->nama_kapal }}</div>
+                                <div class="info-label">Kapal</div>
+                                <div class="info-value">: {{ $tiket->jadwal->kapal->nama_kapal }}</div>
                             </div>
                             <div class="info-row">
-                                <div class="info-label">Tanggal:</div>
-                                <div class="info-value">{{ \Carbon\Carbon::parse($tiket->jadwal->tanggal)->format('l, d F Y') }}</div>
+                                <div class="info-label">Tanggal</div>
+                                <div class="info-value">: {{ \Carbon\Carbon::parse($tiket->jadwal->tanggal)->format('l, d F Y') }}</div>
                             </div>
                             <div class="info-row">
-                                <div class="info-label">Keberangkatan:</div>
-                                <div class="info-value">{{ \Carbon\Carbon::parse($tiket->jadwal->waktu_berangkat)->format('H:i') }} WITA</div>
+                                <div class="info-label">Keberangkatan</div>
+                                <div class="info-value">: {{ \Carbon\Carbon::parse($tiket->jadwal->waktu_berangkat)->format('H:i') }} WITA</div>
                             </div>
                             <div class="info-row">
-                                <div class="info-label">Estimasi Tiba:</div>
-                                <div class="info-value">{{ \Carbon\Carbon::parse($tiket->jadwal->waktu_tiba)->format('H:i') }} WITA</div>
+                                <div class="info-label">Estimasi Tiba</div>
+                                <div class="info-value">: {{ \Carbon\Carbon::parse($tiket->jadwal->waktu_tiba)->format('H:i') }} WITA</div>
                             </div>
                             <div class="info-row">
-                                <div class="info-label">Penumpang:</div>
-                                <div class="info-value">{{ $tiket->jumlah_penumpang }} orang</div>
+                                <div class="info-label">Penumpang</div>
+                                <div class="info-value">: {{ $tiket->jumlah_penumpang }} orang</div>
                             </div>
                             <div class="info-row">
-                                <div class="info-label">Total Harga:</div>
-                                <div class="info-value">Rp {{ number_format($tiket->total_harga, 0, ',', '.') }}</div>
+                                <div class="info-label">Total Harga</div>
+                                <div class="info-value">:Rp {{ number_format($tiket->total_harga, 0, ',', '.') }}</div>
                             </div>
                         </div>
                     </div>
