@@ -243,16 +243,21 @@
 
             document.querySelectorAll('#status-filters button').forEach(button => {
                 button.addEventListener('click', function() {
-                    document.querySelector('#status-filters button.bg-blue-50').classList.remove(
-                        'bg-blue-50', 'text-blue-600');
-                    document.querySelector('#status-filters button.bg-blue-50').classList.add(
-                        'text-gray-600', 'hover:bg-gray-50');
+                    // Remove active class from all buttons
+                    document.querySelectorAll('#status-filters button').forEach(btn => {
+                        btn.classList.remove('bg-blue-50', 'text-blue-600');
+                        btn.classList.add('text-gray-600', 'hover:bg-gray-50');
+                    });
 
+                    // Add active class to clicked button
                     this.classList.remove('text-gray-600', 'hover:bg-gray-50');
                     this.classList.add('bg-blue-50', 'text-blue-600');
-                    loadPaymentData();
+
+                    // Reload data with new filter
+                    loadPaymentData(1); // Reset to page 1 when changing filter
                 });
             });
+
 
             document.getElementById('confirmApprovalBtn').addEventListener('click', function() {
                 if (currentPaymentId && !isProcessing) {
@@ -314,6 +319,8 @@
             const status = document.querySelector('#status-filters button.bg-blue-50').dataset.status;
             const search = document.getElementById('search-payment').value;
 
+            showLoading();
+
             fetch(`/admin/payments/data?status=${status}&search=${search}&page=${page}`, {
                     headers: {
                         'Accept': 'application/json',
@@ -331,7 +338,7 @@
                     console.log('Payment data loaded:', data);
                     if (data.success) {
                         updatePaymentTable(data.data || []);
-                        updatePagination(data);
+                        updatePagination(data, status, search);
                     } else {
                         console.error('Error:', data.message);
                         showAlert('Gagal memuat data: ' + (data.message || 'Unknown error'), 'error');
@@ -340,6 +347,9 @@
                 .catch(error => {
                     console.error('Error loading payment data:', error);
                     showAlert('Terjadi kesalahan saat memuat data pembayaran', 'error');
+                })
+                .finally(() => {
+                    hideLoading();
                 });
         }
 
@@ -413,33 +423,30 @@
             });
         }
 
-        function updatePagination(data) {
+        function updatePagination(data, status, search) {
             const paginationContainer = document.getElementById('pagination-container');
             paginationContainer.innerHTML = '';
 
-            // Jika tidak ada data atau hanya 1 halaman, tidak perlu tampilkan pagination
             if (!data || data.last_page <= 1) {
                 return;
             }
 
-            // Text showing current range
             const showingText = `
         <div class="text-sm text-gray-700 hidden sm:block">
             Menampilkan <span class="font-medium">${data.from || 0}</span> sampai <span class="font-medium">${data.to || 0}</span> dari <span class="font-medium">${data.total || 0}</span> pembayaran
         </div>
     `;
 
-            // Previous button
+            // Previous button - pertahankan filter saat berpindah halaman
             const prevButton = data.prev_page_url ?
                 `<button onclick="loadPaymentData(${data.current_page - 1})" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">Sebelumnya</button>` :
                 `<button disabled class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-400 cursor-not-allowed">Sebelumnya</button>`;
 
-            // Next button
+            // Next button - pertahankan filter saat berpindah halaman
             const nextButton = data.next_page_url ?
                 `<button onclick="loadPaymentData(${data.current_page + 1})" class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">Selanjutnya</button>` :
                 `<button disabled class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-400 cursor-not-allowed">Selanjutnya</button>`;
 
-            // Page numbers
             let pageNumbers = '';
             const maxVisiblePages = 5;
             let startPage, endPage;
@@ -461,7 +468,7 @@
                 }
             }
 
-            // Generate page numbers
+            // Generate page numbers dengan pertahankan filter
             for (let i = startPage; i <= endPage; i++) {
                 pageNumbers += `
             <button onclick="loadPaymentData(${i})"
@@ -769,52 +776,52 @@
                              onerror="this.src='https://via.placeholder.com/400x500?text=Gambar+Tidak+Ditemukan'">
                     </div>
                     ${payment.bukti_transfer_url ? `
-                                <div class="flex justify-center mb-4">
-                                    <a href="${payment.bukti_transfer_url}" target="_blank" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                        <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        Unduh Bukti Pembayaran
-                                    </a>
-                                </div>
-                                ` : ''}
+                                    <div class="flex justify-center mb-4">
+                                        <a href="${payment.bukti_transfer_url}" target="_blank" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                            <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Unduh Bukti Pembayaran
+                                        </a>
+                                    </div>
+                                    ` : ''}
 
                     <!-- Tambahkan tombol aksi jika status masih menunggu -->
                     ${payment.status === 'menunggu' ? `
-                                <div class="mt-6 flex flex-col gap-2">
-                                    <button data-action="approve" data-payment-id="${payment.id}" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
-                                        <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Verifikasi Pembayaran
-                                    </button>
-                                    <button data-action="reject" data-payment-id="${payment.id}" class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                                        <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        Tolak Pembayaran
-                                    </button>
-                                </div>
-                            ` : payment.status === 'terverifikasi' ? `
-                                <div class="mt-6 p-4 bg-green-50 rounded-lg">
-                                    <div class="flex items-center">
-                                        <svg class="h-5 w-5 text-green-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        <span class="text-sm font-medium text-green-800">Pembayaran telah diverifikasi</span>
+                                    <div class="mt-6 flex flex-col gap-2">
+                                        <button data-action="approve" data-payment-id="${payment.id}" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                            <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Verifikasi Pembayaran
+                                        </button>
+                                        <button data-action="reject" data-payment-id="${payment.id}" class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                            <svg class="h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            Tolak Pembayaran
+                                        </button>
                                     </div>
-                                    <p class="text-sm text-green-700 mt-1">E-tiket telah dikirim ke email pelanggan</p>
-                                </div>
-                            ` : payment.status === 'ditolak' ? `
-                                <div class="mt-6 p-4 bg-red-50 rounded-lg">
-                                    <div class="flex items-center">
-                                        <svg class="h-5 w-5 text-red-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        <span class="text-sm font-medium text-red-800">Pembayaran ditolak</span>
+                                ` : payment.status === 'terverifikasi' ? `
+                                    <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                                        <div class="flex items-center">
+                                            <svg class="h-5 w-5 text-green-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span class="text-sm font-medium text-green-800">Pembayaran telah diverifikasi</span>
+                                        </div>
+                                        <p class="text-sm text-green-700 mt-1">E-tiket telah dikirim ke email pelanggan</p>
                                     </div>
-                                </div>
-                            ` : ''}
+                                ` : payment.status === 'ditolak' ? `
+                                    <div class="mt-6 p-4 bg-red-50 rounded-lg">
+                                        <div class="flex items-center">
+                                            <svg class="h-5 w-5 text-red-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            <span class="text-sm font-medium text-red-800">Pembayaran ditolak</span>
+                                        </div>
+                                    </div>
+                                ` : ''}
                 </div>
             </div>
             `;
