@@ -224,7 +224,7 @@
                     </div>
 
                     <!-- Notes Section -->
-                    <div class="bg-white rounded-lg shadow mt-6">
+                    {{-- <div class="bg-white rounded-lg shadow mt-6">
                         <div class="p-6 border-b border-gray-200">
                             <h3 class="text-lg font-medium text-gray-900">Catatan Admin</h3>
                         </div>
@@ -237,7 +237,7 @@
                                 Simpan Catatan
                             </button>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
@@ -470,20 +470,6 @@
             Print Ticket
         </button>
     `;
-
-            // Add cancel button if applicable
-            if (passenger.status !== 'cancelled' && passenger.status !== 'completed') {
-                actionButtons.innerHTML += `
-            <hr class="my-4">
-            <button onclick="updateStatus('cancelled')"
-                    class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center justify-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                Cancel Ticket
-            </button>
-        `;
-            }
         }
 
         function renderActivityTimeline(passenger) {
