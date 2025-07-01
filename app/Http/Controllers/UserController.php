@@ -149,15 +149,19 @@ class UserController extends Controller
         $ticketActivities = Tiket::with(['jadwal', 'pembayaran'])
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
-            ->take(5)
+            ->take(10) // Ambil lebih banyak untuk notifikasi
             ->get()
             ->map(function ($ticket) {
                 return [
+                    'id' => 'ticket_' . $ticket->id,
                     'type' => 'tiket',
                     'title' => $this->getTicketActivityTitle($ticket),
+                    'description' => $this->getTicketActivityDescription($ticket),
                     'date' => $ticket->created_at,
                     'icon' => $this->getTicketActivityIcon($ticket),
                     'color' => $this->getTicketActivityColor($ticket),
+                    'url' => route('wisatawan.tiket.detail', $ticket->id),
+                    'read' => false, // Default belum dibaca
                 ];
             });
 
@@ -169,8 +173,13 @@ class UserController extends Controller
             return $b['date'] <=> $a['date'];
         });
 
-        // Ambil hanya 5 terbaru
-        return array_slice($activities, 0, 5);
+        return $activities;
+    }
+    
+    private function getTicketActivityDescription($ticket)
+    {
+        return "{$ticket->jadwal->rute_asal} → {$ticket->jadwal->rute_tujuan} • " .
+               Carbon::parse($ticket->jadwal->tanggal)->format('d M Y');
     }
 
     private function getTicketActivityTitle($ticket)
@@ -214,28 +223,40 @@ class UserController extends Controller
         }
     }
 
-    public function getRecentActivitiesForNotifications()
+    public function getNotifications()
     {
         $user = auth()->user();
         $activities = $this->getRecentActivities($user);
 
-        // Cek last read time dari localStorage (simulasi)
-        $lastRead = request()->header('X-Last-Read') ?: null;
-
-        // Hitung yang belum dibaca
+        // Hitung yang belum dibaca (simulasi dengan session atau bisa pakai localStorage di frontend)
+        $lastReadTime = session('notifications_last_read', now()->subDays(7));
         $unreadCount = 0;
+
         foreach ($activities as &$activity) {
-            $activity['read'] = $lastRead && $activity['date'] <= $lastRead;
+            $activity['read'] = Carbon::parse($activity['date'])->lte($lastReadTime);
             if (!$activity['read']) {
                 $unreadCount++;
             }
         }
 
         return response()->json([
+            'success' => true,
             'activities' => $activities,
             'unreadCount' => $unreadCount
         ]);
     }
+
+    // Method untuk mark as read
+    public function markNotificationsAsRead()
+    {
+        session(['notifications_last_read' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifikasi telah ditandai sebagai sudah dibaca'
+        ]);
+    }
+
     public function __construct(QrCodeService $qrCodeService)
     {
         $this->apiUrl = env('APP_API_URL', 'http://localhost:8000/api');

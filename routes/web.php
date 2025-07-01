@@ -223,10 +223,15 @@ Route::middleware(['auth.role:wisatawan', 'verified.email'])
 
         Route::get('/tiket/{id}/pdf', [TiketPdfController::class, 'generatePdf'])->name('tiket.pdf');
         Route::get('/tiket/{id}/preview', [TiketPdfController::class, 'previewPdf'])->name('tiket.preview');
+
         // PDF Routes
         Route::get('/tiket/{tiket}/pdf', [TiketPdfController::class, 'generatePdf'])->name('tiket.pdf');
         Route::get('/tiket/{tiket}/preview', [TiketPdfController::class, 'previewPdf'])->name('tiket.preview');
         Route::post('/tiket/{id}/batal', [UserController::class, 'batalkanTiket'])->name('tiket.batal');
+
+        // Routes untuk notifikasi sederhana
+        Route::get('/notifications', [UserController::class, 'getNotifications'])->name('notifications');
+        Route::post('/notifications/mark-read', [UserController::class, 'markNotificationsAsRead'])->name('notifications.mark-read');
     });
 
 Route::prefix('api')
