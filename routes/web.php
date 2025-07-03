@@ -149,9 +149,7 @@ Route::middleware(['auth.role:admin'])
         Route::get('/schedule', [AdminController::class, 'indexSchedule'])->name('schedule');
         Route::get('/boats', [AdminController::class, 'indexKapal'])->name('boats');
 
-        Route::get('/payments', function () {
-            return view('admin.payments');
-        })->name('payments');
+        Route::get('/payments', [AdminController::class, 'indexPayments'])->name('payments');
 
         Route::get('/payments/data', [AdminController::class, 'getPaymentData'])->name('payments.data');
 

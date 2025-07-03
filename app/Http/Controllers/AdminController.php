@@ -90,6 +90,19 @@ class AdminController extends Controller
         return view('admin.schedule');
     }
 
+    public function indexPayments()
+    {
+        $stats = [
+            'total' => Pembayaran::count(),
+            'verified' => Pembayaran::where('status', 'terverifikasi')->count(),
+            'pending' => Pembayaran::where('status', 'menunggu')->count(),
+            'rejected' => Pembayaran::where('status', 'ditolak')->count(),
+            'cancelled' => Pembayaran::where('status', 'dibatalkan')->count(),
+        ];
+
+        return view('admin.payments', compact('stats'));
+    }
+
     public function indexFeedback()
     {
         return view('admin.feedback')->with([

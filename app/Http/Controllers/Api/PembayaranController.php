@@ -223,27 +223,6 @@ class PembayaranController extends Controller
         }
     }
 
-    //Get data pembayaran (GAGAL ANJAY)
-    public function getPaymentStatistics()
-    {
-        $totalPayments = Pembayaran::count();
-        $verifiedPayments = Pembayaran::where('status', 'terverifikasi')->count();
-        $pendingPayments = Pembayaran::where('status', 'menunggu')->count();
-        $rejectedPayments = Pembayaran::where('status', 'ditolak')->count();
-        $cancelledPayments = Pembayaran::where('status', 'dibatalkan')->count();
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'total' => $totalPayments,
-                'verified' => $verifiedPayments,
-                'pending' => $pendingPayments,
-                'rejected' => $rejectedPayments,
-                'cancelled' => $cancelledPayments
-            ]
-        ]);
-    }
-
     /**
      * PERBAIKAN: Send e-ticket email dengan QR Code sederhana
      */
