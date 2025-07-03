@@ -92,6 +92,7 @@ Route::prefix('pembayaran')->middleware(['web', 'auth'])->group(function () {
 
     // Admin routes
     Route::post('/{id}/verifikasi', [PembayaranController::class, 'verifikasiPembayaran']);
+    Route::get('/semua', [PembayaranController::class, 'getPaymentStatistics']); //gagal nok
 });
 
 // Feedback Routes

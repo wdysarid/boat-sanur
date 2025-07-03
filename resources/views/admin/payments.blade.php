@@ -20,6 +20,76 @@
         </div>
     </div>
 
+    <!-- Statistics Section -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-800">Statistik Pembayaran</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Total Pembayaran -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-sm font-medium text-blue-800">Total Pembayaran</h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-bold text-blue-800" id="totalPayments">0</p>
+                    <p class="text-sm text-blue-600">Semua pembayaran</p>
+                </div>
+
+                <!-- Diverifikasi -->
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-sm font-medium text-green-800">Diverifikasi</h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-bold text-green-800" id="verifiedPayments">0</p>
+                    <p class="text-sm text-green-600">Sudah diverifikasi</p>
+                </div>
+
+                <!-- Menunggu -->
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-sm font-medium text-yellow-800">Menunggu</h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-bold text-yellow-800" id="pendingPayments">0</p>
+                    <p class="text-sm text-yellow-600">Menunggu verifikasi</p>
+                </div>
+
+                <!-- Ditolak -->
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-sm font-medium text-orange-800">Ditolak</h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-bold text-orange-800" id="rejectedPayments">0</p>
+                    <p class="text-sm text-orange-600">Pembayaran ditolak</p>
+                </div>
+
+                <!-- Dibatalkan -->
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-sm font-medium text-red-800">Dibatalkan</h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-bold text-red-800" id="cancelledPayments">0</p>
+                    <p class="text-sm text-red-600">Pembayaran dibatalkan</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-white rounded-lg shadow mb-6">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-800">Daftar Pembayaran</h3>
@@ -223,6 +293,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Load initial data
+            loadPaymentStatistics();
             loadPaymentData();
 
             // Setup event listeners
@@ -910,6 +981,86 @@
                     isProcessing = false;
                     setButtonLoading(buttonId, false);
                 });
+        }
+
+        //payment statistik GAGAL
+                function loadPaymentStatistics() {
+            fetch('/admin/payments/', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('totalPayments').textContent = data.data.total;
+                    document.getElementById('verifiedPayments').textContent = data.data.verified;
+                    document.getElementById('pendingPayments').textContent = data.data.pending;
+                    document.getElementById('rejectedPayments').textContent = data.data.rejected;
+                    document.getElementById('cancelledPayments').textContent = data.data.cancelled;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading payment statistics:', error);
+            });
+        }
+
+        // Update the processPaymentStatus function to reload statistics
+        function processPaymentStatus(paymentId, action) {
+            if (isProcessing) return;
+
+            isProcessing = true;
+            const buttonId = action === 'verifikasi' ? 'confirmApprovalBtn' : 'confirmRejectionBtn';
+            setButtonLoading(buttonId, true);
+
+            fetch(`/api/pembayaran/${paymentId}/verifikasi`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    status: action === 'verifikasi' ? 'terverifikasi' : 'ditolak'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (action === 'verifikasi') {
+                        closeApprovalModal();
+                    } else {
+                        closeRejectionModal();
+                    }
+                    closeDetailModal();
+
+                    const message = action === 'verifikasi' ?
+                        'Pembayaran berhasil diverifikasi dan e-tiket telah dikirim ke email pelanggan' :
+                        'Pembayaran berhasil ditolak';
+                    showAlert(message, 'success');
+
+                    // Refresh both the data and statistics
+                    loadPaymentData();
+                    loadPaymentStatistics();
+                } else {
+                    throw new Error(data.message || 'Gagal memperbarui status pembayaran');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Terjadi kesalahan: ' + error.message, 'error');
+            })
+            .finally(() => {
+                isProcessing = false;
+                setButtonLoading(buttonId, false);
+            });
         }
 
         function showAlert(message, type = 'success') {
