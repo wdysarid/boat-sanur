@@ -11,22 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama');
-            $table->string('no_telp');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('foto_user')->nullable();
-            $table->string('role')->default('wisatawan');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('reset_token')->nullable();
-            $table->timestamp('password_changed_at')->nullable();
-            $table->string('google_id')->nullable();
-            $table->string('avatar')->nullable();
-            $table->rememberToken();
-            $table->timestamps();
-        });
+    Schema::create('user', function (Blueprint $table) {
+        $table->id();
+        $table->string('nama', 100);
+        $table->string('no_telp', 15);
+        $table->string('email', 150)->unique();
+        $table->string('password', 255);
+        $table->string('foto_user', 255)->nullable();
+        $table->enum('role', ['admin', 'wisatawan'])->default('wisatawan');
+        $table->timestamp('email_verified_at')->nullable();
+        $table->string('reset_token', 255)->nullable();
+        $table->timestamp('password_changed_at')->nullable();
+        $table->string('google_id', 255)->nullable();
+        $table->string('avatar', 255)->nullable();
+        $table->rememberToken(); // default-nya VARCHAR(100)
+        $table->timestamps();
+    });
+
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
