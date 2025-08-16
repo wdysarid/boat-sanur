@@ -44,17 +44,6 @@ class DatabaseSeeder extends Seeder
             // 'remember_token' => Str::random(100),
         ]);
 
-        // Akun user
-        User::create([
-            'nama' => 'Widyasari Damayanti',
-            'email' => 'widyasaridamayanti@gmail.com',
-            'no_telp' => '081238267420',
-            'password' => Hash::make('wdy123'),
-            'role' => 'wisatawan',
-            'email_verified_at' => '2025-06-24 00:00:00', // Set tanggal verifikasi email
-            // 'remember_token' => Str::random(100),
-        ]);
-
         // Buat 10 user wisatawan
         $users = User::factory(10)->create();
 
